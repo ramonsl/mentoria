@@ -423,14 +423,16 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] e2e desktop: os 2 planos, preços e CTAs aparecem corretamente
-- [ ] e2e mobile (viewport < 768px): planos empilhados, sem scroll horizontal, CTAs visíveis
-- [ ] e2e: aviso legal de 7 dias visível na página de planos
-- [ ] Gate check passa: `npm run test:e2e`
+- [x] e2e desktop: os 2 planos, preços e CTAs aparecem corretamente
+- [x] e2e mobile (viewport < 768px): planos empilhados, sem scroll horizontal, CTAs visíveis
+- [x] e2e: aviso legal de 7 dias visível na página de planos
+- [x] Gate check passa: `npm run test:e2e`
 
 **Tests**: e2e
 **Gate**: full
 **Commit**: `feat(ui): assemble landing page`
+
+**Status**: ✅ Complete
 
 ---
 
