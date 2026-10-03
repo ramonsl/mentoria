@@ -1318,11 +1318,13 @@ T49 → T51
 - Skill: NONE
 
 **Done when**:
-- [ ] Renderiza as duas colunas de dores de `content/conversion.ts`
+- [x] Renderiza as duas colunas de dores de `content/conversion.ts`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(ui): add pain points section component`
+
+**Status**: ✅ Complete
 
 ---
 
