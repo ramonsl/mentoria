@@ -1364,13 +1364,15 @@ T49 → T51
 - Skill: NONE
 
 **Done when**:
-- [ ] Renderiza as 4 recomendações com nome, cargo e texto
-- [ ] Cada card linka para o LinkedIn (MENT-40)
-- [ ] Título/subtítulo da seção aparecem como escritos em `content.md` §7 (rotulagem honesta)
+- [x] Renderiza as 4 recomendações com nome, cargo e texto
+- [x] Cada card linka para o LinkedIn (MENT-40)
+- [x] Título/subtítulo da seção aparecem como escritos em `content.md` §7 (rotulagem honesta)
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(ui): add testimonials section component`
+
+**Status**: ✅ Complete
 
 ---
 
