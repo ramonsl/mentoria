@@ -269,24 +269,24 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | MENT-20 | P1: Confirmação pós-pagamento | Design | Pending |
 | MENT-21 | P1: Confirmação pós-pagamento | Design | Pending |
 | MENT-22 | P1: Página de obrigado | Design | Pending |
-| MENT-29 | P2: Hero, rodapé e privacidade | Design | Pending |
-| MENT-30 | P2: Hero, rodapé e privacidade | Design | Pending |
-| MENT-31 | P2: Hero, rodapé e privacidade | Design | Pending |
-| MENT-32 | P2: Hero, rodapé e privacidade | Design | Pending |
-| MENT-33 | P2: Hero, rodapé e privacidade | Design | Pending |
-| MENT-23 | P2: Sobre o mentor | - | Pending |
-| MENT-24 | P2: FAQ | - | Pending |
-| MENT-25 | P2: Lista de inscrições | - | Pending |
+| MENT-29 | P2: Hero, rodapé e privacidade | Implementing | ✅ Verified |
+| MENT-30 | P2: Hero, rodapé e privacidade | Implementing | ✅ Verified |
+| MENT-31 | P2: Hero, rodapé e privacidade | Implementing | ✅ Verified |
+| MENT-32 | P2: Hero, rodapé e privacidade | Implementing | ✅ Verified |
+| MENT-33 | P2: Hero, rodapé e privacidade | Implementing | ✅ Verified |
+| MENT-23 | P2: Sobre o mentor | Implementing | ✅ Verified |
+| MENT-24 | P2: FAQ | Implementing | ✅ Verified |
+| MENT-25 | P2: Lista de inscrições | Implementing | ✅ Verified |
 | MENT-26 | P2: Analytics de conversão | - | Pending |
-| MENT-27 | P2: Recomendações de ex-alunos | - | Pending |
+| MENT-27 | P2: Recomendações de ex-alunos | Implementing | ✅ Verified |
 | MENT-28 | P3: Formulário de triagem | - | Pending |
-| MENT-34 | P2: Reforço de conversão | - | Pending |
-| MENT-35 | P2: Reforço de conversão | - | Pending |
-| MENT-36 | P2: Reforço de conversão | - | Pending |
-| MENT-37 | P2: Reforço de conversão | - | Pending |
-| MENT-38 | P2: Reforço de conversão | - | Pending |
-| MENT-39 | P2: Reforço de conversão | - | Pending |
-| MENT-40 | P2: Recomendações de ex-alunos | - | Pending |
+| MENT-34 | P2: Reforço de conversão | Implementing | ✅ Verified |
+| MENT-35 | P2: Reforço de conversão | Implementing | ✅ Verified |
+| MENT-36 | P2: Reforço de conversão | Implementing | ✅ Verified |
+| MENT-37 | P2: Reforço de conversão | Implementing | ✅ Verified |
+| MENT-38 | P2: Reforço de conversão | Implementing | ✅ Verified |
+| MENT-39 | P2: Reforço de conversão | Implementing | ✅ Verified |
+| MENT-40 | P2: Recomendações de ex-alunos | Implementing | ✅ Verified |
 
 **ID format:** `MENT-[NUMBER]`
 
