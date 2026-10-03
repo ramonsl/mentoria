@@ -672,14 +672,18 @@ T28
 - Skill: NONE
 
 **Done when**:
-- [ ] `sendMenteeConfirmation` envia ao e-mail do mentorando com assunto/corpo de `content/emails.ts` §10.1
-- [ ] `sendMentorNewEnrollmentAlert` envia ao `MENTOR_EMAIL` tanto para `primeira-vaga` quanto para `proximo-nivel`, com os dados corretos (§10.2)
-- [ ] `sendMentorExpirationAlert` envia ao `MENTOR_EMAIL` com os dados corretos (§10.3)
-- [ ] Gate check passa: `npm run test`
+- [x] `sendMenteeConfirmation` envia ao e-mail do mentorando com assunto/corpo de `content/emails.ts` §10.1
+- [x] `sendMentorNewEnrollmentAlert` envia ao `MENTOR_EMAIL` tanto para `primeira-vaga` quanto para `proximo-nivel`, com os dados corretos (§10.2)
+- [x] `sendMentorExpirationAlert` envia ao `MENTOR_EMAIL` com os dados corretos (§10.3)
+- [x] Gate check passa: `npm run test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(email): add transactional email templates`
+
+**Status**: ✅ Complete
+
+> **Nota de implementação**: `vitest.config.ts` precisou adicionar `emails/**/*.test.ts` ao `include` (a Test Coverage Matrix já previa esse location pattern, mas T3 nunca tinha criado a pasta `emails/`) - sem isso o gate `npm run test` não executaria os testes desta task. Mesmo raciocínio de T6 (adicionar `@supabase/supabase-js` ao `package.json`): infraestrutura necessária para a própria task passar no gate, não escopo extra.
 
 ---
 
