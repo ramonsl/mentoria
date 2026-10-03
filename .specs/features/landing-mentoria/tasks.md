@@ -92,7 +92,7 @@ T17 → T18 → T19 → T20
 ### Phase 7: E-mails + obrigado (P1)
 
 ```
-T21 → T22 → T23
+T21 → T22 → T23 → T27
 T24
 ```
 
@@ -100,6 +100,12 @@ T24
 
 ```
 T25 → T26
+```
+
+### Phase 9: Correção - atribuição de plano
+
+```
+T28
 ```
 
 ---
@@ -721,6 +727,30 @@ T25 → T26
 
 ---
 
+#### T27: Conectar o endpoint do webhook ao processamento real
+
+**What**: Modificar `app/api/webhooks/asaas/route.ts` para, depois de gravar um evento NOVO (não duplicado) via `lib/webhook-events.ts`, chamar `processCheckoutEvent` (`lib/process-checkout-event.ts`) com esse evento. **Gap identificado no lote 3**: T18 só valida e grava o evento no log - nunca dispara a criação da inscrição nem os e-mails. Sem esta task, o ciclo de confirmação pós-pagamento (MENT-10 a MENT-21) fica implementado e testado isoladamente, mas nunca roda de ponta a ponta em produção.
+**Where**: `app/api/webhooks/asaas/route.ts`
+**Depends on**: T18, T23
+**Reuses**: `lib/webhook-events.ts`, `lib/process-checkout-event.ts`
+**Requirement**: MENT-10, MENT-11, MENT-12, MENT-14, MENT-15, MENT-17
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] `POST /api/webhooks/asaas` com um `CHECKOUT_PAID` válido cria a inscrição E dispara os e-mails corretos (não só grava o log do evento)
+- [ ] Evento duplicado (mesmo event id) não reprocessa `processCheckoutEvent` nem reenvia e-mail
+- [ ] Token inválido continua retornando 401 sem chamar `processCheckoutEvent`
+- [ ] Gate check passa: `npm run test`
+
+**Tests**: integration
+**Gate**: full
+**Commit**: `fix(webhook): wire the webhook route to actually process payment events`
+
+---
+
 ### Phase 8: Expiração (cron) (P1)
 
 #### T25: Endpoint de varredura de expiração
@@ -770,10 +800,36 @@ T25 → T26
 
 ---
 
+### Phase 9: Correção - atribuição de plano
+
+#### T28: Identificar o plano por externalReference, não pelo nome do item
+
+**What**: `lib/asaas.ts` passa a enviar `externalReference` com o slug do plano (`primeira-vaga`/`proximo-nivel`) na criação do checkout; `lib/process-checkout-event.ts` passa a ler esse campo do evento de webhook para identificar o plano, em vez de inferir pelo texto do nome do item. **Fragilidade identificada no lote 3**: a implementação atual casa o plano pelo `name` do item ecoado no webhook - se o texto de marketing do plano mudar em `content/plans.ts` (o nome ainda nem está confirmado como definitivo no spec), a atribuição de plano quebra silenciosamente.
+**Where**: `lib/asaas.ts`
+**Depends on**: T14, T20
+**Reuses**: `lib/process-checkout-event.ts`
+**Requirement**: MENT-04, MENT-10
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] `createCheckout` inclui `externalReference` = slug do plano (`primeira-vaga`/`proximo-nivel`) no payload do Asaas
+- [ ] `processCheckoutEvent` identifica o plano pelo `externalReference` do evento, não mais pelo texto do nome do item
+- [ ] Teste cobrindo que uma mudança no texto do nome do item (`content/plans.ts`) não quebra a identificação do plano
+- [ ] Gate check passa: `npm run test`
+
+**Tests**: unit
+**Gate**: full
+**Commit**: `fix(checkout): identify plan via externalReference instead of item name`
+
+---
+
 ## Phase Execution Map
 
 ```
-Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7 → Phase 8
+Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7 → Phase 8 → Phase 9
 
 Phase 1:  T1 → T2 → T6
           T1 → T3
@@ -786,14 +842,15 @@ Phase 4:  T11 → T13
           T12 → T13
 Phase 5:  T14 → T15 → T16
 Phase 6:  T17 → T18 → T19 → T20
-Phase 7:  T21 → T22 → T23
+Phase 7:  T21 → T22 → T23 → T27
           T24
 Phase 8:  T25 → T26
+Phase 9:  T28
 ```
 
-Execution is strictly sequential within each phase - a single agent (or batch worker) works one task at a time, in the order listed above. Cross-phase dependencies (e.g., T7 depends on T1, T14 depends on T7) are backward-only and enforced by the phase order itself, not re-drawn here.
+Execution is strictly sequential within each phase - a single agent (or batch worker) works one task at a time, in the order listed above. Cross-phase dependencies (e.g., T7 depends on T1, T14 depends on T7, T27 depends on T18) are backward-only and enforced by the phase order itself, not re-drawn here.
 
-**26 tasks total → packs into 4 batches** (whole phases, cut never splits a phase): Batch 1 = Phases 1-2 (T1-T7, 7 tasks), Batch 2 = Phases 3-4 (T8-T13, 6 tasks), Batch 3 = Phases 5-6 (T14-T20, 7 tasks), Batch 4 = Phases 7-8 (T21-T26, 6 tasks).
+**28 tasks total → packs into 4 batches** (whole phases, cut never splits a phase): Batch 1 = Phases 1-2 (T1-T7, 7 tasks), Batch 2 = Phases 3-4 (T8-T13, 6 tasks), Batch 3 = Phases 5-6 (T14-T20, 7 tasks), Batch 4 = Phases 7-9 (T21-T28, 8 tasks) - Phase 9 is a 1-task tail folded into Batch 4 rather than spawning a 5th batch.
 
 ---
 
@@ -827,6 +884,8 @@ Execution is strictly sequential within each phase - a single agent (or batch wo
 | T24: app/obrigado/page.tsx | 1 arquivo | ✅ Granular |
 | T25: cron route | 1 endpoint | ✅ Granular |
 | T26: vercel.json | 1 arquivo | ✅ Granular |
+| T27: Wire webhook→processamento | 1 arquivo (route.ts, modificação) | ✅ Granular |
+| T28: externalReference | 1 arquivo (lib/asaas.ts, + ponto de leitura em process-checkout-event.ts) | ⚠️ OK - mesmo bug, duas pontas do mesmo contrato |
 
 ---
 
@@ -860,6 +919,8 @@ Execution is strictly sequential within each phase - a single agent (or batch wo
 | T24 | T14 (cross-fase), T7 (cross-fase) | - (fora do escopo do diagrama da Fase 7) | ✅ Match |
 | T25 | T9 (cross-fase), T22 (cross-fase), T2 (cross-fase) | - (fora do escopo do diagrama da Fase 8) | ✅ Match |
 | T26 | T25 | T25→T26 | ✅ Match |
+| T27 | T18 (cross-fase), T23 | T23→T27 | ✅ Match |
+| T28 | T14 (cross-fase), T20 (cross-fase) | - (fora do escopo do diagrama da Fase 9) | ✅ Match |
 
 **Rules reminder**: cross-phase dependencies are enforced by phase order (no task above depends on a later phase), not by diagram arrows - arrows only represent intra-phase edges, per `validate_tasks.py`'s own scope.
 
@@ -895,5 +956,7 @@ Execution is strictly sequential within each phase - a single agent (or batch wo
 | T24 | Página | e2e | e2e | ✅ OK |
 | T25 | API route | integration | integration | ✅ OK |
 | T26 | Config (deploy) | none | none | ✅ OK |
+| T27 | API route | integration | integration | ✅ OK |
+| T28 | lib (domínio) | unit | unit | ✅ OK |
 
 Nenhuma violação - nenhuma task usa "testado em outra task" como justificativa para `Tests: none`; todo `none` corresponde a uma linha `none` da matriz.
