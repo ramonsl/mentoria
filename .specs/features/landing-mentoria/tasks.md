@@ -942,12 +942,14 @@ T40 → T41
 - Skill: NONE
 
 **Done when**:
-- [ ] Renderiza eyebrow, título, subtítulo e selo de confiança de `HERO_COPY`
-- [ ] CTA primário é um link para `#planos`; CTA secundário é um link para `#sobre`
+- [x] Renderiza eyebrow, título, subtítulo e selo de confiança de `HERO_COPY`
+- [x] CTA primário é um link para `#planos`; CTA secundário é um link para `#sobre`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(ui): add hero section component`
+
+**Status**: ✅ Complete
 
 ---
 
