@@ -1036,11 +1036,13 @@ T40 → T41
 - Skill: NONE
 
 **Done when**:
-- [ ] e2e: acessar `/privacidade` renderiza o conteúdo de `content/privacy.ts` (dados coletados, finalidade, terceiros, direitos do titular)
+- [x] e2e: acessar `/privacidade` renderiza o conteúdo de `content/privacy.ts` (dados coletados, finalidade, terceiros, direitos do titular)
 
 **Tests**: e2e
 **Gate**: full
 **Commit**: `feat(ui): add privacy policy page`
+
+**Status**: ✅ Complete
 
 ---
 
