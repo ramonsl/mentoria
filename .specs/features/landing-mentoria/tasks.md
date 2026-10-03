@@ -646,14 +646,16 @@ T28
 - Skill: NONE
 
 **Done when**:
-- [ ] Sucesso na 1ª tentativa não tenta de novo
-- [ ] Falha transitória seguida de sucesso (2ª ou 3ª tentativa) retorna sucesso
-- [ ] 3 falhas seguidas desistem e propagam o erro final para quem chamou registrar
-- [ ] Gate check passa: `npm run test`
+- [x] Sucesso na 1ª tentativa não tenta de novo
+- [x] Falha transitória seguida de sucesso (2ª ou 3ª tentativa) retorna sucesso
+- [x] 3 falhas seguidas desistem e propagam o erro final para quem chamou registrar
+- [x] Gate check passa: `npm run test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(email): add retry-wrapped Resend client`
+
+**Status**: ✅ Complete
 
 ---
 
