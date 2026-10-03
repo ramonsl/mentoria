@@ -70,7 +70,7 @@ Projeto greenfield - não há código existente para reaproveitar. N/A.
 
 ### PlanComparison (UI)
 
-- **Purpose**: Renderizar os dois planos lado a lado (preço, entregáveis, CTA) e o aviso de direito de arrependimento (7 dias).
+- **Purpose**: Renderizar os 3 planos lado a lado (preço, entregáveis próprios de cada um, CTA) e o aviso de direito de arrependimento (7 dias).
 - **Location**: `app/page.tsx`, `components/PlanComparison.tsx`
 - **Interfaces**: componente React puro, sem estado de servidor - props `plans: PlanDisplay[]` vindas de `content/plans.ts`.
 - **Dependencies**: `content/plans.ts`, Tailwind CSS.
@@ -81,7 +81,7 @@ Projeto greenfield - não há código existente para reaproveitar. N/A.
 - **Purpose**: Criar um Asaas Checkout hospedado para o plano escolhido e devolver a URL de pagamento.
 - **Location**: `app/api/checkout/route.ts`
 - **Interfaces**:
-  - `POST /api/checkout` body `{ plan: "primeira-vaga" | "proximo-nivel" }` → `{ checkoutUrl: string }` (ou `{ error: string }` com status 502/503 se a API do Asaas falhar - MENT-08).
+  - `POST /api/checkout` body `{ plan: "avulso" | "acompanhamento-3m" | "acompanhamento-6m" }` → `{ checkoutUrl: string }` (ou `{ error: string }` com status 502/503 se a API do Asaas falhar - MENT-08).
 - **Dependencies**: `ASAAS_API_KEY`, `ASAAS_API_BASE_URL` (produção vs sandbox).
 - **Reuses**: N/A.
 
@@ -114,7 +114,7 @@ Projeto greenfield - não há código existente para reaproveitar. N/A.
 - **Location**: `lib/email.ts`, `emails/*.tsx` (templates React Email, copy de `content/emails.ts`)
 - **Interfaces**:
   - `sendMenteeConfirmation(enrollment: Enrollment): Promise<void>`
-  - `sendMentorNewEnrollmentAlert(enrollment: Enrollment): Promise<void>` - dispara para `enrollment.plan` "primeira-vaga" ou "proximo-nivel" (MENT-15, qualquer plano)
+  - `sendMentorNewEnrollmentAlert(enrollment: Enrollment): Promise<void>` - dispara para qualquer `enrollment.plan` (MENT-15)
   - `sendMentorExpirationAlert(enrollment: Enrollment): Promise<void>`
   - Cada método tenta até 3x (backoff simples) antes de registrar falha final (MENT-16).
 - **Dependencies**: `RESEND_API_KEY`, `MENTOR_EMAIL`, `content/emails.ts`.
@@ -143,7 +143,7 @@ Projeto greenfield - não há código existente para reaproveitar. N/A.
 ### Enrollment
 
 ```typescript
-type Plan = "primeira-vaga" | "proximo-nivel"
+type Plan = "avulso" | "acompanhamento-3m" | "acompanhamento-6m"
 type EnrollmentStatus = "pendente" | "paga" | "ativa" | "expirada" | "cancelada"
 
 interface Enrollment {
@@ -155,7 +155,12 @@ interface Enrollment {
   customerEmail: string
   amountCents: number
   paidAt: Date | null
-  expiresAt: Date // paidAt + 6 meses, para qualquer plano (os dois incluem Classroom + WhatsApp)
+  expiresAt: Date | null // paidAt + 3 ou 6 meses (planos com trilha); null para "avulso" (sem Classroom/WhatsApp)
+  linkedinUrl: string | null // preenchido no formulário de envio, só plano "avulso" (MENT-42)
+  githubUrl: string | null // idem
+  cvFileUrl: string | null // caminho no Supabase Storage, idem
+  materialsSubmittedAt: Date | null // idem
+  submissionToken: string // gerado em toda inscrição; usado no link /envio/{token} (só plano "avulso" o expõe por e-mail)
   createdAt: Date
   updatedAt: Date
 }
@@ -236,10 +241,52 @@ Escopo Medium - mesma arquitetura, sem decisão estrutural nova. Reaproveita `co
 
 ### Dado novo
 
-`EnrollmentRepository.listEnrollments(): Promise<Enrollment[]>` - `SELECT * FROM enrollments ORDER BY expires_at ASC NULLS LAST`. Como os dois planos agora sempre têm `expiresAt` preenchido (mudança de modelo de 2026-10-01), `NULLS LAST` é defensivo, não esperado na prática.
+`EnrollmentRepository.listEnrollments(): Promise<Enrollment[]>` - `SELECT * FROM enrollments ORDER BY expires_at ASC NULLS LAST`. Desde a mudança de modelo de 2026-10-03, inscrições do plano "avulso" sempre têm `expiresAt` nulo (sem trilha) - `NULLS LAST` agora é o comportamento esperado (avulso aparece por último na lista, não por estar "mais perto de expirar").
 
 ### Risco novo
 
 | Concern | Location | Impact | Mitigation |
 | ------- | -------- | ------ | ---------- |
 | Foto real do mentor ainda não existe | `components/AboutMentor.tsx` | Seção "Sobre" vai ao ar com placeholder de iniciais em vez de foto | Aceito para o lançamento - trocar por `public/mentor.jpg` é uma troca de asset, não requer novo código |
+
+---
+
+## Addendum: 3 planos + envio assíncrono (2026-10-03)
+
+**Mudança de modelo**: de 2 planos por público-alvo (mesma entrega) para 3 planos por nível de acompanhamento (entregas diferentes). `Plan` passa de 2 para 3 valores: `avulso` | `acompanhamento-3m` | `acompanhamento-6m`. `content/plans.ts`, `lib/enrollments.ts` (duração de acesso por plano) e os componentes de conteúdo (`PainPoints`, `Qualification`) precisam de atualização - ver tasks T52+.
+
+### Nova duração de acesso por plano
+
+```typescript
+const ACCESS_DURATION_MONTHS: Record<Plan, number | null> = {
+  avulso: null, // sem trilha, sem expiração
+  "acompanhamento-3m": 3,
+  "acompanhamento-6m": 6,
+};
+```
+
+`createEnrollment` calcula `expiresAt = null` quando a duração é `null`; a coluna `expires_at` na migration precisa aceitar `NULL` (antes era implicitamente sempre preenchida).
+
+### Componente novo: formulário de envio assíncrono (Avulso)
+
+- **Purpose**: Página pública, mas protegida por token opaco, onde o mentorando do plano Avulso envia LinkedIn, GitHub e currículo (PDF) - único jeito desse plano chegar ao mentor, já que não tem call (MENT-41 a MENT-46).
+- **Location**: `app/envio/[token]/page.tsx` (formulário), `app/api/submissions/[token]/route.ts` (`POST`, recebe multipart/form-data: `linkedinUrl`, `githubUrl`, `cv` arquivo)
+- **Interfaces**:
+  - `POST /api/submissions/[token]` - valida o token contra `enrollments.submission_token` (associado a um plano `avulso`); valida o arquivo (`application/pdf`, ≤ 5MB - MENT-45); faz upload para o bucket Supabase Storage `cv-uploads` (privado); atualiza `linkedin_url`, `github_url`, `cv_file_url`, `materials_submitted_at` na inscrição (reenvio sobrescreve - MENT-46); dispara `sendMentorMaterialsReceivedAlert` com uma signed URL do Supabase Storage (validade 7 dias) para o currículo.
+- **Dependencies**: `lib/supabase.ts` (service role, para upload e update), `lib/enrollments.ts` (nova função `findBySubmissionToken`), `lib/email.ts`.
+- **Reuses**: `lib/email.ts` (retry), mesmo padrão de página server-rendered dos outros componentes.
+
+### Dado novo: token de envio
+
+`submissionToken` é gerado em `createEnrollment` para toda inscrição (não só Avulso - simplicidade de não ramificar a função por plano), usando `crypto.randomUUID()`. Só é exposto no e-mail de confirmação quando `plan === "avulso"` (MENT-41). Sem expiração própria (ver Assumption no spec) - risco aceito e registrado abaixo.
+
+### Migration adicional
+
+`supabase/migrations/0002_async_submission.sql`: adiciona `linkedin_url text`, `github_url text`, `cv_file_url text`, `materials_submitted_at timestamptz`, `submission_token text unique not null` à tabela `enrollments`; altera `expires_at` para aceitar `NULL`. Cria o bucket privado `cv-uploads` (via painel/API do Supabase, não SQL puro).
+
+### Risco novo
+
+| Concern | Location | Impact | Mitigation |
+| ------- | -------- | ------ | ---------- |
+| `submissionToken` não expira e não é de uso único | `app/envio/[token]/page.tsx` | Quem tiver o link pode reenviar/sobrescrever os materiais indefinidamente | Aceito para o MVP - impacto baixo (o pior caso é o próprio mentorando reenviar por engano); revisitar se houver abuso real |
+| Upload de PDF sem antivírus/sanitização de conteúdo | `app/api/submissions/[token]/route.ts` | Arquivo malicioso armazenado no Storage | Bucket privado, nunca servido publicamente nem executado - mitigação aceitável para PDFs de currículo nesta escala |

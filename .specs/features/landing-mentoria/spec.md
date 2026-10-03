@@ -35,8 +35,10 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 | Assumption / decision | Chosen default | Rationale | Confirmed? |
 | --------------------- | --------------- | --------- | ---------- |
-| Nomes de marketing dos planos | "Plano Primeira Vaga" (R$199) e "Plano Próximo Nível" (R$499) | Diferenciação agora é por público-alvo, não por recurso - nomes refletem isso; fáceis de trocar depois (conteúdo, não estrutura) | n |
-| Modelo de diferenciação entre os planos | Por público-alvo, não por recurso: os dois planos entregam o mesmo pacote (call + relatório de currículo/LinkedIn/GitHub + preparação de entrevista + trilha personalizada no Classroom + grupo de WhatsApp de vagas, 6 meses de acesso). Plano Primeira Vaga (R$199) mira quem busca o 1º emprego/estágio; Plano Próximo Nível (R$499) mira profissionais buscando progressão de carreira - mesma trilha/mecânica, conteúdo da trilha com foco diferente por público | Decisão do usuário: preços seguem diferentes por público-alvo (maior disposição/capacidade de pagamento de quem já está empregado buscando progressão), não por diferença de entrega | y |
+| Nomes de marketing dos planos | "Avulso" (R$129), "Acompanhamento 3 Meses" (R$299), "Acompanhamento 6 Meses" (R$499) | Nomes funcionais, refletem o nível de acompanhamento; fáceis de trocar depois (conteúdo, não estrutura) | n |
+| Modelo de diferenciação entre os planos (substituído em 2026-10-03) | Por nível de acompanhamento, não por público-alvo: Avulso (R$129) é 100% assíncrono - sem call, mentorando envia currículo/LinkedIn/GitHub por formulário, mentor devolve relatório escrito, sem trilha nem grupo. Acompanhamento 3 Meses (R$299) e 6 Meses (R$499) têm calls (3 ou 6, uma por mês), trilha personalizada no Classroom e grupo de WhatsApp pelo período do plano | Decisão do usuário: modelo anterior (por público-alvo, 2 planos com a mesma entrega) foi substituído por uma escada de intensidade/preço mais convencional | y |
+| Cadência de calls no Acompanhamento 6 Meses | 6 calls, uma por mês (mesma cadência do plano de 3 meses) | Usuário não especificou o número; proposto como default e sinalizado - sem objeção até o momento | n |
+| Upload de materiais do Avulso | Formulário no site (`/envio/{token}`), PDF até 5MB, upload no Supabase Storage (bucket privado), token sem expiração, reenvio permitido (substitui o envio anterior) | Decisão do usuário: quer rastreado no sistema, não por e-mail. Limite de 5MB e token sem expiração são defaults razoáveis do agente - baixo risco, fácil de ajustar | n |
 | Bio da seção "Sobre o mentor" | Texto redigido em `content.md` §3 a partir do LinkedIn do mentor (lido via sessão logada em 2026-10-01) | Usuário pediu para gerar a partir do LinkedIn; revisão final do mentor pendente | n |
 | Copy da landing (hero, como funciona, FAQ, CTA final, obrigado, e-mails, SEO) | Definido em `content.md` | Fonte única de texto; pendências listadas em `content.md` §14 com defaults | n |
 | Identidade visual (paleta, tipografia) | Sóbria, acento azul #1F4FD1, Space Grotesk + Inter, dark mode (`content.md` §11) | Context deixou a critério do agente; foco em credibilidade, não "infoproduto" | n |
@@ -55,17 +57,17 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 ### P1: Ver e comparar os planos ⭐ MVP
 
-**User Story**: Como visitante interessado em carreira tech, quero ver e comparar os dois planos de mentoria em uma página só, para decidir qual contratar.
+**User Story**: Como visitante interessado em carreira tech, quero ver e comparar os planos de mentoria em uma página só, para decidir qual contratar.
 
 **Why P1**: Sem isso não existe venda - é a porta de entrada de todo o funil.
 
 **Acceptance Criteria**:
 
-1. WHEN um visitante acessa a página inicial THEN o sistema SHALL exibir os dois planos (Plano Primeira Vaga R$199 e Plano Próximo Nível R$499) lado a lado, com a mesma lista de entregáveis e o público-alvo de cada um (1º emprego/estágio vs. progressão de carreira).
+1. WHEN um visitante acessa a página inicial THEN o sistema SHALL exibir os 3 planos (Avulso R$129, Acompanhamento 3 Meses R$299, Acompanhamento 6 Meses R$499) lado a lado, cada um com sua lista de entregáveis própria.
 2. The system SHALL exibir, para cada plano, um botão de CTA que inicia o checkout daquele plano específico.
-3. WHILE a tela tiver largura menor que 768px (mobile) o sistema SHALL empilhar os planos verticalmente mantendo os dois CTAs visíveis sem exigir scroll horizontal.
+3. WHILE a tela tiver largura menor que 768px (mobile) o sistema SHALL empilhar os planos verticalmente mantendo os três CTAs visíveis sem exigir scroll horizontal.
 
-**Independent Test**: Abrir a página em desktop e mobile e conferir que os dois planos, preços e entregáveis aparecem corretamente, com os CTAs clicáveis.
+**Independent Test**: Abrir a página em desktop e mobile e conferir que os 3 planos, preços e entregáveis aparecem corretamente, com os CTAs clicáveis.
 
 ---
 
@@ -90,26 +92,26 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 ### P1: Confirmação automática pós-pagamento ⭐ MVP
 
-**User Story**: Como mentor, quero receber uma notificação automática com os dados do novo mentorando assim que o pagamento for confirmado, para agendar a call e adicioná-lo manualmente à turma do Google Classroom e ao grupo de WhatsApp (ambos inclusos nos dois planos).
+**User Story**: Como mentor, quero receber uma notificação automática com os dados do novo mentorando assim que o pagamento for confirmado, para agir de acordo com o plano - agendar as calls e liberar Classroom/WhatsApp (planos com trilha) ou aguardar o envio dos materiais (plano Avulso).
 
 **Why P1**: Sem isso o pagamento acontece, mas ninguém - nem o mentorando, nem o mentor - sabe o que fazer a seguir.
 
 **Acceptance Criteria**:
 
-1. WHEN o Asaas envia um evento `CHECKOUT_PAID` para o endpoint de webhook THEN o sistema SHALL validar a autenticidade do evento (token configurado) e, se válido, SHALL registrar uma inscrição com plano, valor, data de pagamento e data de expiração de acesso (Classroom e WhatsApp) igual à data de pagamento mais 6 meses, para qualquer plano.
+1. WHEN o Asaas envia um evento `CHECKOUT_PAID` para o endpoint de webhook THEN o sistema SHALL validar a autenticidade do evento (token configurado) e, se válido, SHALL registrar uma inscrição com plano, valor, data de pagamento e, apenas para os planos com trilha (Acompanhamento 3 ou 6 Meses), data de expiração de acesso igual à data de pagamento mais 3 ou 6 meses respectivamente; o plano Avulso não tem data de expiração (não há Classroom nem WhatsApp nesse plano).
 2. IF o token de autenticidade do webhook for inválido ou ausente THEN o sistema SHALL rejeitar a requisição com status 401 e SHALL registrar a tentativa para auditoria.
 3. IF o mesmo evento de webhook (mesmo event ID) for reenviado pelo Asaas THEN o sistema SHALL processá-lo apenas uma vez (idempotência), sem duplicar inscrições nem reenviar e-mails.
 4. IF eventos chegarem fora de ordem (ex.: `CHECKOUT_CANCELED` recebido depois de um `CHECKOUT_PAID` já processado para o mesmo checkout) THEN o sistema SHALL manter o status pago como definitivo e SHALL registrar o conflito para revisão manual, sem reverter a inscrição automaticamente.
-5. WHEN uma inscrição é registrada com sucesso THEN o sistema SHALL enviar um e-mail de confirmação ao mentorando com o plano contratado e os próximos passos.
-6. WHEN uma inscrição (qualquer plano) é registrada com sucesso THEN o sistema SHALL enviar um e-mail ao mentor com nome, e-mail, plano e data de expiração do novo mentorando, para que ele agende a call e libere manualmente o acesso ao Classroom e ao WhatsApp.
+5. WHEN uma inscrição é registrada com sucesso THEN o sistema SHALL enviar um e-mail de confirmação ao mentorando com o plano contratado e os próximos passos específicos do plano: link para o formulário de envio de materiais (Avulso) ou aviso de que o contato pra agendar a call chega em até 2 dias úteis (planos com trilha).
+6. WHEN uma inscrição (qualquer plano) é registrada com sucesso THEN o sistema SHALL enviar um e-mail ao mentor com nome, e-mail, plano e data de expiração (quando aplicável) do novo mentorando, para que ele agende as calls e, nos planos com trilha, libere manualmente o acesso ao Classroom e ao WhatsApp.
 7. IF o envio de um e-mail (mentorando ou mentor) falhar THEN o sistema SHALL manter a inscrição registrada e SHALL tentar reenviar o e-mail até 3 vezes, registrando a falha final para acompanhamento manual caso todas falhem.
 8. IF os dados do cliente vindos do evento de webhook estiverem incompletos ou malformados (ex.: e-mail inválido) THEN o sistema SHALL rejeitar o registro automático da inscrição e SHALL alertar o mentor por e-mail para tratamento manual.
 9. IF o e-mail do pagamento já corresponder a uma inscrição ativa no mesmo plano THEN o sistema SHALL registrar o novo pagamento normalmente e SHALL alertar o mentor sobre a possível duplicidade para verificação manual.
-10. The system SHALL manter cada inscrição em exatamente um dos estados `pendente`, `paga`, `ativa`, `expirada` ou `cancelada`, transitando apenas pelos caminhos: pendente→paga, paga→ativa, ativa→expirada (ao atingir a data de expiração), pendente→cancelada, pendente→expirada.
-11. WHEN uma inscrição (qualquer plano) atinge sua data de expiração THEN o sistema SHALL marcar a inscrição como `expirada` e SHALL notificar o mentor por e-mail para remover o acesso ao Classroom e ao grupo de WhatsApp manualmente.
+10. The system SHALL manter cada inscrição em exatamente um dos estados `pendente`, `paga`, `ativa`, `expirada` ou `cancelada`, transitando apenas pelos caminhos: pendente→paga, paga→ativa, ativa→expirada (somente quando há data de expiração), pendente→cancelada, pendente→expirada.
+11. WHEN uma inscrição com data de expiração (planos com trilha) atinge essa data THEN o sistema SHALL marcar a inscrição como `expirada` e SHALL notificar o mentor por e-mail para remover o acesso ao Classroom e ao grupo de WhatsApp manualmente; inscrições do plano Avulso (sem data de expiração) nunca entram nessa varredura.
 12. The system SHALL registrar (log) cada evento de webhook recebido com event ID, tipo e resultado do processamento (sucesso ou erro), permitindo auditoria posterior.
 
-**Independent Test**: Disparar manualmente (ou via sandbox do Asaas) eventos `CHECKOUT_PAID`, reenviar o mesmo evento, enviar um evento com token inválido, e um evento fora de ordem; conferir os registros, e-mails e logs resultantes em cada caso.
+**Independent Test**: Disparar manualmente (ou via sandbox do Asaas) eventos `CHECKOUT_PAID` para cada um dos 3 planos, reenviar o mesmo evento, enviar um evento com token inválido, e um evento fora de ordem; conferir os registros, e-mails e logs resultantes em cada caso.
 
 ---
 
@@ -124,6 +126,25 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 1. WHEN o pagamento é concluído com sucesso no Asaas Checkout THEN o sistema SHALL redirecionar o mentorando para uma página de obrigado informando que os próximos passos chegarão por e-mail.
 
 **Independent Test**: Completar um pagamento de teste e verificar o redirecionamento e o conteúdo da página de obrigado.
+
+---
+
+### P1: Envio assíncrono de materiais (Plano Avulso) ⭐ MVP
+
+**User Story**: Como mentorando do Plano Avulso, quero enviar meu currículo e os links do LinkedIn e GitHub num formulário próprio, já que esse plano não tem call, para que o mentor consiga revisar e me mandar o relatório.
+
+**Why P1**: O Avulso é 100% assíncrono - sem este formulário não existe nenhuma forma de o mentor receber os materiais desse plano especificamente.
+
+**Acceptance Criteria**:
+
+1. WHEN uma inscrição do plano Avulso é registrada com sucesso (MENT-10) THEN o sistema SHALL gerar um token de acesso único para essa inscrição e SHALL incluir, no e-mail de confirmação ao mentorando, um link para o formulário de envio (`/envio/{token}`).
+2. WHEN o mentorando acessa o link do formulário com um token válido THEN o sistema SHALL exibir campos para a URL do LinkedIn, a URL do GitHub e upload do currículo em PDF.
+3. IF o token do link for inválido ou não corresponder a nenhuma inscrição do plano Avulso THEN o sistema SHALL exibir uma página de erro, sem expor dados de outras inscrições.
+4. WHEN o mentorando envia o formulário com os 3 campos preenchidos (PDF até 5MB) THEN o sistema SHALL salvar o arquivo num storage privado, SHALL registrar as URLs do LinkedIn/GitHub e a data de envio na inscrição, e SHALL enviar um e-mail ao mentor avisando que os materiais chegaram, com um link de download do currículo válido por 7 dias.
+5. IF o arquivo enviado não for um PDF ou exceder 5MB THEN o sistema SHALL rejeitar o envio e exibir uma mensagem de erro específica, sem salvar nada.
+6. WHEN o mentorando reenvia o formulário (mesmo token) THEN o sistema SHALL substituir o envio anterior (arquivo e links) pelo mais recente, sem criar duplicatas.
+
+**Independent Test**: Completar um pagamento de teste do plano Avulso, abrir o link do e-mail de confirmação, enviar o formulário com um PDF de teste, e confirmar que o mentor recebe o e-mail de aviso com o link de download.
 
 ---
 
@@ -229,9 +250,9 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 1. The system SHALL exibir a seção "Como funciona" (4 passos) entre a seção de planos e a seção "Sobre o mentor", conforme `content.md` §5.
 2. The system SHALL exibir uma chamada final (CTA) com link para os planos, antes do rodapé, conforme `content.md` §8.
 3. The system SHALL exibir um menu fixo no topo da página com links âncora para Planos, Sobre e FAQ, visível durante a rolagem.
-4. The system SHALL exibir, antes da seção de planos, uma seção descrevendo as dificuldades comuns de quem busca o primeiro emprego ou progressão de carreira em tecnologia, uma por cada público-alvo dos dois planos.
-5. The system SHALL exibir uma seção "Para quem é" e "Para quem não é" a mentoria, ajudando o visitante a se autoavaliar antes de comprar.
-6. The system SHALL exibir, próximo aos planos, o número real de vagas disponíveis por turma (30), sem usar contagem regressiva nem linguagem que sugira urgência falsa.
+4. The system SHALL exibir, antes da seção de planos, uma seção descrevendo as dificuldades comuns de quem busca entrar ou evoluir na carreira tech (currículo/LinkedIn/GitHub fracos, insegurança em entrevista, falta de direção de estudo).
+5. The system SHALL exibir uma seção "Para quem é" e "Para quem não é" a mentoria, ajudando o visitante a se autoavaliar antes de comprar - e a escolher entre o Avulso e os planos com trilha.
+6. The system SHALL exibir, próximo aos planos com trilha (Acompanhamento 3 e 6 Meses), o número real de vagas disponíveis por turma (30), sem usar contagem regressiva nem linguagem que sugira urgência falsa; o plano Avulso não tem limite de turma (sem trilha no Classroom).
 
 ---
 
@@ -269,6 +290,12 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | MENT-20 | P1: Confirmação pós-pagamento | Design | Pending |
 | MENT-21 | P1: Confirmação pós-pagamento | Design | Pending |
 | MENT-22 | P1: Página de obrigado | Design | Pending |
+| MENT-41 | P1: Envio assíncrono (Avulso) | Design | Pending |
+| MENT-42 | P1: Envio assíncrono (Avulso) | Design | Pending |
+| MENT-43 | P1: Envio assíncrono (Avulso) | Design | Pending |
+| MENT-44 | P1: Envio assíncrono (Avulso) | Design | Pending |
+| MENT-45 | P1: Envio assíncrono (Avulso) | Design | Pending |
+| MENT-46 | P1: Envio assíncrono (Avulso) | Design | Pending |
 | MENT-29 | P2: Hero, rodapé e privacidade | Implementing | ✅ Verified |
 | MENT-30 | P2: Hero, rodapé e privacidade | Implementing | ✅ Verified |
 | MENT-31 | P2: Hero, rodapé e privacidade | Implementing | ✅ Verified |
@@ -292,7 +319,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 40 total, 22 mapped to tasks and Verified (P1: MENT-01 a MENT-22), 18 unmapped (P2/P3: MENT-23 a MENT-40) ⚠️
+**Coverage:** 46 total, 22 mapped to tasks and Verified (P1: MENT-01 a MENT-22), 6 novos P1 pendentes de implementação (MENT-41 a MENT-46 - envio assíncrono do Avulso), 18 P2/P3 Verified ou Pending (MENT-23 a MENT-40) ⚠️
 
 ---
 

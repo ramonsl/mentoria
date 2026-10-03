@@ -35,12 +35,12 @@ Este arquivo é a fonte única de **texto e decisões de conteúdo** da landing.
 
 - **Eyebrow**: Mentoria de carreira em tecnologia
 - **Título (H1)**: Seu currículo, LinkedIn e GitHub revisados por quem contrata e forma devs há mais de 20 anos.
-- **Subtítulo**: Uma call ao vivo comigo, um relatório escrito com o que mudar, uma trilha de estudos feita para você e um grupo de vagas por 6 meses - nos dois planos, cada um pensado para um momento diferente da carreira.
+- **Subtítulo**: Do relatório avulso ao acompanhamento com trilha de estudos e grupo de vagas - escolha o nível de apoio que faz sentido pro seu momento.
 - **CTA primário**: Ver planos (âncora para `#planos`)
 - **CTA secundário**: Conhecer o mentor (âncora para `#sobre`)
-- **Selo de confiança (linha abaixo dos CTAs)**: Pagamento seguro via Asaas · Pix ou cartão em até 12x ⚠️ · 7 dias de garantia
+- **Selo de confiança (linha abaixo dos CTAs)**: Pagamento seguro via Asaas · Pix ou cartão parcelado · 7 dias de garantia
 
-> ⚠️ Parcelamento máximo: o Asaas permite configurar; default proposto **até 6x no Primeira Vaga (R$199) e até 12x no Próximo Nível (R$499)**, acompanhando o valor de cada plano. Confirmar se juros ficam com o comprador ou com o mentor.
+> ⚠️ Parcelamento máximo: o Asaas permite configurar; default proposto **até 3x no Avulso (R$129), até 6x no Acompanhamento 3 Meses (R$299) e até 12x no Acompanhamento 6 Meses (R$499)**, acompanhando o valor de cada plano. Confirmar se juros ficam com o comprador ou com o mentor.
 
 ---
 
@@ -92,47 +92,57 @@ Este arquivo é a fonte única de **texto e decisões de conteúdo** da landing.
 
 ---
 
-## 4. Planos (MENT-01..03)
+## 4. Planos (MENT-01..03, reformulado em 2026-10-03 - 3 planos por nível de acompanhamento)
 
-Nomes confirmados como default; mentor pode renomear (conteúdo, não estrutura). **Os dois planos entregam exatamente o mesmo pacote** - a diferença é o público-alvo e o foco da trilha, não o que vem incluso. Preços diferentes refletem o público (quem já está empregado buscando progressão tem outra disposição de pagamento), não uma entrega maior.
+Nomes confirmados como default; mentor pode renomear (conteúdo, não estrutura). Modelo substitui a versão anterior (2 planos por público-alvo, mesma entrega) - agora os 3 planos entregam coisas diferentes, por intensidade/preço.
 
-### Plano Primeira Vaga - R$ 199 (pagamento único)
+### Avulso - R$ 129 (pagamento único)
 
-**Para quem**: está buscando o primeiro emprego ou estágio em tecnologia.
+**Para quem**: quer uma revisão pontual, sem compromisso de acompanhamento.
 
-- 1 call ao vivo de 60 min ⚠️ (duração a confirmar) para revisar currículo, LinkedIn e GitHub, com preparação para entrevistas (técnica e comportamental)
-- Relatório escrito com os ajustes priorizados, entregue em até 5 dias úteis após a call ⚠️
-- Trilha de estudos personalizada no Google Classroom, com foco em **fundamentos** para destravar a primeira vaga
-- Grupo de WhatsApp com vagas selecionadas
-- Acesso por 6 meses à trilha e ao grupo
+- 100% assíncrono - **sem call**
+- Você envia currículo (PDF), link do LinkedIn e link do GitHub num formulário próprio (recebido por e-mail após o pagamento)
+- Relatório escrito com os ajustes priorizados nos 3 itens, entregue em até 5 dias úteis após o envio dos materiais
 
-**CTA**: Quero o Primeira Vaga
+**CTA**: Quero o Avulso
 
-### Plano Próximo Nível - R$ 499 (pagamento único) - badge "Para quem já está no mercado"
+### Acompanhamento 3 Meses - R$ 299 (pagamento único)
 
-**Para quem**: já atua na área de tecnologia e busca progressão de carreira (promoção, mudança de nível, nova posição).
+**Para quem**: quer acompanhamento próximo por um ciclo curto.
 
-- Mesma entrega do Primeira Vaga: call ao vivo, relatório escrito, preparação para entrevistas, trilha personalizada e grupo de vagas por 6 meses
-- Trilha com foco em **tópicos avançados e liderança**, direcionada a quem já tem experiência no mercado
+- 3 calls ao vivo (uma por mês, 60 min cada ⚠️) com feedback contínuo
+- Revisão de currículo, LinkedIn e GitHub, com preparação para entrevistas (técnica e comportamental)
+- Trilha de estudos personalizada no Google Classroom, por 3 meses
+- Grupo de WhatsApp com vagas selecionadas, por 3 meses
 
-**CTA**: Quero o Próximo Nível
+**CTA**: Quero o Acompanhamento 3 Meses
 
-### Aviso legal abaixo dos planos (MENT-07, obrigatório)
+### Acompanhamento 6 Meses - R$ 499 (pagamento único) - badge "Mais completo"
 
-> Você tem **7 dias corridos** a partir do pagamento para desistir da compra e receber 100% do valor de volta, conforme o art. 49 do Código de Defesa do Consumidor. Basta enviar um e-mail para **⚠️[e-mail de contato]** pedindo o reembolso. O estorno é feito pelo mesmo meio de pagamento.
+**Para quem**: quer o acompanhamento mais longo, com mais tempo de trilha e grupo.
 
-> ⚠️ Decisão de produto pendente: se a call já tiver acontecido dentro dos 7 dias, o direito de arrependimento continua valendo por lei (compra online). Recomenda-se **agendar a call a partir do 8º dia** OU aceitar o risco. Default proposto: aceitar o risco no lançamento (volume baixo) e revisar depois.
+- 6 calls ao vivo (uma por mês ⚠️ cadência proposta, confirmar), feedback contínuo
+- Revisão de currículo, LinkedIn e GitHub, com preparação para entrevistas
+- Trilha de estudos personalizada no Google Classroom, por 6 meses
+- Grupo de WhatsApp com vagas selecionadas, por 6 meses
+
+**CTA**: Quero o Acompanhamento 6 Meses
+
+### Aviso legal abaixo dos planos (MENT-07, obrigatório - vale para os 3 planos, inclusive o Avulso)
+
+> Você tem **7 dias corridos** a partir do pagamento para desistir da compra e receber 100% do valor de volta, conforme o art. 49 do Código de Defesa do Consumidor. Isso vale pros 3 planos, inclusive o Avulso. Basta enviar um e-mail para **⚠️[e-mail de contato]** pedindo o reembolso. O estorno é feito pelo mesmo meio de pagamento.
+
+> ⚠️ Decisão de produto pendente: se o relatório (Avulso) ou uma call (Acompanhamento) já tiver acontecido dentro dos 7 dias, o direito de arrependimento continua valendo por lei (compra online) - não é opcional nem configurável. Recomenda-se um texto no FAQ pedindo boa fé no uso desse direito quando o serviço já foi prestado, sem prometer nada além do que a lei garante.
 
 ---
 
-## 5. Como funciona (seção nova - 4 passos)
+## 5. Como funciona (4 passos, genérico pros 3 planos)
 
 1. **Escolha o plano e pague** com Pix ou cartão, em ambiente seguro do Asaas.
-2. **Receba o e-mail de boas-vindas** com o link para agendar sua call.
-3. **Call ao vivo comigo** (online) para revisar seu currículo, LinkedIn e GitHub.
-4. **Receba seu relatório**, o acesso à trilha no Classroom e ao grupo de vagas.
+2. **Receba o e-mail de boas-vindas**: no Avulso, com o link pra enviar seus materiais; no Acompanhamento (3 ou 6 meses), com o aviso de que o contato pra agendar as calls chega em até 2 dias úteis.
+3. **Receba seu retorno**: relatório escrito (Avulso) ou calls + trilha no Classroom + grupo de WhatsApp (Acompanhamento).
 
-> ⚠️ Agendamento: default proposto é um link de agenda (Google Agenda - página de agendamento ou Calendly) incluído no e-mail de confirmação. Precisa da URL. Isso não muda o código além de uma variável `BOOKING_URL`.
+> ⚠️ Agendamento das calls (planos de Acompanhamento): default proposto é um link de agenda (Google Agenda - página de agendamento ou Calendly) incluído no e-mail de confirmação. Precisa da URL. Isso não muda o código além de uma variável `BOOKING_URL`.
 
 ---
 
@@ -142,10 +152,10 @@ Nomes confirmados como default; mentor pode renomear (conteúdo, não estrutura)
    Pix (aprovação na hora) ou cartão de crédito, à vista ou parcelado. O pagamento é processado pelo Asaas, e nenhum dado de cartão passa pelo nosso site.
 
 2. **Qual a diferença entre os planos?**
-   Os dois entregam a mesma coisa: call, relatório, trilha no Classroom e grupo de vagas por 6 meses. A diferença é o público e o foco da trilha. O Primeira Vaga é para quem busca o 1º emprego/estágio, com trilha de fundamentos. O Próximo Nível é para quem já está no mercado e busca progressão, com trilha de tópicos avançados e liderança.
+   O Avulso é uma revisão pontual e assíncrona (sem call) de currículo, LinkedIn e GitHub, com relatório escrito. Os planos de Acompanhamento (3 ou 6 meses) incluem calls mensais, trilha de estudos personalizada no Classroom e grupo de WhatsApp de vagas - a diferença entre eles é só a duração (3 ou 6 meses de trilha/grupo e calls).
 
 3. **Por quanto tempo tenho acesso?**
-   Nos dois planos, a trilha no Google Classroom e o grupo de WhatsApp ficam disponíveis por 6 meses a partir do pagamento. A call e o relatório são entregas únicas, sem prazo de expiração.
+   No Avulso, você recebe o relatório e pronto - não há acesso contínuo. Nos planos de Acompanhamento, a trilha no Google Classroom e o grupo de WhatsApp ficam disponíveis por 3 ou 6 meses (conforme o plano) a partir do pagamento.
 
 4. **Como funciona o reembolso?**
    Você tem 7 dias corridos após o pagamento para desistir e receber 100% do valor, sem precisar justificar. Basta mandar um e-mail.
@@ -154,7 +164,7 @@ Nomes confirmados como default; mentor pode renomear (conteúdo, não estrutura)
    Não. Ninguém honesto pode garantir isso. O que eu garanto é que você vai sair sabendo exatamente o que ajustar e o que estudar para aumentar suas chances.
 
 6. **Preciso já saber programar?**
-   Depende do seu momento: no Primeira Vaga, a trilha parte do zero/fundamentos; no Próximo Nível, ela parte do que você já sabe para avançar na carreira.
+   Não. A trilha dos planos de Acompanhamento é montada a partir do seu ponto atual, seja começando do zero ou avançando na carreira. O Avulso não tem trilha - é só a revisão dos materiais.
 
 7. **Como é a call? Fica gravada?**
    É uma chamada de vídeo online (Google Meet). ⚠️ Confirmar se a call é gravada e enviada ao mentorando.
@@ -212,17 +222,24 @@ Cada card linka para `https://www.linkedin.com/in/ramonsl/` (MENT-40).
 
 Remetente: `Ramon Lummertz <mentoria@⚠️[domínio]>`. Reply-to: e-mail pessoal do mentor.
 
-### 10.1 Confirmação ao mentorando
+### 10.1 Confirmação ao mentorando (varia por plano desde 2026-10-03)
+
 - **Assunto**: Sua mentoria está confirmada - próximos passos
-- **Corpo**: saudação pelo primeiro nome · plano contratado e valor · link para agendar a call (`BOOKING_URL`) · o que preparar antes da call (currículo em PDF, link do LinkedIn, link do GitHub) · "em até 2 dias úteis ⚠️ você será adicionado à turma do Classroom e ao grupo de WhatsApp - fique de olho no e-mail e no WhatsApp informado" · lembrete dos 7 dias de arrependimento · assinatura com bio curta.
+- **Corpo comum**: saudação pelo primeiro nome · plano contratado e valor · lembrete dos 7 dias de arrependimento · assinatura com bio curta.
+- **Se plano = Avulso**: "Envie seu currículo (PDF), link do LinkedIn e link do GitHub neste formulário: {SUBMISSION_URL} - assim que receber, te devolvo o relatório em até 5 dias úteis." (MENT-41)
+- **Se plano = Acompanhamento (3 ou 6 meses)**: link para agendar a call (`BOOKING_URL`) · o que preparar antes da call (currículo em PDF, link do LinkedIn, link do GitHub) · "em até 2 dias úteis ⚠️ você será adicionado à turma do Classroom e ao grupo de WhatsApp - fique de olho no e-mail e no WhatsApp informado".
 
 ### 10.2 Alerta de nova inscrição ao mentor (qualquer plano)
 - **Assunto**: [Mentoria] Nova inscrição - {plano} - {nome}
-- **Corpo**: nome, e-mail, telefone (se o Asaas fornecer), plano, valor, data de pagamento, data de expiração, checklist: ☐ agendar a call ☐ adicionar ao Classroom ☐ adicionar ao WhatsApp.
+- **Corpo**: nome, e-mail, telefone (se o Asaas fornecer), plano, valor, data de pagamento, data de expiração (quando aplicável) · checklist, condicional por plano: Avulso → ☐ aguardar envio dos materiais; Acompanhamento → ☐ agendar as calls ☐ adicionar ao Classroom ☐ adicionar ao WhatsApp.
 
-### 10.3 Alerta de expiração ao mentor
+### 10.3 Alerta de expiração ao mentor (só planos de Acompanhamento - Avulso não expira)
 - **Assunto**: [Mentoria] Acesso expirado - remover {nome}
 - **Corpo**: nome, e-mail, plano, data de pagamento e expiração, checklist de remoção do Classroom e do WhatsApp.
+
+### 10.4 Alerta de materiais recebidos ao mentor (novo, MENT-44 - só plano Avulso)
+- **Assunto**: [Mentoria] Materiais recebidos - Avulso - {nome}
+- **Corpo**: nome, e-mail, link do LinkedIn, link do GitHub, link de download do currículo (signed URL, válida por 7 dias) · lembrete do prazo de 5 dias úteis para devolver o relatório.
 
 ---
 
@@ -270,8 +287,9 @@ Remetente: `Ramon Lummertz <mentoria@⚠️[domínio]>`. Reply-to: e-mail pessoa
 | 5 | Duração da call e prazo do relatório | 60 min / 5 dias úteis | Não |
 | 6 | Entrevista: mesma call ou call extra | Mesma call, estendida para 90 min | Não |
 | 7 | Link de agendamento (`BOOKING_URL`) | Sem link; e-mail diz "vou entrar em contato em até 2 dias úteis" | Não |
-| 8 | Parcelamento máximo e quem paga juros | 6x Primeira Vaga / 12x Próximo Nível, juros do comprador | Não |
+| 8 | Parcelamento máximo e quem paga juros | 3x Avulso / 6x Acompanhamento 3M / 12x Acompanhamento 6M, juros do comprador | Não |
 | 9 | Call gravada? Recibo PF? | Não grava; omitir pergunta de nota fiscal | Não |
+| 10 | Cadência de calls do Acompanhamento 6 Meses | 6 calls, 1 por mês (mesma cadência do 3 meses) | Não |
 
 ---
 
@@ -283,44 +301,59 @@ Adicionado após pesquisa de concorrentes (`suacarreiratech.com.br`, `viumavaga.
 
 Barra fixa no topo, fundo escuro translúcido, aparece ao rolar (ou sempre visível - a critério do Execute). Links: "Planos" (`#planos`), "Sobre" (`#sobre`), "FAQ" (`#faq`). CTA à direita: "Ver planos" (mesmo estilo dos botões já usados).
 
-### 15.2 Seção de dores (MENT-34)
+### 15.2 Seção de dores (MENT-34, reformulado em 2026-10-03 - sem split por público, 3 planos agora são por intensidade)
 
 **Título**: Isso soa familiar?
 
-Duas colunas, uma por público-alvo (mesmo recorte dos planos):
+Uma coluna só, cobrindo as dores comuns de quem busca entrar ou evoluir na carreira tech (não depende de qual plano a pessoa vai escolher):
 
-**Primeiro emprego / estágio**
 - Currículo que não passa da triagem automática
 - LinkedIn parado, sem clareza do que destacar
 - GitHub com projetos de curso, nada que mostre capacidade real
-- Não sabe por onde começar a estudar pra entrevista
-
-**Progressão de carreira**
-- Trabalha há anos, mas não sabe como se posicionar pra subir de nível
-- Currículo e LinkedIn desatualizados desde a última vaga
-- Entrevista técnica trava em tópicos que raramente usa no dia a dia
+- Insegurança na hora da entrevista, técnica ou comportamental
+- Não sabe por onde começar a estudar, ou sente que está estudando sem direção
 - Sem rede nem indicação pra saber de vagas melhores
 
-### 15.3 Pra quem é / não é (MENT-35)
+### 15.3 Pra quem é / não é (MENT-35, reformulado - ajuda a escolher entre os 3 planos)
 
 **Título**: Essa mentoria é pra você se...
 
 **É pra você se:**
-- Está buscando o primeiro emprego/estágio ou uma posição melhor em tech
-- Topa investir 1 call + tempo de estudo próprio na trilha
-- Quer feedback direto e honesto, não só elogio
-- Tem pelo menos alguns meses de disponibilidade pra seguir a trilha
+- Quer um olhar externo e honesto sobre currículo, LinkedIn e GitHub
+- Topa aplicar o feedback recebido, não só coletar elogio
+- Tem pelo menos algumas horas por semana pra aplicar o que for combinado (nos planos de Acompanhamento)
+- Não precisa de call pra começar - o Avulso é 100% assíncrono, se você prefere assim
 
 **Não é pra você se:**
 - Busca garantia de vaga (ninguém honesto promete isso - ver FAQ)
-- Quer só o certificado, sem aplicar o que for combinado na call
-- Não tem nenhuma disponibilidade de tempo nos próximos 6 meses
+- Quer só o certificado, sem aplicar o que for combinado
+- Quer um plano de Acompanhamento mas não tem nenhuma disponibilidade nos próximos meses
 - Já tem currículo/LinkedIn/GitHub otimizados por um processo parecido recente
 
-### 15.4 Vagas limitadas (MENT-37)
+### 15.4 Vagas limitadas (MENT-37, só nos planos de Acompanhamento - o Avulso não tem turma)
 
-Selo perto dos planos (mesma área do selo de confiança do Hero, ou logo acima dos cards de plano): **"Turma com 30 vagas - novo ciclo mensal"**. Número real (confirmado pelo mentor em 2026-10-03), sem contagem regressiva nem "últimas vagas!!" - só o fato.
+Selo perto dos planos de Acompanhamento (3 e 6 meses) - não no Avulso, que não tem trilha/turma: **"Turma com 30 vagas - novo ciclo mensal"**. Número real (confirmado pelo mentor em 2026-10-03), sem contagem regressiva nem "últimas vagas!!" - só o fato.
 
 ### 15.5 Como funciona e CTA final (MENT-38, MENT-39)
 
 Conteúdo já existia (§5 e §8) desde a primeira leva de conteúdo, mas nunca foi renderizado na página - gap identificado nesta rodada. Nenhum texto novo necessário, só montar os componentes.
+
+---
+
+## 16. Formulário de envio assíncrono - Avulso (MENT-41..46, novo em 2026-10-03)
+
+Página em `/envio/{token}`, acessada pelo link do e-mail de confirmação (§10.1). Sem navegação do site ao redor (página isolada, focada na tarefa).
+
+### 16.1 Formulário (token válido)
+
+- **Título**: Envie seus materiais
+- **Texto**: Currículo em PDF, link do LinkedIn e link do GitHub. Assim que eu receber, devolvo seu relatório em até 5 dias úteis.
+- **Campos**: Link do LinkedIn (texto, obrigatório) · Link do GitHub (texto, obrigatório) · Currículo (upload, PDF, até 5MB, obrigatório)
+- **Botão**: Enviar materiais
+- **Mensagem de sucesso**: Recebido! Você vai receber seu relatório em até 5 dias úteis. Qualquer dúvida, responda o e-mail de confirmação.
+- **Reenvio**: se o mentorando voltar no mesmo link depois de já ter enviado, o formulário aparece preenchido com o que foi enviado antes, e reenviar substitui o envio anterior.
+
+### 16.2 Token inválido/não encontrado
+
+- **Título**: Link não encontrado
+- **Texto**: Esse link não é válido ou já expirou. Se você comprou o plano Avulso e não tem o link, verifique o e-mail de confirmação ou escreva para ⚠️[e-mail de contato].

@@ -147,6 +147,22 @@ T48 → T51
 T49 → T51
 ```
 
+### Phase 13: Reestruturação para 3 planos
+
+```
+T52
+T53 → T57
+T54
+T55 → T56
+```
+
+### Phase 14: Envio assíncrono de materiais (Plano Avulso)
+
+```
+T58 → T60 → T61
+T59 → T60
+```
+
 ---
 
 ## Task Breakdown
@@ -1481,10 +1497,254 @@ T49 → T51
 
 ---
 
+### Phase 13: Reestruturação para 3 planos (substitui o modelo de 2 planos por público-alvo)
+
+> **Contexto obrigatório para quem executar esta fase**: em 2026-10-03 o modelo de planos mudou de novo - de 2 planos por público-alvo (mesma entrega) para 3 planos por nível de acompanhamento (entregas diferentes): **Avulso** (R$129, assíncrono, sem call, sem trilha), **Acompanhamento 3 Meses** (R$299, 3 calls, trilha e grupo por 3 meses) e **Acompanhamento 6 Meses** (R$499, 6 calls, trilha e grupo por 6 meses). `spec.md` (MENT-01, MENT-10, MENT-19, MENT-20, MENT-34, MENT-35, MENT-37, MENT-41 a MENT-46) e `design.md` ("Addendum: 3 planos + envio assíncrono") e `content.md` (§2, §4, §5, §6, §10, §15.2-15.4, §16 novo) já refletem essa mudança - leia os três antes de codar.
+>
+> **Testes antigos do modelo de 2 planos**: várias tasks anteriores (T11, T13, T14, T15, T16, T19, T20, T23, T27, T28, T50, T51) criaram testes que verificam os slugs/nomes/contagem antigos (`primeira-vaga`, `proximo-nivel`, "os dois planos"). Isso não é um caso de "teste errado que só agora percebemos" - é uma mudança de requisito já autorizada e registrada em `spec.md`. **Atualize esses testes para refletir os 3 planos novos em vez de preservar o comportamento antigo** - não é enfraquecer a asserção, é corrigi-la pra continuar testando o comportamento real do sistema. Não apague cobertura, adapte.
+
+#### T52: Conteúdo dos 3 planos
+
+**What**: Reescrever `content/plans.ts` com os 3 planos (slugs `avulso`, `acompanhamento-3m`, `acompanhamento-6m`), preços (R$129/R$299/R$499) e entregáveis próprios de `content.md` §4 - não mais um pacote compartilhado entre 2 planos.
+**Where**: `content/plans.ts`
+**Depends on**: None
+**Reuses**: `.specs/features/landing-mentoria/content.md` §4 (fonte)
+**Requirement**: MENT-01
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] `PlanSlug` passa a ser `"avulso" | "acompanhamento-3m" | "acompanhamento-6m"`
+- [ ] `PLANS` exporta os 3 planos com nome, preço, entregáveis e CTA de `content.md` §4
+- [ ] Testes de outros arquivos que importam `PLANS`/`PlanSlug` com os slugs antigos são atualizados (ver nota da Fase 13) onde a mudança quebrar o build/testes
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(content): restructure plans content for 3-tier model`
+
+---
+
+#### T53: Conteúdo de reforço de conversão (dores de 1 coluna, qualificação, badge de vagas)
+
+**What**: Atualizar `content/conversion.ts`: `PAIN_POINTS_COPY` passa de 2 colunas por público-alvo para uma lista única de dores (`content.md` §15.2); `QUALIFICATION_COPY` com o texto novo de `content.md` §15.3 (mesma forma, só texto); `COHORT_BADGE_COPY` com o texto escopado aos planos de Acompanhamento (`content.md` §15.4).
+**Where**: `content/conversion.ts`
+**Depends on**: None
+**Reuses**: `.specs/features/landing-mentoria/content.md` §15.2-15.4 (fonte)
+**Requirement**: MENT-34, MENT-35, MENT-37
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] `PAIN_POINTS_COPY` exporta `{ title, points: string[] }` (sem mais `columns`)
+- [ ] `QUALIFICATION_COPY` com o texto novo (mesma forma)
+- [ ] `COHORT_BADGE_COPY` com o texto novo, deixando claro que é sobre os planos de Acompanhamento
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(content): update conversion copy for 3-tier plan model`
+
+---
+
+#### T54: Conteúdo do formulário de envio assíncrono
+
+**What**: Criar `content/submission.ts` com o texto do formulário (título, instrução, labels dos campos, mensagem de sucesso) e da página de token inválido, de `content.md` §16.
+**Where**: `content/submission.ts`
+**Depends on**: None
+**Reuses**: `.specs/features/landing-mentoria/content.md` §16 (fonte)
+**Requirement**: MENT-41, MENT-42, MENT-43
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Exporta o texto do formulário (válido) e da página de token inválido de `content.md` §16
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(content): add async submission form copy`
+
+---
+
+#### T55: Migration - colunas de envio assíncrono e expiração opcional
+
+**What**: Nova migration adicionando `linkedin_url text`, `github_url text`, `cv_file_url text`, `materials_submitted_at timestamptz`, `submission_token text unique not null` à tabela `enrollments`; altera `expires_at` para aceitar `NULL` (hoje é implicitamente sempre preenchida).
+**Where**: `supabase/migrations/0002_async_submission.sql`
+**Depends on**: None
+**Reuses**: `supabase/migrations/0001_init.sql` (schema base)
+**Requirement**: MENT-41, MENT-44
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Migration aplica limpa sobre o schema de `0001_init.sql` (mesmo método de verificação usado em T5 - Postgres real embarcado se não houver projeto Supabase disponível)
+- [ ] `expires_at` aceita `NULL`
+- [ ] `submission_token` é `UNIQUE NOT NULL`
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(db): add async submission columns and nullable expiration`
+
+---
+
+#### T56: Repositório de inscrições - duração por plano, expiração opcional, envio de materiais
+
+**What**: Atualizar `lib/enrollments.ts`: `Plan` com os 3 slugs novos; `createEnrollment` calcula `expiresAt` por um mapa de duração por plano (`avulso: null`, `acompanhamento-3m: 3`, `acompanhamento-6m: 6`) e gera `submissionToken` (`crypto.randomUUID()`) para toda inscrição; novas funções `findBySubmissionToken(token)` e `updateSubmission(enrollmentId, { linkedinUrl, githubUrl, cvFileUrl })` (grava `materialsSubmittedAt = now`, reenvio sobrescreve - MENT-46).
+**Where**: `lib/enrollments.ts`
+**Depends on**: T55
+**Reuses**: `lib/supabase.ts`, `lib/enrollment-state.ts`
+**Requirement**: MENT-10, MENT-41, MENT-46
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] `createEnrollment("avulso", ...)` → `expiresAt: null`; `"acompanhamento-3m"` → paidAt+3 meses; `"acompanhamento-6m"` → paidAt+6 meses
+- [ ] `createEnrollment` sempre grava um `submissionToken` único
+- [ ] `findBySubmissionToken` retorna a inscrição correspondente ou `null`
+- [ ] `updateSubmission` grava os 3 campos + `materialsSubmittedAt`; uma segunda chamada (mesmo token) sobrescreve em vez de duplicar
+- [ ] Testes existentes de `lib/enrollments.test.ts` que assumiam `expiresAt` sempre preenchida são atualizados (ver nota da Fase 13)
+- [ ] Gate check passa: `npm run test`
+
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(domain): add per-plan access duration and materials submission to enrollment repository`
+
+---
+
+#### T57: Componente PainPoints - lista única
+
+**What**: Adaptar `components/PainPoints.tsx` para renderizar `PAIN_POINTS_COPY.points` (lista única) em vez do grid de 2 colunas por público-alvo.
+**Where**: `components/PainPoints.tsx`
+**Depends on**: T53
+**Reuses**: `content/conversion.ts`
+**Requirement**: MENT-34
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Renderiza a lista única de `PAIN_POINTS_COPY.points`
+- [ ] Teste e2e existente que verificava as 2 colunas é atualizado pra verificar a lista única (ver nota da Fase 13)
+- [ ] Gate check passa: `npm run test:e2e`
+
+**Tests**: e2e
+**Gate**: full
+**Commit**: `feat(ui): render pain points as a single list`
+
+---
+
+### Phase 14: Envio assíncrono de materiais (Plano Avulso)
+
+#### T58: Storage de currículos
+
+**What**: `lib/storage.ts` com `uploadCv(enrollmentId, file): Promise<{path: string}>` (garante que o bucket privado `cv-uploads` existe - cria se não existir, tolera "already exists" - e faz upload do PDF) e `getCvSignedUrl(path): Promise<string>` (URL assinada, validade 7 dias).
+**Where**: `lib/storage.ts`
+**Depends on**: None
+**Reuses**: `lib/supabase.ts`
+**Requirement**: MENT-44
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] `uploadCv` cria o bucket `cv-uploads` (privado) se ele ainda não existir, e não falha se já existir
+- [ ] `uploadCv` faz upload do PDF e retorna o path salvo
+- [ ] `getCvSignedUrl` retorna uma URL assinada válida por 7 dias
+- [ ] Gate check passa: `npm run test`
+
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(storage): add cv upload and signed url helpers`
+
+---
+
+#### T59: E-mails - confirmação por plano e alerta de materiais recebidos
+
+**What**: Em `emails/templates.tsx` + `content/emails.ts`: `sendMenteeConfirmation` passa a montar um corpo diferente por plano (link do formulário de envio pro Avulso vs. aviso de agendamento de call pro Acompanhamento - `content.md` §10.1); nova função `sendMentorMaterialsReceivedAlert(enrollment, cvSignedUrl)` com o template de `content.md` §10.4.
+**Where**: `emails/templates.tsx`
+**Depends on**: None
+**Reuses**: `content/emails.ts`, `lib/email.ts`
+**Requirement**: MENT-14, MENT-41, MENT-44
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] `sendMenteeConfirmation` pro plano Avulso inclui o link `/envio/{token}`
+- [ ] `sendMenteeConfirmation` pros planos de Acompanhamento mantém o aviso de agendamento de call (comportamento já existente, sem regressão)
+- [ ] `sendMentorMaterialsReceivedAlert` envia ao `MENTOR_EMAIL` com os dados e o link de download
+- [ ] Testes existentes de `emails/templates.test.ts` para o plano único de confirmação são atualizados pra cobrir os 2 ramos (ver nota da Fase 13)
+- [ ] Gate check passa: `npm run test`
+
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(email): branch mentee confirmation by plan and add materials-received alert`
+
+---
+
+#### T60: Rota de envio de materiais
+
+**What**: `POST /api/submissions/[token]` (multipart/form-data: `linkedinUrl`, `githubUrl`, `cv`) valida o token (404/erro genérico se não encontrado - MENT-43), valida o arquivo (`application/pdf`, ≤ 5MB - MENT-45, 400 se inválido), faz upload via `lib/storage.ts`, grava via `updateSubmission` (T56), e dispara `sendMentorMaterialsReceivedAlert` (T59) com a signed URL do currículo.
+**Where**: `app/api/submissions/[token]/route.ts`
+**Depends on**: T56, T58, T59
+**Reuses**: `lib/enrollments.ts`, `lib/storage.ts`, `emails/templates.tsx`
+**Requirement**: MENT-42, MENT-44, MENT-45, MENT-46
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Token válido + PDF válido (≤5MB) → 200, materiais salvos, e-mail disparado ao mentor
+- [ ] Token inválido → erro, sem expor dados de outra inscrição
+- [ ] Arquivo não-PDF ou > 5MB → 400, nada salvo
+- [ ] Reenvio (mesmo token) → sobrescreve o envio anterior, sem duplicar
+- [ ] Gate check passa: `npm run test`
+
+**Tests**: integration
+**Gate**: full
+**Commit**: `feat(submissions): add async materials submission endpoint`
+
+---
+
+#### T61: Página do formulário de envio
+
+**What**: `app/envio/[token]/page.tsx` - formulário com LinkedIn, GitHub e upload de PDF, chamando `POST /api/submissions/[token]` (T60); mostra a página de token inválido (`content/submission.ts`) quando o token não existe.
+**Where**: `app/envio/[token]/page.tsx`
+**Depends on**: T54, T60
+**Reuses**: `content/submission.ts`
+**Requirement**: MENT-42, MENT-43
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] e2e: token válido → formulário aparece, envio com PDF de teste mostra a mensagem de sucesso
+- [ ] e2e: token inválido → página de erro, sem formulário
+- [ ] Gate check passa: `npm run test:e2e`
+
+**Tests**: e2e
+**Gate**: full
+**Commit**: `feat(ui): add async submission form page`
+
+---
+
 ## Phase Execution Map
 
 ```
-Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7 → Phase 8 → Phase 9 → Phase 10 → Phase 11 → Phase 12
+Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7 → Phase 8 → Phase 9 → Phase 10 → Phase 11 → Phase 12 → Phase 13 → Phase 14
 
 Phase 1:  T1 → T2 → T6
           T1 → T3
@@ -1516,6 +1776,12 @@ Phase 12: T43 → T44 → T51
           T42 → T47 → T51
           T48 → T51
           T49 → T51
+Phase 13: T52
+          T53 → T57
+          T54
+          T55 → T56
+Phase 14: T58 → T60 → T61
+          T59 → T60
 ```
 
 Execution is strictly sequential within each phase - a single agent (or batch worker) works one task at a time, in the order listed above. Cross-phase dependencies (e.g., T7 depends on T1, T14 depends on T7, T27 depends on T18) are backward-only and enforced by the phase order itself, not re-drawn here.
@@ -1525,6 +1791,8 @@ Execution is strictly sequential within each phase - a single agent (or batch wo
 **T29-T41 (13 tasks, rodada P2 parte 1 de 2026-10-03) → 2 batches**: Batch 5 = Phase 10 (T29-T36, 8 tasks), Batch 6 = Phase 11 (T37-T41, 5 tasks).
 
 **T42-T51 (10 tasks, rodada P2 parte 2 de 2026-10-03 - pesquisa de concorrentes) → 1 batch**: Batch 7 = Phase 12 (T42-T51, 10 tasks) - fase coesa (tudo converge em T51), mantida como lote único em vez de forçar uma divisão artificial.
+
+**T52-T61 (10 tasks, rodada de 2026-10-03 - reestruturação para 3 planos + envio assíncrono) → 1 batch**: Batch 8 = Phases 13-14 (T52-T61, 10 tasks) - fase 13 (dados/conteúdo) é pré-requisito direto da fase 14 (fluxo assíncrono), mantidas num lote só.
 
 ---
 
@@ -1583,6 +1851,16 @@ Execution is strictly sequential within each phase - a single agent (or batch wo
 | T49: FinalCta | 1 componente | ✅ Granular |
 | T50: Selo de vagas | 1 arquivo (PlanComparison, modificação) | ✅ Granular |
 | T51: Montar página final | 1 arquivo (app/page.tsx, modificação) | ✅ Granular |
+| T52: content/plans.ts (3 planos) | 1 arquivo | ✅ Granular |
+| T53: content/conversion.ts (update) | 1 arquivo | ✅ Granular |
+| T54: content/submission.ts | 1 arquivo | ✅ Granular |
+| T55: Migration 0002 | 1 arquivo | ✅ Granular |
+| T56: lib/enrollments.ts (update) | 1 arquivo | ✅ Granular |
+| T57: PainPoints (update) | 1 arquivo | ✅ Granular |
+| T58: lib/storage.ts | 1 arquivo | ✅ Granular |
+| T59: emails/templates.tsx (update) | 1 arquivo (+ content/emails.ts, mesmo conceito) | ⚠️ OK - coeso, copy+envio do mesmo e-mail |
+| T60: Rota de envio | 1 endpoint | ✅ Granular |
+| T61: Página do formulário | 1 arquivo | ✅ Granular |
 
 ---
 
@@ -1641,6 +1919,16 @@ Execution is strictly sequential within each phase - a single agent (or batch wo
 | T49 | None | - | ✅ Match |
 | T50 | T43 | T43→T50 | ✅ Match |
 | T51 | T44, T45, T46, T47, T48, T49, T50 | T44→T51, T45→T51, T46→T51, T50→T51, T47→T51, T48→T51, T49→T51 | ✅ Match |
+| T52 | None | - | ✅ Match |
+| T53 | None | - | ✅ Match |
+| T54 | None | - | ✅ Match |
+| T55 | None | - | ✅ Match |
+| T56 | T55 | T55→T56 | ✅ Match |
+| T57 | T53 | T53→T57 | ✅ Match |
+| T58 | None | - | ✅ Match |
+| T59 | None | - | ✅ Match |
+| T60 | T56 (cross-fase), T58, T59 | T58→T60, T59→T60 | ✅ Match |
+| T61 | T54 (cross-fase), T60 | T60→T61 | ✅ Match |
 
 **Rules reminder**: cross-phase dependencies are enforced by phase order (no task above depends on a later phase), not by diagram arrows - arrows only represent intra-phase edges, per `validate_tasks.py`'s own scope.
 
@@ -1701,5 +1989,15 @@ Execution is strictly sequential within each phase - a single agent (or batch wo
 | T49 | Componente apresentacional | none | none | ✅ OK |
 | T50 | Componente apresentacional (modificação) | none | none | ✅ OK |
 | T51 | Página | e2e | e2e | ✅ OK |
+| T52 | Conteúdo estático | none | none | ✅ OK |
+| T53 | Conteúdo estático | none | none | ✅ OK |
+| T54 | Conteúdo estático | none | none | ✅ OK |
+| T55 | Schema (migration) | none | none | ✅ OK |
+| T56 | lib (domínio) | unit | unit | ✅ OK |
+| T57 | Página/interação client-side (e2e já cobre) | e2e | e2e | ✅ OK |
+| T58 | lib (domínio) | unit | unit | ✅ OK |
+| T59 | lib/domínio (emails) | unit | unit | ✅ OK |
+| T60 | API route | integration | integration | ✅ OK |
+| T61 | Página | e2e | e2e | ✅ OK |
 
 Nenhuma violação - nenhuma task usa "testado em outra task" como justificativa para `Tests: none`; todo `none` corresponde a uma linha `none` da matriz.
