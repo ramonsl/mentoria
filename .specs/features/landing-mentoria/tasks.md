@@ -321,14 +321,16 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] `createEnrollment` calcula `expiresAt` = pagamento + 6 meses para qualquer plano (`primeira-vaga` ou `proximo-nivel`) - os dois incluem Classroom e WhatsApp
-- [ ] `findActiveByEmailAndPlan` retorna a inscrição quando existe uma ativa e `null` quando não
-- [ ] `markExpiredEnrollments(now)` move para `expirada` qualquer inscrição vencida (qualquer plano), respeitando a máquina de estados, e devolve a lista das que mudaram
-- [ ] Gate check passa: `npm run test`
+- [x] `createEnrollment` calcula `expiresAt` = pagamento + 6 meses para qualquer plano (`primeira-vaga` ou `proximo-nivel`) - os dois incluem Classroom e WhatsApp
+- [x] `findActiveByEmailAndPlan` retorna a inscrição quando existe uma ativa e `null` quando não
+- [x] `markExpiredEnrollments(now)` move para `expirada` qualquer inscrição vencida (qualquer plano), respeitando a máquina de estados, e devolve a lista das que mudaram
+- [x] Gate check passa: `npm run test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(domain): add enrollment repository`
+
+**Status**: ✅ Complete
 
 ---
 
