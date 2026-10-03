@@ -1089,13 +1089,17 @@ T40 → T41
 - Skill: NONE
 
 **Done when**:
-- [ ] Senha correta → 200, cookie `httpOnly` setado
-- [ ] Senha incorreta → 401, nenhum cookie setado
-- [ ] Gate check passa: `npm run test`
+- [x] Senha correta → 200, cookie `httpOnly` setado
+- [x] Senha incorreta → 401, nenhum cookie setado
+- [x] Gate check passa: `npm run test`
 
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(admin): add admin login route`
+
+**Status**: ✅ Complete
+
+> **Nota de implementação**: além de `app/api/admin/login/route.ts`, criado `lib/admin-session.ts` - infraestrutura mínima necessária (mesma classe de exceção documentada em T6/T22/T23/T26/T28): o cookie precisa ser recomputado/validado de forma idêntica pelo middleware (T38), que roda em Edge runtime, então a implementação usa só Web Crypto (`crypto.subtle`), não o módulo `crypto` do Node. Também ajustado `playwright.config.ts` para ler `PORT` de env (default 3000, mudança retrocompatível) - um `next dev` pré-existente, não iniciado por este processo, já segurava o lock de diretório do Next.js (que é por diretório, não por porta); por política este processo nunca mata um processo que não iniciou, então o gate `full` (e2e) foi verificado reaproveitando esse servidor via `PORT=3200 npm run test:e2e` (13/13 e2e passando), e esse mesmo ajuste de config é reusado nas tasks seguintes desta fase.
 
 ---
 
