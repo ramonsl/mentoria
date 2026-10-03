@@ -35,6 +35,7 @@ export interface AsaasCheckoutEvent {
     id: string;
     customerData?: AsaasCheckoutCustomerData | null;
     items?: AsaasCheckoutItem[];
+    externalReference?: string;
   };
 }
 
@@ -46,14 +47,16 @@ export type ProcessOutcome =
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// DECISÃO (não exigida em nenhuma task): a criação do checkout (T14) não
-// grava externalReference com o slug do plano, então o evento de webhook não
-// carrega essa informação diretamente. O item do checkout ecoa o `name` que
-// T14 enviou (`planDisplay.name`) - usamos isso pra identificar o plano, em
-// vez de voltar a mexer em lib/asaas.ts (fora do escopo desta task).
-function findPlanByItemName(itemName: string | undefined): PlanDisplay | undefined {
-  if (!itemName) return undefined;
-  return PLANS.find((p) => p.name === itemName);
+// tasks.md T28 (correção de bug identificado no lote 3): o plano é
+// identificado pelo `externalReference` que lib/asaas.ts grava na criação do
+// checkout (o slug do plano), não mais pelo texto do `name` do item - um
+// texto de marketing que pode mudar em content/plans.ts sem quebrar essa
+// identificação.
+function findPlanByExternalReference(
+  externalReference: string | undefined,
+): PlanDisplay | undefined {
+  if (!externalReference) return undefined;
+  return PLANS.find((p) => p.slug === externalReference);
 }
 
 /**
@@ -155,7 +158,9 @@ async function processCheckoutPaid(
   const customerData = event.checkout.customerData;
   const email = customerData?.email;
   const name = customerData?.name;
-  const planDisplay = findPlanByItemName(event.checkout.items?.[0]?.name);
+  const planDisplay = findPlanByExternalReference(
+    event.checkout.externalReference,
+  );
   const emailValid = !!email && EMAIL_REGEX.test(email);
 
   if (!emailValid || !name || !planDisplay) {

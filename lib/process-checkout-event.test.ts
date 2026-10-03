@@ -122,6 +122,7 @@ function makeEvent(overrides: Partial<AsaasCheckoutEvent> = {}): AsaasCheckoutEv
       id: "chk-1",
       customerData: { name: "Fulano de Tal", email: "fulano@example.com" },
       items: [{ name: PLANS[0].name, value: PLANS[0].priceCents / 100 }],
+      externalReference: PLANS[0].slug,
     },
     ...overrides,
   };
@@ -152,6 +153,7 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
           id: `chk-${plan.slug}`,
           customerData: { name: "Fulano de Tal", email: "fulano@example.com" },
           items: [{ name: plan.name, value: plan.priceCents / 100 }],
+          externalReference: plan.slug,
         },
       });
 
@@ -177,6 +179,27 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
       expect(recipients).toContain("mentor@example.com");
     },
   );
+
+  it("identifica o plano por externalReference mesmo quando o nome de marketing do item mudou (tasks.md T28)", async () => {
+    const now = new Date("2026-01-15T12:00:00.000Z");
+    const event = makeEvent({
+      checkout: {
+        id: "chk-nome-mudou",
+        customerData: { name: "Fulano de Tal", email: "fulano@example.com" },
+        // Nome do item divergente de qualquer PLANS[].name atual - simula
+        // uma mudança de copy em content/plans.ts depois que o checkout foi
+        // criado. A identificação não deve depender disso.
+        items: [{ name: "Nome de marketing totalmente diferente", value: PLANS[1].priceCents / 100 }],
+        externalReference: PLANS[1].slug,
+      },
+    });
+
+    const outcome = await processCheckoutEvent(event, { now });
+
+    expect(outcome.type).toBe("enrolled");
+    if (outcome.type !== "enrolled") throw new Error("unreachable");
+    expect(outcome.enrollment.plan).toBe(PLANS[1].slug);
+  });
 
   it("e-mail do cliente malformado: nenhuma inscrição é criada e o resultado sinaliza alerta ao mentor", async () => {
     const client = createFakeSupabaseClient();
@@ -224,6 +247,7 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
           id: "chk-novo",
           customerData: { name: "Fulano de Tal", email: "fulano@example.com" },
           items: [{ name: PLANS[0].name, value: PLANS[0].priceCents / 100 }],
+          externalReference: PLANS[0].slug,
         },
       }),
     );

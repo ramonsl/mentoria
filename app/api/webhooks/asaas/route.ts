@@ -21,6 +21,7 @@ interface AsaasWebhookPayload {
     id?: string;
     customerData?: { name?: string; email?: string } | null;
     items?: { name?: string; value?: number }[];
+    externalReference?: string;
   };
   [key: string]: unknown;
 }
@@ -58,6 +59,7 @@ export async function POST(request: Request): Promise<Response> {
         id: payload.checkout?.id ?? "",
         customerData: payload.checkout?.customerData,
         items: payload.checkout?.items,
+        externalReference: payload.checkout?.externalReference,
       },
     };
 

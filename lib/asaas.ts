@@ -55,6 +55,11 @@ export async function createCheckout(
   const requestBody = {
     billingTypes: ["PIX", "CREDIT_CARD"],
     chargeTypes: ["DETACHED"],
+    // tasks.md T28: identifica o plano no processamento do webhook por este
+    // campo (slug estável), não mais pelo texto de items[].name (que pode
+    // mudar em content/plans.ts). Confirmado como campo top-level de
+    // POST /v3/checkouts em docs.asaas.com/reference/create-new-checkout.
+    externalReference: plan,
     callback: {
       successUrl: `${origin}/obrigado`,
       cancelUrl: origin,

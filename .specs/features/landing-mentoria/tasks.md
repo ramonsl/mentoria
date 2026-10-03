@@ -841,14 +841,18 @@ T28
 - Skill: NONE
 
 **Done when**:
-- [ ] `createCheckout` inclui `externalReference` = slug do plano (`primeira-vaga`/`proximo-nivel`) no payload do Asaas
-- [ ] `processCheckoutEvent` identifica o plano pelo `externalReference` do evento, não mais pelo texto do nome do item
-- [ ] Teste cobrindo que uma mudança no texto do nome do item (`content/plans.ts`) não quebra a identificação do plano
-- [ ] Gate check passa: `npm run test`
+- [x] `createCheckout` inclui `externalReference` = slug do plano (`primeira-vaga`/`proximo-nivel`) no payload do Asaas
+- [x] `processCheckoutEvent` identifica o plano pelo `externalReference` do evento, não mais pelo texto do nome do item
+- [x] Teste cobrindo que uma mudança no texto do nome do item (`content/plans.ts`) não quebra a identificação do plano
+- [x] Gate check passa: `npm run test`
 
 **Tests**: unit
 **Gate**: full
 **Commit**: `fix(checkout): identify plan via externalReference instead of item name`
+
+**Status**: ✅ Complete
+
+> **Nota de implementação (desvio do "Where" original, não opcional)**: implementar só `lib/asaas.ts` + `lib/process-checkout-event.ts` quebrou 2 testes já verdes em `app/api/webhooks/asaas/route.paid-processing.test.ts` (T27) - a rota (`route.ts`) monta o `AsaasCheckoutEvent` manualmente a partir do payload bruto e não repassava `checkout.externalReference`, então em produção o fix de T28 nunca chegaria a `processCheckoutEvent`. Corrigido com a adição mínima de 2 linhas em `app/api/webhooks/asaas/route.ts` (campo na interface + repasse no objeto construído) - mesma classe de gap que T27 existiu para corrigir, desta vez re-detectada pelo próprio gate de testes, não deixada passar silenciosamente. Assumido (não documentado explicitamente pela Asaas no exemplo de payload consultado) que `checkout.externalReference` é ecoado de volta no evento de webhook, já que é um campo armazenado no recurso checkout - mesmo padrão de incerteza já flagado em `lib/asaas.ts` (`imageBase64`).
 
 ---
 

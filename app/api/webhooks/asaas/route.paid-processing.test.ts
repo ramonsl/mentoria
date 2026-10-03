@@ -161,6 +161,7 @@ function checkoutPaidBody(overrides: Record<string, unknown> = {}) {
       id: "chk-paid-1",
       customerData: { name: "Fulano de Tal", email: "fulano@example.com" },
       items: [{ name: PLANS[0].name, value: PLANS[0].priceCents / 100 }],
+      externalReference: PLANS[0].slug,
     },
     ...overrides,
   };

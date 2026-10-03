@@ -34,14 +34,15 @@ describe("createCheckout", () => {
   it.each(["primeira-vaga", "proximo-nivel"] as const)(
     "retorna uma URL de checkout válida em caso de sucesso para o plano %s",
     async (plan) => {
-      globalThis.fetch = vi.fn().mockResolvedValue({
+      const fetchMock = vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
         json: async () => ({
           id: "chk-1",
           link: "https://sandbox.asaas.com/checkoutSession/show/chk-1",
         }),
-      }) as unknown as typeof fetch;
+      });
+      globalThis.fetch = fetchMock as unknown as typeof fetch;
 
       const { createCheckout } = await import("./asaas");
       const result = await createCheckout(
@@ -52,6 +53,11 @@ describe("createCheckout", () => {
       expect(result.checkoutUrl).toBe(
         "https://sandbox.asaas.com/checkoutSession/show/chk-1",
       );
+
+      // tasks.md T28 "Done when": createCheckout inclui externalReference =
+      // slug do plano no payload enviado ao Asaas.
+      const sentBody = JSON.parse(fetchMock.mock.calls[0][1].body as string);
+      expect(sentBody.externalReference).toBe(plan);
     },
   );
 
