@@ -216,13 +216,15 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] Tabela `enrollments` criada com todos os campos do design (`id`, `asaasCheckoutId`, `plan`, `status`, `customerName`, `customerEmail`, `amountCents`, `paidAt`, `expiresAt`, `createdAt`, `updatedAt`)
-- [ ] Tabela `webhook_events` criada com PK = `id` (event id do Asaas)
-- [ ] Migration aplica limpa num projeto Supabase novo
+- [x] Tabela `enrollments` criada com todos os campos do design (`id`, `asaasCheckoutId`, `plan`, `status`, `customerName`, `customerEmail`, `amountCents`, `paidAt`, `expiresAt`, `createdAt`, `updatedAt`)
+- [x] Tabela `webhook_events` criada com PK = `id` (event id do Asaas)
+- [x] Migration aplica limpa num projeto Supabase novo (verificado contra Postgres real via `@electric-sql/pglite`, sem projeto Supabase disponível neste ambiente - ver nota no commit)
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(db): add enrollments and webhook_events schema`
+
+**Status**: ✅ Complete
 
 ---
 
