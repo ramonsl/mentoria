@@ -504,14 +504,16 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] e2e: clicar no CTA (API mockada) redireciona para a URL de checkout retornada
-- [ ] e2e: dois cliques em sequência rápida no mesmo CTA disparam só uma chamada a `/api/checkout`
-- [ ] e2e: falha simulada da API mostra erro e permite nova tentativa, mantendo o plano selecionado
-- [ ] Gate check passa: `npm run test:e2e`
+- [x] e2e: clicar no CTA (API mockada) redireciona para a URL de checkout retornada
+- [x] e2e: dois cliques em sequência rápida no mesmo CTA disparam só uma chamada a `/api/checkout`
+- [x] e2e: falha simulada da API mostra erro e permite nova tentativa, mantendo o plano selecionado
+- [x] Gate check passa: `npm run test:e2e`
 
 **Tests**: e2e
 **Gate**: full
 **Commit**: `feat(checkout): wire plan CTAs to checkout API`
+
+**Status**: ✅ Complete
 
 ---
 
