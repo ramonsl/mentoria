@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PLANS } from "../content/plans";
 
 // Fake Supabase client suportando insert+select+single (createEnrollment),
@@ -88,6 +88,30 @@ vi.mock("./supabase", () => ({
   getSupabaseClient: () => getFakeClient(),
 }));
 
+// Mocka só o client Resend (./email, mesmo arquivo importado por
+// emails/templates.tsx via "../lib/email" - mesmo módulo resolvido) para
+// provar T23 fim a fim: emails/templates.tsx e content/emails.ts rodam de
+// verdade a partir de processCheckoutEvent, só a chamada de rede ao Resend
+// é substituída.
+const mockSend = vi.fn();
+
+vi.mock("./email", () => ({
+  getResendClient: () => ({ emails: { send: mockSend } }),
+  sendWithRetry: (fn: () => Promise<unknown>) => fn(),
+}));
+
+const VALID_ENV: Record<string, string> = {
+  ASAAS_API_KEY: "asaas-key",
+  ASAAS_API_BASE_URL: "https://api.asaas.com/v3",
+  ASAAS_WEBHOOK_TOKEN: "webhook-token",
+  SUPABASE_URL: "https://project.supabase.co",
+  SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+  RESEND_API_KEY: "resend-key",
+  MENTOR_EMAIL: "mentor@example.com",
+  ADMIN_PASSWORD: "admin-password",
+  CRON_SECRET: "cron-secret",
+};
+
 import { processCheckoutEvent, type AsaasCheckoutEvent } from "./process-checkout-event";
 
 function makeEvent(overrides: Partial<AsaasCheckoutEvent> = {}): AsaasCheckoutEvent {
@@ -104,8 +128,19 @@ function makeEvent(overrides: Partial<AsaasCheckoutEvent> = {}): AsaasCheckoutEv
 }
 
 describe("processCheckoutEvent - CHECKOUT_PAID", () => {
+  const originalEnv = { ...process.env };
+
   beforeEach(() => {
     setFakeClient(createFakeSupabaseClient());
+    for (const [key, value] of Object.entries(VALID_ENV)) {
+      process.env[key] = value;
+    }
+    mockSend.mockReset();
+    mockSend.mockResolvedValue({ data: { id: "email-1" }, error: null });
+  });
+
+  afterEach(() => {
+    process.env = { ...originalEnv };
   });
 
   it.each(PLANS)(
@@ -132,6 +167,14 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
       // mesmo processamento já em "ativa", não "paga" - sem passo manual de
       // ativação em nenhuma task do projeto.
       expect(outcome.enrollment.status).toBe("ativa");
+
+      // tasks.md T23 "Done when": mentorando e mentor recebem e-mail, pro
+      // plano $slug - prova fim a fim (emails/templates.tsx + content/emails.ts
+      // reais, só o envio ao Resend é mockado).
+      expect(mockSend).toHaveBeenCalledTimes(2);
+      const recipients = mockSend.mock.calls.map((call) => call[0].to);
+      expect(recipients).toContain("fulano@example.com");
+      expect(recipients).toContain("mentor@example.com");
     },
   );
 
@@ -151,6 +194,10 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
 
     expect(outcome.type).toBe("rejected");
     expect(client._rows).toHaveLength(0);
+
+    // tasks.md T23 "Done when": dado malformado -> só o mentor recebe e-mail.
+    expect(mockSend).toHaveBeenCalledTimes(1);
+    expect(mockSend.mock.calls[0][0].to).toBe("mentor@example.com");
   });
 
   it("e-mail já com inscrição ativa no mesmo plano: cria mesmo assim e sinaliza duplicidade", async () => {

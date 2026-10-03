@@ -12,6 +12,11 @@ import {
 import { canTransition } from "./enrollment-state";
 import { getSupabaseClient } from "./supabase";
 import { PLANS, type PlanDisplay } from "../content/plans";
+import {
+  sendMenteeConfirmation,
+  sendMentorNewEnrollmentAlert,
+  sendMentorRejectedCheckoutAlert,
+} from "../emails/templates";
 
 export interface AsaasCheckoutCustomerData {
   name?: string;
@@ -154,10 +159,9 @@ async function processCheckoutPaid(
   const emailValid = !!email && EMAIL_REGEX.test(email);
 
   if (!emailValid || !name || !planDisplay) {
-    return {
-      type: "rejected",
-      reason: rejectionReason(email, name, planDisplay, event.checkout.id),
-    };
+    const reason = rejectionReason(email, name, planDisplay, event.checkout.id);
+    await sendMentorRejectedCheckoutAlert(event.checkout.id, reason);
+    return { type: "rejected", reason };
   }
 
   const plan: Plan = planDisplay.slug;
@@ -175,6 +179,14 @@ async function processCheckoutPaid(
   });
 
   const activated = await activateEnrollment(created, now);
+
+  // AC5 (mentorando) e AC6 (mentor) são dois gatilhos independentes da
+  // mesma "inscrição registrada com sucesso" - disparados juntos via
+  // Promise.all para que a falha de um não impeça a tentativa do outro.
+  await Promise.all([
+    sendMenteeConfirmation(activated),
+    sendMentorNewEnrollmentAlert(activated),
+  ]);
 
   return {
     type: "enrolled",

@@ -700,14 +700,18 @@ T28
 - Skill: NONE
 
 **Done when**:
-- [ ] `CHECKOUT_PAID` válido do `primeira-vaga` → mentorando e mentor recebem e-mail
-- [ ] `CHECKOUT_PAID` válido do `proximo-nivel` → mentorando e mentor recebem e-mail
-- [ ] Dado malformado → só o mentor recebe e-mail
-- [ ] Gate check passa: `npm run test`
+- [x] `CHECKOUT_PAID` válido do `primeira-vaga` → mentorando e mentor recebem e-mail
+- [x] `CHECKOUT_PAID` válido do `proximo-nivel` → mentorando e mentor recebem e-mail
+- [x] Dado malformado → só o mentor recebe e-mail
+- [x] Gate check passa: `npm run test`
 
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(webhook): send confirmation and alert emails on payment`
+
+**Status**: ✅ Complete
+
+> **Nota de implementação**: spec.md AC8/MENT-17 (dado malformado → alertar o mentor) não tinha template correspondente em `content/emails.ts`/`emails/templates.tsx` (T7 e T22 nunca o criaram - o caso não gera uma `Enrollment`, então o template de "nova inscrição" não serve). Adicionado `mentorRejectedCheckoutAlert` (um bloco em cada arquivo) como infraestrutura mínima necessária para este "Done when" literal, mesmo raciocínio de T6/T22 tocando um arquivo fora do "Where" original da task.
 
 ---
 

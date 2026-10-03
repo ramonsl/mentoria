@@ -57,4 +57,21 @@ export const EMAIL_TEMPLATES_COPY = {
       "☐ remover do grupo de WhatsApp",
     ],
   },
+
+  // Sem seção correspondente em content.md - spec.md AC8 (MENT-17) exige
+  // alertar o mentor quando um CHECKOUT_PAID chega com dados de cliente
+  // malformados/incompletos, mas nesse caso não existe inscrição criada
+  // (sem plano/datas de acesso) para reaproveitar o template de "nova
+  // inscrição" acima. Texto mínimo, adicionado em T23 (tasks.md) só para
+  // cobrir esse alerta.
+  mentorRejectedCheckoutAlert: {
+    subject:
+      "[Mentoria] Pagamento recebido com dados inválidos - ação manual necessária",
+    body: [
+      "Um pagamento foi confirmado no Asaas, mas os dados do cliente vieram incompletos ou inválidos e a inscrição não foi criada automaticamente.",
+      "Checkout: {checkoutId}",
+      "Motivo: {reason}",
+      "Verifique o pagamento diretamente no painel do Asaas e registre a inscrição manualmente se for um pagamento legítimo.",
+    ],
+  },
 };

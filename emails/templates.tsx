@@ -110,6 +110,28 @@ export async function sendMentorNewEnrollmentAlert(
 }
 
 /**
+ * Alerts the mentor that a CHECKOUT_PAID event arrived with malformed or
+ * incomplete customer data and was NOT auto-registered (spec.md AC8,
+ * MENT-17, tasks.md T23). No Enrollment exists in this case (no plan, no
+ * expiresAt), so sendMentorNewEnrollmentAlert's shape doesn't fit - this is
+ * a distinct, minimal alert added as part of T23's wiring.
+ */
+export async function sendMentorRejectedCheckoutAlert(
+  checkoutId: string,
+  reason: string,
+): Promise<void> {
+  const copy = EMAIL_TEMPLATES_COPY.mentorRejectedCheckoutAlert;
+  const env = getEnv();
+  const vars = { checkoutId, reason };
+
+  await sendEmail({
+    to: env.MENTOR_EMAIL,
+    subject: copy.subject,
+    text: renderBody(copy.body, vars),
+  });
+}
+
+/**
  * Alerts the mentor that an enrollment's access has expired, for any plan
  * (spec.md AC11, MENT-20, content.md §10.3).
  */
