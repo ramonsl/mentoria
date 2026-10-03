@@ -1461,17 +1461,23 @@ T49 → T51
 - Skill: NONE
 
 **Done when**:
-- [ ] e2e: NavBar visível e seus 3 links levam às âncoras certas
-- [ ] e2e: seção de dores aparece antes dos planos
-- [ ] e2e: selo de 30 vagas visível perto dos planos
-- [ ] e2e: seção "pra quem é/não é" aparece após os planos
-- [ ] e2e: "Como funciona", recomendações (com link ao LinkedIn) e CTA final aparecem na página
-- [ ] Os testes e2e existentes de T13/T16/T36 (planos, legal notice, mobile, CTAs, hero, about, faq, footer) continuam passando sem alteração
-- [ ] Gate check passa: `npm run test:e2e`
+- [x] e2e: NavBar visível e seus 3 links levam às âncoras certas
+- [x] e2e: seção de dores aparece antes dos planos
+- [x] e2e: selo de 30 vagas visível perto dos planos
+- [x] e2e: seção "pra quem é/não é" aparece após os planos
+- [x] e2e: "Como funciona", recomendações (com link ao LinkedIn) e CTA final aparecem na página
+- [x] Os testes e2e existentes de T13/T16/T36 (planos, legal notice, mobile, CTAs, hero, about, faq, footer) continuam passando sem alteração
+- [x] Gate check passa: `npm run test:e2e`
 
 **Tests**: e2e
 **Gate**: full
 **Commit**: `feat(ui): assemble final landing page with conversion sections`
+
+**Status**: ✅ Complete
+
+> **Nota de implementação**: `#faq` não existia em `components/FaqSection.tsx` (fora do "Where" desta task) - resolvido com um `<div id="faq">` envolvendo `<FaqSection />` dentro do próprio `app/page.tsx`, para o link do NavBar (`#faq`) ter um alvo real. Mesma classe de exceção já documentada em T22/T23/T26/T28/T37/T38/T39/T41 (infraestrutura mínima necessária para o "Done when" da própria task, dentro do arquivo já listado no "Where").
+>
+> **Nota de verificação (gate `full`)**: o `next dev` pré-existente na porta 3200 (não iniciado por este processo) não carrega as env vars dummy que `playwright.config.ts` injeta via `webServer.env` (reaproveitá-lo faz `/admin/inscricoes` responder 500) - mesma limitação documentada em T41. Resolvido com uma worktree git isolada (`git worktree add`, `node_modules` copiado via `cp -Rc` por causa de um bug do Turbopack com symlink de `node_modules` fora do diretório do worktree, worktree removida ao final) rodando `next dev` numa porta livre spawnado pelo próprio Playwright - os 24 testes e2e (8 novos de `landing-page-conversion.spec.ts` + 16 pré-existentes, nenhum modificado) passaram. `npm run test` (118 testes) e `npm run lint && npm run build` também verificados limpos no diretório principal.
 
 ---
 
