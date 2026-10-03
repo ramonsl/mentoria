@@ -1294,12 +1294,14 @@ T49 → T51
 - Skill: NONE
 
 **Done when**:
-- [ ] Renderiza os 3 links âncora e o CTA
-- [ ] Fica fixo/visível durante a rolagem
+- [x] Renderiza os 3 links âncora e o CTA
+- [x] Fica fixo/visível durante a rolagem
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(ui): add fixed navigation bar component`
+
+**Status**: ✅ Complete
 
 ---
 
