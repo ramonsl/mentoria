@@ -193,12 +193,14 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] `npm run test:e2e` executa e passa o teste smoke
-- [ ] Config cobre `e2e/**/*.spec.ts`
+- [x] `npm run test:e2e` executa e passa o teste smoke
+- [x] Config cobre `e2e/**/*.spec.ts`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `chore(test): configure playwright`
+
+**Status**: ✅ Complete
 
 ---
 
