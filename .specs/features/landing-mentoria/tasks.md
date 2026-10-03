@@ -1116,14 +1116,18 @@ T40 → T41
 - Skill: NONE
 
 **Done when**:
-- [ ] Requisição a `/admin/inscricoes` sem cookie válido é redirecionada para `/admin/login`
-- [ ] Requisição a `/admin/inscricoes` com cookie válido passa
-- [ ] `/admin/login` nunca é bloqueada pelo próprio middleware (senão ninguém consegue logar)
-- [ ] Gate check passa: `npm run test`
+- [x] Requisição a `/admin/inscricoes` sem cookie válido é redirecionada para `/admin/login`
+- [x] Requisição a `/admin/inscricoes` com cookie válido passa
+- [x] `/admin/login` nunca é bloqueada pelo próprio middleware (senão ninguém consegue logar)
+- [x] Gate check passa: `npm run test`
 
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(admin): add auth middleware for admin routes`
+
+**Status**: ✅ Complete
+
+> **Nota de implementação**: `/admin/login` nunca ser bloqueada é garantido estruturalmente pelo `config.matcher` (só lista `/admin/inscricoes`/`/admin/inscricoes/:path*`) - o Next.js nunca invoca a função `middleware` para uma rota fora do matcher, então não há como a lógica interna bloqueá-la por engano. Também adicionado `middleware.test.ts` ao `include` de `vitest.config.ts` - mesma classe de ajuste já feita em T22 (`emails/**/*.test.ts`), necessária porque a Test Coverage Matrix não previu um arquivo de teste na raiz do projeto (`middleware.ts` não vive sob `lib/` nem `app/api/`).
 
 ---
 

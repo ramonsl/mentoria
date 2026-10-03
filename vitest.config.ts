@@ -7,6 +7,7 @@ export default defineConfig({
       "lib/**/*.test.ts",
       "app/api/**/*.test.ts",
       "emails/**/*.test.ts",
+      "middleware.test.ts",
     ],
   },
 });
