@@ -1059,16 +1059,18 @@ T40 → T41
 - Skill: NONE
 
 **Done when**:
-- [ ] e2e: Hero aparece acima da seção de planos
-- [ ] e2e: clicar no CTA primário do Hero navega para a seção `#planos` (planos visíveis no viewport)
-- [ ] e2e: clicar no CTA secundário do Hero navega para a seção `#sobre` (About visível no viewport)
-- [ ] e2e: seção "Sobre o mentor", FAQ e rodapé (com link para `/privacidade`) aparecem na página
-- [ ] Os testes e2e existentes de T13 (planos, legal notice, mobile) continuam passando sem alteração
-- [ ] Gate check passa: `npm run test:e2e`
+- [x] e2e: Hero aparece acima da seção de planos
+- [x] e2e: clicar no CTA primário do Hero navega para a seção `#planos` (planos visíveis no viewport)
+- [x] e2e: clicar no CTA secundário do Hero navega para a seção `#sobre` (About visível no viewport)
+- [x] e2e: seção "Sobre o mentor", FAQ e rodapé (com link para `/privacidade`) aparecem na página
+- [x] Os testes e2e existentes de T13 (planos, legal notice, mobile) continuam passando sem alteração
+- [x] Gate check passa: `npm run test:e2e`
 
 **Tests**: e2e
 **Gate**: full
 **Commit**: `feat(ui): assemble full landing page with hero, about, faq and footer`
+
+**Status**: ✅ Complete
 
 ---
 
