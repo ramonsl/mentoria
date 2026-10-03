@@ -375,13 +375,15 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] Renderiza os 2 planos com preço, público-alvo e lista de entregáveis vindos de `content/plans.ts`
-- [ ] Um botão de CTA por plano, sem lógica de clique ainda (vem em T16)
-- [ ] Layout empilha verticalmente abaixo de 768px sem scroll horizontal
+- [x] Renderiza os 2 planos com preço, público-alvo e lista de entregáveis vindos de `content/plans.ts`
+- [x] Um botão de CTA por plano, sem lógica de clique ainda (vem em T16)
+- [x] Layout empilha verticalmente abaixo de 768px sem scroll horizontal
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(ui): add plan comparison component`
+
+**Status**: ✅ Complete
 
 ---
 
