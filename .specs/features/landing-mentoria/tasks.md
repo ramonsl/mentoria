@@ -267,15 +267,17 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] `content/plans.ts` exporta os 2 planos (`primeira-vaga`, `proximo-nivel`) com nome, preço, público-alvo, entregáveis (idênticos) e texto do CTA
-- [ ] `content/copy.ts` exporta hero, como-funciona, CTA final, rodapé e o aviso legal de 7 dias
-- [ ] `content/faq.ts` exporta as 8 perguntas e respostas (refletindo que os planos têm a mesma entrega, diferenciados por público)
-- [ ] `content/emails.ts` exporta assunto+corpo dos 3 templates (mentorando, alerta mentor, expiração)
-- [ ] Nenhum item marcado com ⚠️ em `content.md` vira texto final silenciosamente - placeholders óbvios (`TODO: confirmar ...`) onde o mentor ainda não decidiu
+- [x] `content/plans.ts` exporta os 2 planos (`primeira-vaga`, `proximo-nivel`) com nome, preço, público-alvo, entregáveis (idênticos) e texto do CTA
+- [x] `content/copy.ts` exporta hero, como-funciona, CTA final, rodapé e o aviso legal de 7 dias
+- [x] `content/faq.ts` exporta as 8 perguntas e respostas (refletindo que os planos têm a mesma entrega, diferenciados por público)
+- [x] `content/emails.ts` exporta assunto+corpo dos 3 templates (mentorando, alerta mentor, expiração)
+- [x] Nenhum item marcado com ⚠️ em `content.md` vira texto final silenciosamente - placeholders óbvios (`TODO: confirmar ...`) onde o mentor ainda não decidiu (defaults já resolvidos em `content.md` §14 usados como texto final; só o domínio de produção do remetente de e-mail, sem valor concreto, ficou como `TODO`)
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(content): transcribe landing copy into typed content module`
+
+**Status**: ✅ Complete
 
 ---
 
