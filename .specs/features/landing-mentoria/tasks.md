@@ -347,14 +347,16 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] Evento novo é gravado com sucesso
-- [ ] O mesmo event id enviado duas vezes resulta em no-op na segunda, sem lançar erro
-- [ ] `logOutcome` grava resultado e mensagem de erro (quando houver)
-- [ ] Gate check passa: `npm run test`
+- [x] Evento novo é gravado com sucesso
+- [x] O mesmo event id enviado duas vezes resulta em no-op na segunda, sem lançar erro
+- [x] `logOutcome` grava resultado e mensagem de erro (quando houver)
+- [x] Gate check passa: `npm run test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(domain): add webhook event log repository`
+
+**Status**: ✅ Complete
 
 ---
 
