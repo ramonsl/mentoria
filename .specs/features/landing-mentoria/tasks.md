@@ -1268,14 +1268,16 @@ T49 → T51
 - Skill: NONE
 
 **Done when**:
-- [ ] Exporta os links do menu (Planos/Sobre/FAQ) e o CTA
-- [ ] Exporta as duas colunas de dores (Primeira Vaga / Próximo Nível)
-- [ ] Exporta as listas "é pra você se" / "não é pra você se"
-- [ ] Exporta o texto do selo de vagas com o número 30
+- [x] Exporta os links do menu (Planos/Sobre/FAQ) e o CTA
+- [x] Exporta as duas colunas de dores (Primeira Vaga / Próximo Nível)
+- [x] Exporta as listas "é pra você se" / "não é pra você se"
+- [x] Exporta o texto do selo de vagas com o número 30
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(content): transcribe conversion-boost copy into typed content module`
+
+**Status**: ✅ Complete
 
 ---
 
