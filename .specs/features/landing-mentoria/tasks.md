@@ -478,14 +478,16 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] `plan: "primeira-vaga"` e `plan: "proximo-nivel"` retornam `checkoutUrl` em caminho feliz (Asaas mockado)
-- [ ] Falha do Asaas (mock 5xx/timeout) retorna 502 com mensagem amigável
-- [ ] `plan` ausente ou inválido retorna 400
-- [ ] Gate check passa: `npm run test`
+- [x] `plan: "primeira-vaga"` e `plan: "proximo-nivel"` retornam `checkoutUrl` em caminho feliz (Asaas mockado)
+- [x] Falha do Asaas (mock 5xx/timeout) retorna 502 com mensagem amigável
+- [x] `plan` ausente ou inválido retorna 400
+- [x] Gate check passa: `npm run test`
 
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(checkout): add checkout API route`
+
+**Status**: ✅ Complete
 
 ---
 
