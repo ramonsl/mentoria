@@ -1211,14 +1211,22 @@ T49 → T51
 - Skill: NONE
 
 **Done when**:
-- [ ] e2e: acessar `/admin/inscricoes` sem login redireciona para `/admin/login`
-- [ ] e2e: logar com a senha correta leva de volta a `/admin/inscricoes` e exibe a lista (dados de teste semeados), ordenada por proximidade da expiração
-- [ ] e2e: cada linha mostra nome, e-mail, plano, data de pagamento e data de expiração
-- [ ] Gate check passa: `npm run test:e2e`
+- [x] e2e: acessar `/admin/inscricoes` sem login redireciona para `/admin/login`
+- [x] e2e: logar com a senha correta leva de volta a `/admin/inscricoes` e exibe a lista (dados de teste semeados), ordenada por proximidade da expiração
+- [x] e2e: cada linha mostra nome, e-mail, plano, data de pagamento e data de expiração
+- [x] Gate check passa: `npm run test:e2e`
 
 **Tests**: e2e
 **Gate**: full
 **Commit**: `feat(admin): add enrollments list page`
+
+**Status**: ✅ Complete
+
+> **Nota de implementação**: não há projeto Supabase real disponível neste ambiente (mesma limitação de T5/T26), e `app/admin/inscricoes/page.tsx` busca dados no servidor (Server Component) - diferente do mock de `/api/checkout` via `page.route()` (T16), que intercepta no browser, aqui não há como mockar sem alcançar o processo real do `next dev`. Resolvido com infraestrutura de teste nova, necessária para este "Done when" ser prova de verdade (mesma classe de exceção de T6/T22/T26/T28/T37/T38):
+> - `e2e/support/fake-supabase-fetch.cjs` - shim de `global.fetch` (carregado via `NODE_OPTIONS=--require` só no processo do `next dev` de teste) que intercepta `GET .../rest/v1/enrollments` e devolve 3 inscrições semeadas, respeitando o parâmetro `order` como o PostgREST real faria para esta query - nunca importado por código de produção.
+> - `playwright.config.ts` ganhou `webServer.env` com valores dummy para as 9 vars de `lib/env.ts` (sem isso `getEnv()` quebra em `/admin/login`, `/admin/inscricoes` e no middleware) e a sentinela `SUPABASE_URL` que o shim intercepta; e um export `E2E_ADMIN_PASSWORD` reaproveitado pelo spec para logar com a senha certa sem duplicar o valor.
+> - Também adicionado `export const dynamic = "force-dynamic"` em `app/admin/inscricoes/page.tsx` - sem isso `next build` tenta pré-renderizar a página estaticamente e quebra por falta de env vars em build time; correto de qualquer forma para uma página protegida com dados ao vivo por requisição.
+> - Verificação do gate `full` (e2e) feita numa worktree git isolada (`git worktree add`, removida ao final) rodando `next dev` numa porta livre: um `next dev` pré-existente que este processo não iniciou já segurava o lock de diretório do Next.js (não é por porta) e, diferente de T37/T38 (que não dependiam de env real), T41 precisa do shim+env que só o processo spawnado por este `webServer.env` carrega - por isso não dava pra só reaproveitar aquele servidor como nas tasks anteriores desta fase.
 
 ---
 
