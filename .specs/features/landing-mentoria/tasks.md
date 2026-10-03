@@ -613,13 +613,15 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] `CANCELED`/`EXPIRED` sem `PAID` anterior → nenhuma inscrição criada
-- [ ] `CANCELED`/`EXPIRED` recebido após `PAID` já processado do mesmo checkout → inscrição permanece `paga`/`ativa`, conflito registrado para revisão manual
-- [ ] Gate check passa: `npm run test`
+- [x] `CANCELED`/`EXPIRED` sem `PAID` anterior → nenhuma inscrição criada
+- [x] `CANCELED`/`EXPIRED` recebido após `PAID` já processado do mesmo checkout → inscrição permanece `paga`/`ativa`, conflito registrado para revisão manual
+- [x] Gate check passa: `npm run test`
 
 **Tests**: unit
 **Gate**: full
 **Commit**: `feat(webhook): handle out-of-order and terminal-failure events`
+
+**Status**: ✅ Complete
 
 ---
 

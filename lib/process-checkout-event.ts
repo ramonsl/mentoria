@@ -1,6 +1,7 @@
 // Processa eventos de checkout do Asaas vindos do webhook (spec.md P1
 // "Confirmação automática pós-pagamento"). T19 cobre CHECKOUT_PAID; T20
-// estende para CANCELED/EXPIRED e eventos fora de ordem.
+// (esta extensão) cobre CHECKOUT_CANCELED/CHECKOUT_EXPIRED e o caso de
+// eventos fora de ordem (MENT-13).
 
 import {
   createEnrollment,
@@ -35,7 +36,8 @@ export interface AsaasCheckoutEvent {
 export type ProcessOutcome =
   | { type: "enrolled"; enrollment: Enrollment; duplicateAlert: boolean }
   | { type: "rejected"; reason: string }
-  | { type: "ignored"; reason: string };
+  | { type: "ignored"; reason: string }
+  | { type: "conflict"; reason: string; enrollment: Enrollment };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -99,23 +101,52 @@ function rejectionReason(
   return `Unable to determine plan for checkout ${checkoutId}`;
 }
 
+function mapEnrollmentRow(row: Record<string, unknown>): Enrollment {
+  return {
+    id: row.id as string,
+    asaasCheckoutId: row.asaas_checkout_id as string,
+    plan: row.plan as Plan,
+    status: row.status as Enrollment["status"],
+    customerName: row.customer_name as string,
+    customerEmail: row.customer_email as string,
+    amountCents: row.amount_cents as number,
+    paidAt: row.paid_at ? new Date(row.paid_at as string) : null,
+    expiresAt: new Date(row.expires_at as string),
+    createdAt: new Date(row.created_at as string),
+    updatedAt: new Date(row.updated_at as string),
+  };
+}
+
 /**
- * Handles a CHECKOUT_PAID event: validates customer data (MENT-17), checks
- * for an existing active enrollment on the same e-mail+plan (MENT-18,
- * flagged but never blocking), and creates+activates the enrollment
- * (MENT-10). Any other event type is ignored here (handled starting at T20).
+ * Looks up an enrollment already created for this Asaas checkout id, used
+ * to detect whether a CHECKOUT_PAID was already processed for it (MENT-13 -
+ * out-of-order events). lib/enrollments.ts has no such lookup (T20 is scoped
+ * to this file only), so this queries Supabase directly, same pattern as
+ * activateEnrollment above.
  */
-export async function processCheckoutEvent(
-  event: AsaasCheckoutEvent,
-  options: { now?: Date } = {},
-): Promise<ProcessOutcome> {
-  if (event.event !== "CHECKOUT_PAID") {
-    return {
-      type: "ignored",
-      reason: `Unhandled event type: ${event.event}`,
-    };
+async function findEnrollmentByCheckoutId(
+  checkoutId: string,
+): Promise<Enrollment | null> {
+  const client = getSupabaseClient();
+  const { data, error } = await client
+    .from("enrollments")
+    .select()
+    .eq("asaas_checkout_id", checkoutId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(
+      `Failed to look up enrollment for checkout ${checkoutId}: ${error.message}`,
+    );
   }
 
+  return data ? mapEnrollmentRow(data as Record<string, unknown>) : null;
+}
+
+async function processCheckoutPaid(
+  event: AsaasCheckoutEvent,
+  options: { now?: Date },
+): Promise<ProcessOutcome> {
   const customerData = event.checkout.customerData;
   const email = customerData?.email;
   const name = customerData?.name;
@@ -149,5 +180,57 @@ export async function processCheckoutEvent(
     type: "enrolled",
     enrollment: activated,
     duplicateAlert: existingActive !== null,
+  };
+}
+
+const TERMINAL_EVENT_TYPES = new Set(["CHECKOUT_CANCELED", "CHECKOUT_EXPIRED"]);
+
+/**
+ * Handles CHECKOUT_CANCELED/CHECKOUT_EXPIRED. If no enrollment exists yet for
+ * this checkout, a CHECKOUT_PAID was never processed for it - no-op, nothing
+ * to create (MENT-06, MENT-13). If an enrollment already exists, a
+ * CHECKOUT_PAID for this same checkout was already processed and is kept as
+ * definitive: the enrollment is never reverted automatically, only flagged
+ * as a conflict for manual review (MENT-13).
+ */
+async function processTerminalEvent(
+  event: AsaasCheckoutEvent,
+): Promise<ProcessOutcome> {
+  const existing = await findEnrollmentByCheckoutId(event.checkout.id);
+
+  if (!existing) {
+    return {
+      type: "ignored",
+      reason: `No prior CHECKOUT_PAID found for checkout ${event.checkout.id}; ${event.event} is a no-op`,
+    };
+  }
+
+  return {
+    type: "conflict",
+    reason: `${event.event} received after CHECKOUT_PAID already processed for checkout ${event.checkout.id}; enrollment kept as-is for manual review`,
+    enrollment: existing,
+  };
+}
+
+/**
+ * Entry point: dispatches a checkout event from the Asaas webhook to the
+ * right handler by event type. Unknown/unhandled event types are ignored
+ * (spec.md edge case: unknown event types/fields never throw).
+ */
+export async function processCheckoutEvent(
+  event: AsaasCheckoutEvent,
+  options: { now?: Date } = {},
+): Promise<ProcessOutcome> {
+  if (event.event === "CHECKOUT_PAID") {
+    return processCheckoutPaid(event, options);
+  }
+
+  if (TERMINAL_EVENT_TYPES.has(event.event)) {
+    return processTerminalEvent(event);
+  }
+
+  return {
+    type: "ignored",
+    reason: `Unhandled event type: ${event.event}`,
   };
 }

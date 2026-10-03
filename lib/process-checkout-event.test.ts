@@ -189,3 +189,61 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
     expect(client._rows).toHaveLength(2);
   });
 });
+
+// Cobre tasks.md T20 "Done when" (spec.md MENT-06, MENT-13): CANCELED/EXPIRED
+// sem PAID anterior é no-op; CANCELED/EXPIRED após um PAID já processado do
+// mesmo checkout mantém a inscrição como está e vira conflito pra revisão.
+describe("processCheckoutEvent - CHECKOUT_CANCELED / CHECKOUT_EXPIRED", () => {
+  it.each(["CHECKOUT_CANCELED", "CHECKOUT_EXPIRED"] as const)(
+    "%s sem CHECKOUT_PAID anterior para o checkout: nenhuma inscrição é criada",
+    async (eventType) => {
+      const client = createFakeSupabaseClient();
+      setFakeClient(client);
+
+      const outcome = await processCheckoutEvent(
+        makeEvent({
+          event: eventType,
+          checkout: { id: "chk-nunca-pago" },
+        }),
+      );
+
+      expect(outcome.type).toBe("ignored");
+      expect(client._rows).toHaveLength(0);
+    },
+  );
+
+  it.each(["CHECKOUT_CANCELED", "CHECKOUT_EXPIRED"] as const)(
+    "%s recebido após CHECKOUT_PAID já processado do mesmo checkout: inscrição permanece ativa e o conflito é registrado",
+    async (eventType) => {
+      const client = createFakeSupabaseClient([
+        {
+          id: "id-ja-paga",
+          asaas_checkout_id: "chk-ja-pago",
+          plan: PLANS[0].slug,
+          status: "ativa",
+          customer_name: "Fulano de Tal",
+          customer_email: "fulano@example.com",
+          amount_cents: PLANS[0].priceCents,
+          paid_at: "2026-01-01T00:00:00.000Z",
+          expires_at: "2026-07-01T00:00:00.000Z",
+          created_at: "2026-01-01T00:00:00.000Z",
+          updated_at: "2026-01-01T00:00:00.000Z",
+        },
+      ]);
+      setFakeClient(client);
+
+      const outcome = await processCheckoutEvent(
+        makeEvent({
+          event: eventType,
+          checkout: { id: "chk-ja-pago" },
+        }),
+      );
+
+      expect(outcome.type).toBe("conflict");
+      if (outcome.type !== "conflict") throw new Error("unreachable");
+      expect(outcome.enrollment.status).toBe("ativa");
+      expect(client._rows).toHaveLength(1);
+      expect(client._rows[0].status).toBe("ativa");
+    },
+  );
+});
