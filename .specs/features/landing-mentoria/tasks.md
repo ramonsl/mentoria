@@ -894,12 +894,14 @@ T40 → T41
 - Skill: NONE
 
 **Done when**:
-- [ ] Exporta nome, cargo, local, bio longa, bio curta, os 4 stat tiles, a lista de credenciais e a URL do LinkedIn
-- [ ] Nenhum item ⚠️ de `content.md` §3 vira texto final silenciosamente
+- [x] Exporta nome, cargo, local, bio longa, bio curta, os 4 stat tiles, a lista de credenciais e a URL do LinkedIn
+- [x] Nenhum item ⚠️ de `content.md` §3 vira texto final silenciosamente
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(content): transcribe about-mentor copy into typed content module`
+
+**Status**: ✅ Complete
 
 ---
 
