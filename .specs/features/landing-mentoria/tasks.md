@@ -452,14 +452,16 @@ T25 → T26
 - Outro: WebFetch para confirmar o schema oficial antes de codar o payload
 
 **Done when**:
-- [ ] Schema do `POST /v3/checkouts` confirmado contra a referência oficial (não assumido)
-- [ ] `createCheckout("primeira-vaga", origin)` e `createCheckout("proximo-nivel", origin)` retornam uma URL de checkout válida em caso de sucesso (mock)
-- [ ] Erro 5xx/timeout da API do Asaas lança um erro tipado reconhecível pela rota (T15)
-- [ ] Gate check passa: `npm run test`
+- [x] Schema do `POST /v3/checkouts` confirmado contra a referência oficial (não assumido)
+- [x] `createCheckout("primeira-vaga", origin)` e `createCheckout("proximo-nivel", origin)` retornam uma URL de checkout válida em caso de sucesso (mock)
+- [x] Erro 5xx/timeout da API do Asaas lança um erro tipado reconhecível pela rota (T15)
+- [x] Gate check passa: `npm run test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(checkout): add Asaas checkout client`
+
+**Status**: ✅ Complete
 
 ---
 
