@@ -966,12 +966,14 @@ T40 → T41
 - Skill: NONE
 
 **Done when**:
-- [ ] Renderiza bio, os 4 stat tiles, credenciais e link para o LinkedIn de `content/about.ts`
-- [ ] Sem `public/mentor.jpg`, mostra o placeholder de iniciais "RL" sem quebrar o layout
+- [x] Renderiza bio, os 4 stat tiles, credenciais e link para o LinkedIn de `content/about.ts`
+- [x] Sem `public/mentor.jpg`, mostra o placeholder de iniciais "RL" sem quebrar o layout
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(ui): add about-mentor section component`
+
+**Status**: ✅ Complete
 
 ---
 
