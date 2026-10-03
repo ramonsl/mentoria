@@ -15,7 +15,7 @@ test.describe("landing page - plan comparison", () => {
     const cards = page.getByRole("article");
     await expect(cards).toHaveCount(2);
 
-    for (const plan of PLANS) {
+    for (const [index, plan] of PLANS.entries()) {
       await expect(
         page.getByRole("heading", { name: plan.name }),
       ).toBeVisible();
@@ -24,6 +24,16 @@ test.describe("landing page - plan comparison", () => {
       ).toBeVisible();
       await expect(
         page.getByRole("button", { name: plan.ctaLabel }),
+      ).toBeVisible();
+      // Fix MENT-01 (validation.md, ciclo 1): spec.md AC1 exige a mesma
+      // lista de entregáveis e o público-alvo de cada plano, não só nome,
+      // preço e CTA. Escopado ao card (cards.nth(index)) porque os planos
+      // compartilham entregáveis idênticos - um getByText global ambíguo
+      // (2 matches) quebraria o modo estrito do Playwright.
+      const card = cards.nth(index);
+      await expect(card.getByText(plan.targetAudience)).toBeVisible();
+      await expect(
+        card.getByText(plan.deliverables[0], { exact: true }),
       ).toBeVisible();
     }
 

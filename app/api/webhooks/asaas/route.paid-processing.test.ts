@@ -209,6 +209,34 @@ describe("POST /api/webhooks/asaas - processamento real (T27)", () => {
     });
   });
 
+  it("falha no envio de e-mail (MENT-16): inscrição permanece registrada e o resultado final é logado como erro, resposta continua 200", async () => {
+    mockSend.mockRejectedValue(new Error("Resend API error: rate limited"));
+
+    const response = await POST(
+      makeRequest(checkoutPaidBody(), "correct-webhook-token"),
+    );
+
+    expect(response.status).toBe(200);
+
+    const client = getFakeClient()!;
+    // AC7 (MENT-16): "mantém a inscrição registrada" mesmo com falha de
+    // e-mail - o pagamento não pode "sumir" por causa disso.
+    expect(client._tables.enrollments).toHaveLength(1);
+    expect(client._tables.enrollments[0]).toMatchObject({
+      plan: PLANS[0].slug,
+      status: "ativa",
+    });
+    // "registrando a falha final para acompanhamento manual" - o log do
+    // evento reflete o erro, não um "success" mascarado.
+    expect(client._tables.webhook_events[0]).toMatchObject({
+      id: "evt-paid-1",
+      result: "error",
+    });
+    expect(client._tables.webhook_events[0].error_message).toContain(
+      "Resend API error",
+    );
+  });
+
   it("evento duplicado (mesmo event id) não reprocessa processCheckoutEvent nem reenvia e-mail", async () => {
     const body = checkoutPaidBody();
 
