@@ -1389,11 +1389,13 @@ T49 → T51
 - Skill: NONE
 
 **Done when**:
-- [ ] Renderiza os 4 passos de `HOW_IT_WORKS_STEPS`
+- [x] Renderiza os 4 passos de `HOW_IT_WORKS_STEPS`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(ui): add how-it-works section component`
+
+**Status**: ✅ Complete
 
 ---
 
