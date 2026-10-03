@@ -168,12 +168,14 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] `npm run test` executa e passa o teste smoke
-- [ ] Config cobre `lib/**/*.test.ts` e `app/api/**/*.test.ts`
+- [x] `npm run test` executa e passa o teste smoke
+- [x] Config cobre `lib/**/*.test.ts` e `app/api/**/*.test.ts`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `chore(test): configure vitest`
+
+**Status**: ✅ Complete
 
 ---
 
