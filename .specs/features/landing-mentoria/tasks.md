@@ -1245,11 +1245,13 @@ T49 → T51
 - Skill: NONE
 
 **Done when**:
-- [ ] Exporta título, subtítulo e as 4 recomendações (nome, cargo, texto, link) de `content.md` §7, texto exatamente como está lá (sem parafrasear)
+- [x] Exporta título, subtítulo e as 4 recomendações (nome, cargo, texto, link) de `content.md` §7, texto exatamente como está lá (sem parafrasear)
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(content): transcribe testimonials copy into typed content module`
+
+**Status**: ✅ Complete
 
 ---
 
