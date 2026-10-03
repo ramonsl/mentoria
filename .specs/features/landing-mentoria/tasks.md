@@ -918,12 +918,14 @@ T40 → T41
 - Skill: NONE
 
 **Done when**:
-- [ ] Cobre: dados coletados, finalidade, terceiros (Asaas/Resend/Supabase nomeados), direitos do titular e canal de contato
-- [ ] Linguagem direta, sem jargão jurídico desnecessário (mesmo tom do resto do site)
+- [x] Cobre: dados coletados, finalidade, terceiros (Asaas/Resend/Supabase nomeados), direitos do titular e canal de contato
+- [x] Linguagem direta, sem jargão jurídico desnecessário (mesmo tom do resto do site)
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(content): add privacy policy copy`
+
+**Status**: ✅ Complete
 
 ---
 
