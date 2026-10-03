@@ -400,11 +400,13 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] Exibe o texto do aviso de 7 dias vindo de `content/copy.ts`
+- [x] Exibe o texto do aviso de 7 dias vindo de `content/copy.ts`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(ui): add legal withdrawal notice component`
+
+**Status**: ✅ Complete
 
 ---
 
