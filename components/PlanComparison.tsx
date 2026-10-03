@@ -1,11 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { COHORT_BADGE_COPY } from "@/content/conversion";
 import { PLANS, type PlanDisplay } from "@/content/plans";
 
 // Componente apresentacional (spec.md P1 "Ver e comparar os planos",
 // MENT-01/02/03) com os CTAs conectados a /api/checkout (spec.md P1 "Pagar o
-// plano escolhido", MENT-06/08/09 - T16).
+// plano escolhido", MENT-06/08/09 - T16), e o selo de vagas reais (spec.md P2
+// "Reforço de conversão" AC6, MENT-37 - T50).
 
 const GENERIC_CHECKOUT_ERROR =
   "Não foi possível iniciar o pagamento agora. Tente novamente em instantes.";
@@ -101,13 +103,16 @@ function PlanCard({ plan }: { plan: PlanDisplay }) {
 
 export default function PlanComparison() {
   return (
-    <section
-      id="planos"
-      className="flex flex-col gap-8 py-16 px-6 md:flex-row md:items-stretch md:gap-6 md:px-16"
-    >
-      {PLANS.map((plan) => (
-        <PlanCard key={plan.slug} plan={plan} />
-      ))}
+    <section id="planos" className="flex flex-col gap-8 px-6 py-16 md:px-16">
+      <p className="w-fit self-center rounded-full bg-blue-600/10 px-4 py-1.5 text-sm font-medium text-blue-700 dark:text-blue-400">
+        {COHORT_BADGE_COPY.text}
+      </p>
+
+      <div className="flex flex-col gap-8 md:flex-row md:items-stretch md:gap-6">
+        {PLANS.map((plan) => (
+          <PlanCard key={plan.slug} plan={plan} />
+        ))}
+      </div>
     </section>
   );
 }

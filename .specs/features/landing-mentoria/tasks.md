@@ -1435,12 +1435,16 @@ T49 → T51
 - Skill: NONE
 
 **Done when**:
-- [ ] Selo com o texto de vagas visível perto dos planos
-- [ ] Os testes e2e existentes de `PlanComparison` (T13/T16/T36) continuam passando sem alteração
+- [x] Selo com o texto de vagas visível perto dos planos
+- [x] Os testes e2e existentes de `PlanComparison` (T13/T16/T36) continuam passando sem alteração
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(ui): add cohort size badge to plan comparison`
+
+**Status**: ✅ Complete
+
+> **Nota de implementação**: o "Done when" cita testes e2e explicitamente, apesar do Gate formal ser `build` - rodados `landing-page.spec.ts` e `checkout-cta.spec.ts` (6/6 passando) contra o `next dev` pré-existente na porta 3200 para confirmar a regressão antes de marcar a task concluída, sem promover o Gate Check Command oficial da task.
 
 ---
 
