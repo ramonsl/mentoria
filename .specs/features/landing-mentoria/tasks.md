@@ -240,13 +240,15 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] Factory lança erro claro se faltar env obrigatória
-- [ ] Retorna um client Supabase configurado quando o env está completo
-- [ ] Gate check passa: `npm run test`
+- [x] Factory lança erro claro se faltar env obrigatória
+- [x] Retorna um client Supabase configurado quando o env está completo
+- [x] Gate check passa: `npm run test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(db): add server-only Supabase client factory`
+
+**Status**: ✅ Complete
 
 ---
 
