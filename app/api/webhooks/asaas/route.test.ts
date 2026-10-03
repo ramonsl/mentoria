@@ -4,12 +4,25 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // inválido/ausente retorna 401 sem gravar; mesmo event id duas vezes não
 // duplica; payload com campos extras desconhecidos é aceito sem erro.
 
-const { mockRecordEvent } = vi.hoisted(() => ({
-  mockRecordEvent: vi.fn(),
-}));
+// T27 conecta a rota a processCheckoutEvent/logOutcome - mockados aqui para
+// manter este arquivo focado no contrato da rota (validação, idempotência,
+// payload tolerante) já coberto por T18. O teste fim a fim que prova o
+// processamento REAL (sem mockar processCheckoutEvent) vive em
+// route.paid-processing.test.ts, conforme pedido para T27.
+const { mockRecordEvent, mockLogOutcome, mockProcessCheckoutEvent } =
+  vi.hoisted(() => ({
+    mockRecordEvent: vi.fn(),
+    mockLogOutcome: vi.fn(),
+    mockProcessCheckoutEvent: vi.fn(),
+  }));
 
 vi.mock("../../../../lib/webhook-events", () => ({
   recordEvent: mockRecordEvent,
+  logOutcome: mockLogOutcome,
+}));
+
+vi.mock("../../../../lib/process-checkout-event", () => ({
+  processCheckoutEvent: mockProcessCheckoutEvent,
 }));
 
 import { POST } from "./route";
@@ -66,6 +79,11 @@ describe("POST /api/webhooks/asaas", () => {
       process.env[key] = value;
     }
     mockRecordEvent.mockReset();
+    mockLogOutcome.mockReset().mockResolvedValue(undefined);
+    mockProcessCheckoutEvent.mockReset().mockResolvedValue({
+      type: "ignored",
+      reason: "mocked in this test file - see route.paid-processing.test.ts",
+    });
   });
 
   afterEach(() => {
@@ -102,6 +120,9 @@ describe("POST /api/webhooks/asaas", () => {
 
     expect(response.status).toBe(401);
     expect(mockRecordEvent).not.toHaveBeenCalled();
+    // tasks.md T27 "Done when": token inválido continua retornando 401 sem
+    // chamar processCheckoutEvent.
+    expect(mockProcessCheckoutEvent).not.toHaveBeenCalled();
   });
 
   it("retorna 401 e não grava nada quando o token está ausente", async () => {
@@ -115,6 +136,7 @@ describe("POST /api/webhooks/asaas", () => {
 
     expect(response.status).toBe(401);
     expect(mockRecordEvent).not.toHaveBeenCalled();
+    expect(mockProcessCheckoutEvent).not.toHaveBeenCalled();
   });
 
   it("o mesmo event id enviado duas vezes não duplica o registro (idempotência)", async () => {
@@ -136,6 +158,9 @@ describe("POST /api/webhooks/asaas", () => {
     expect(mockRecordEvent).toHaveBeenCalledTimes(2);
     expect(mockRecordEvent.mock.calls[0][0]).toMatchObject({ id: "evt-dup" });
     expect(mockRecordEvent.mock.calls[1][0]).toMatchObject({ id: "evt-dup" });
+    // tasks.md T27 "Done when": evento duplicado não reprocessa
+    // processCheckoutEvent - só a 1ª chamada (recorded: true) dispara.
+    expect(mockProcessCheckoutEvent).toHaveBeenCalledTimes(1);
   });
 
   it("aceita payload com campos extras desconhecidos sem lançar erro", async () => {

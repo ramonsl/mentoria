@@ -754,14 +754,18 @@ T28
 - Skill: NONE
 
 **Done when**:
-- [ ] `POST /api/webhooks/asaas` com um `CHECKOUT_PAID` válido cria a inscrição E dispara os e-mails corretos (não só grava o log do evento)
-- [ ] Evento duplicado (mesmo event id) não reprocessa `processCheckoutEvent` nem reenvia e-mail
-- [ ] Token inválido continua retornando 401 sem chamar `processCheckoutEvent`
-- [ ] Gate check passa: `npm run test`
+- [x] `POST /api/webhooks/asaas` com um `CHECKOUT_PAID` válido cria a inscrição E dispara os e-mails corretos (não só grava o log do evento)
+- [x] Evento duplicado (mesmo event id) não reprocessa `processCheckoutEvent` nem reenvia e-mail
+- [x] Token inválido continua retornando 401 sem chamar `processCheckoutEvent`
+- [x] Gate check passa: `npm run test`
 
 **Tests**: integration
 **Gate**: full
 **Commit**: `fix(webhook): wire the webhook route to actually process payment events`
+
+**Status**: ✅ Complete
+
+> **Nota de implementação**: teste de integração dedicado em `app/api/webhooks/asaas/route.paid-processing.test.ts` - só mocka as bordas externas (`lib/supabase.ts`, `lib/email.ts`), deixando a rota real, `recordEvent`, `processCheckoutEvent`, `createEnrollment` e os templates de e-mail rodarem de verdade, provando os 3 critérios acima fim a fim pela rota HTTP (não chamando `processCheckoutEvent` diretamente). `app/api/webhooks/asaas/route.test.ts` (T18) foi ajustado para mockar `processCheckoutEvent`/`logOutcome`, preservando seu foco original (contrato da rota) sob o novo fluxo.
 
 ---
 

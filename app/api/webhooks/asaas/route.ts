@@ -1,17 +1,27 @@
-// POST /api/webhooks/asaas - esqueleto (spec.md P1 "Confirmação automática
-// pós-pagamento" AC1-3, MENT-11/12/21). Valida o header de autenticidade,
-// grava o evento de forma idempotente (por event id) tolerando campos extras
-// desconhecidos no payload, e retorna 200. O processamento de negócio do
-// CHECKOUT_PAID (lib/process-checkout-event.ts) é conectado a partir de T19 -
-// fora do escopo desta task.
+// POST /api/webhooks/asaas (spec.md P1 "Confirmação automática pós-pagamento"
+// AC1-3, MENT-11/12/21). Valida o header de autenticidade, grava o evento de
+// forma idempotente (por event id) tolerando campos extras desconhecidos no
+// payload, e - só para um evento NOVO, nunca para um duplicado - dispara o
+// processamento real (lib/process-checkout-event.ts, T19/T20/T23): cria a
+// inscrição e envia os e-mails. Sempre retorna 200 ao Asaas: o evento já foi
+// gravado de forma durável, então um erro de processamento vira log de
+// auditoria (MENT-21), não uma instrução para o Asaas reentregar o webhook.
 
 import { isValidWebhookToken } from "../../../../lib/verify-asaas-webhook";
-import { recordEvent } from "../../../../lib/webhook-events";
+import { logOutcome, recordEvent } from "../../../../lib/webhook-events";
+import {
+  processCheckoutEvent,
+  type AsaasCheckoutEvent,
+} from "../../../../lib/process-checkout-event";
 
 interface AsaasWebhookPayload {
   id?: string;
   event?: string;
-  checkout?: { id?: string };
+  checkout?: {
+    id?: string;
+    customerData?: { name?: string; email?: string } | null;
+    items?: { name?: string; value?: number }[];
+  };
   [key: string]: unknown;
 }
 
@@ -31,12 +41,37 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "Invalid JSON payload" }, { status: 400 });
   }
 
-  await recordEvent({
+  const recordResult = await recordEvent({
     id: payload.id ?? "",
     eventType: payload.event ?? "",
     checkoutId: payload.checkout?.id ?? "",
     payload,
   });
+
+  // Idempotência (MENT-12): um event id já registrado antes não é
+  // reprocessado - nem a inscrição é recriada, nem o e-mail é reenviado.
+  if (recordResult.recorded) {
+    const asaasEvent: AsaasCheckoutEvent = {
+      id: recordResult.event.id,
+      event: payload.event ?? "",
+      checkout: {
+        id: payload.checkout?.id ?? "",
+        customerData: payload.checkout?.customerData,
+        items: payload.checkout?.items,
+      },
+    };
+
+    try {
+      await processCheckoutEvent(asaasEvent);
+      await logOutcome(recordResult.event.id, "success");
+    } catch (err) {
+      await logOutcome(
+        recordResult.event.id,
+        "error",
+        (err as Error).message,
+      );
+    }
+  }
 
   return Response.json({ ok: true });
 }
