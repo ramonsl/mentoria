@@ -296,13 +296,15 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] Cada transição válida listada retorna `true`
-- [ ] Pelo menos 3 transições inválidas (ex.: `expirada→paga`, `cancelada→ativa`, `paga→pendente`) retornam `false`
-- [ ] Gate check passa: `npm run test`
+- [x] Cada transição válida listada retorna `true`
+- [x] Pelo menos 3 transições inválidas (ex.: `expirada→paga`, `cancelada→ativa`, `paga→pendente`) retornam `false`
+- [x] Gate check passa: `npm run test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(domain): add enrollment state machine validator`
+
+**Status**: ✅ Complete
 
 ---
 
