@@ -146,13 +146,15 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] `getEnv()` retorna objeto tipado com todas as vars presentes
-- [ ] Lança erro claro nomeando a variável quando uma obrigatória falta
-- [ ] Gate check passa: `npm run test`
+- [x] `getEnv()` retorna objeto tipado com todas as vars presentes
+- [x] Lança erro claro nomeando a variável quando uma obrigatória falta
+- [x] Gate check passa: `npm run test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(config): add typed environment loader`
+
+**Status**: ✅ Complete
 
 ---
 
