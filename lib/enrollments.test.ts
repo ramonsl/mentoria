@@ -22,6 +22,7 @@ function createFakeSupabaseClient(initialRows: Record<string, unknown>[] = []) {
     const filters: Filter[] = [];
     let insertPayload: Record<string, unknown> | null = null;
     let updatePayload: Record<string, unknown> | null = null;
+    let orderSpec: { col: string; ascending: boolean } | null = null;
 
     const api = {
       insert(payload: Record<string, unknown>) {
@@ -41,6 +42,10 @@ function createFakeSupabaseClient(initialRows: Record<string, unknown>[] = []) {
       },
       lte(col: string, val: unknown) {
         filters.push({ col, op: "lte", val });
+        return api;
+      },
+      order(col: string, opts: { ascending?: boolean } = {}) {
+        orderSpec = { col, ascending: opts.ascending !== false };
         return api;
       },
       async single() {
@@ -75,7 +80,17 @@ function createFakeSupabaseClient(initialRows: Record<string, unknown>[] = []) {
           error: null;
         }) => void,
       ) {
-        const matched = rows.filter((r) => matches(r, filters));
+        let matched = rows.filter((r) => matches(r, filters));
+        if (orderSpec) {
+          const { col, ascending } = orderSpec;
+          matched = [...matched].sort((a, b) => {
+            const av = a[col] as string;
+            const bv = b[col] as string;
+            if (av < bv) return ascending ? -1 : 1;
+            if (av > bv) return ascending ? 1 : -1;
+            return 0;
+          });
+        }
         resolve({ data: matched, error: null });
       },
     };
@@ -109,6 +124,7 @@ vi.mock("./supabase", () => ({
 import {
   createEnrollment,
   findActiveByEmailAndPlan,
+  listEnrollments,
   markExpiredEnrollments,
 } from "./enrollments";
 
@@ -257,5 +273,69 @@ describe("markExpiredEnrollments", () => {
 
     expect(expired).toHaveLength(0);
     expect(client._rows[0].status).toBe("paga");
+  });
+});
+
+describe("listEnrollments", () => {
+  it("retorna todas as inscrições ordenadas por expiresAt ascendente (mais próxima de expirar primeiro)", async () => {
+    setFakeClient(
+      createFakeSupabaseClient([
+        {
+          id: "id-longe",
+          asaas_checkout_id: "checkout-longe",
+          plan: "proximo-nivel",
+          status: "ativa",
+          customer_name: "Vence Por Último",
+          customer_email: "longe@example.com",
+          amount_cents: 49900,
+          paid_at: "2026-06-01T00:00:00.000Z",
+          expires_at: "2026-12-01T00:00:00.000Z",
+          created_at: "2026-06-01T00:00:00.000Z",
+          updated_at: "2026-06-01T00:00:00.000Z",
+        },
+        {
+          id: "id-perto",
+          asaas_checkout_id: "checkout-perto",
+          plan: "primeira-vaga",
+          status: "ativa",
+          customer_name: "Vence Primeiro",
+          customer_email: "perto@example.com",
+          amount_cents: 19900,
+          paid_at: "2026-01-01T00:00:00.000Z",
+          expires_at: "2026-07-01T00:00:00.000Z",
+          created_at: "2026-01-01T00:00:00.000Z",
+          updated_at: "2026-01-01T00:00:00.000Z",
+        },
+        {
+          id: "id-meio",
+          asaas_checkout_id: "checkout-meio",
+          plan: "primeira-vaga",
+          status: "paga",
+          customer_name: "Vence no Meio",
+          customer_email: "meio@example.com",
+          amount_cents: 19900,
+          paid_at: "2026-03-01T00:00:00.000Z",
+          expires_at: "2026-09-01T00:00:00.000Z",
+          created_at: "2026-03-01T00:00:00.000Z",
+          updated_at: "2026-03-01T00:00:00.000Z",
+        },
+      ]),
+    );
+
+    const enrollments = await listEnrollments();
+
+    expect(enrollments.map((e) => e.id)).toEqual([
+      "id-perto",
+      "id-meio",
+      "id-longe",
+    ]);
+  });
+
+  it("retorna lista vazia quando não há inscrições", async () => {
+    setFakeClient(createFakeSupabaseClient());
+
+    const enrollments = await listEnrollments();
+
+    expect(enrollments).toEqual([]);
   });
 });

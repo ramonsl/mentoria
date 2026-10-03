@@ -1144,12 +1144,16 @@ T40 → T41
 - Skill: NONE
 
 **Done when**:
-- [ ] Retorna todas as inscrições ordenadas por `expiresAt` ascendente (mais próxima de expirar primeiro)
-- [ ] Gate check passa: `npm run test`
+- [x] Retorna todas as inscrições ordenadas por `expiresAt` ascendente (mais próxima de expirar primeiro)
+- [x] Gate check passa: `npm run test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(domain): add listEnrollments to enrollment repository`
+
+**Status**: ✅ Complete
+
+> **Nota de implementação**: o fake Supabase client de `lib/enrollments.test.ts` (já usado por T9) precisou ganhar suporte a `.order()` - sem isso o teste não conseguiria provar que a ordenação por `expiresAt` realmente acontece (mesma classe de ajuste de infraestrutura de teste de T6/T9, estendendo um fake já existente em vez de criar um novo).
 
 ---
 

@@ -160,3 +160,26 @@ export async function markExpiredEnrollments(
 
   return expired;
 }
+
+/**
+ * Lists every enrollment ordered by expiresAt ascending (closest to
+ * expiring first), for the mentor's admin list (spec.md P2 "Lista de
+ * inscrições para o mentor", MENT-25). `nullsFirst: false` is defensive:
+ * every enrollment today always has expiresAt filled (createEnrollment
+ * always computes it), so no row is expected to hit that branch in
+ * practice.
+ */
+export async function listEnrollments(): Promise<Enrollment[]> {
+  const client = getSupabaseClient();
+
+  const { data, error } = await client
+    .from("enrollments")
+    .select()
+    .order("expires_at", { ascending: true, nullsFirst: false });
+
+  if (error) {
+    throw new Error(`Failed to list enrollments: ${error.message}`);
+  }
+
+  return (data ?? []).map(mapRow);
+}
