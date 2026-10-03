@@ -532,14 +532,16 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] Token correto → `true`
-- [ ] Token incorreto → `false`
-- [ ] Header ausente → `false`
-- [ ] Gate check passa: `npm run test`
+- [x] Token correto → `true`
+- [x] Token incorreto → `false`
+- [x] Header ausente → `false`
+- [x] Gate check passa: `npm run test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(webhook): add webhook token validator`
+
+**Status**: ✅ Complete
 
 ---
 
