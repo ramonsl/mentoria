@@ -58,6 +58,22 @@ describe("createCheckout", () => {
       // slug do plano no payload enviado ao Asaas.
       const sentBody = JSON.parse(fetchMock.mock.calls[0][1].body as string);
       expect(sentBody.externalReference).toBe(plan);
+
+      // Fix MENT-04/MENT-05 (validation.md, ciclo 1): spec.md exige cobrança
+      // única (não recorrente) e Pix + cartão como formas de pagamento - o
+      // sensor de mutação do Verifier provou que nenhum teste travava uma
+      // mudança indevida nesses dois campos.
+      expect(sentBody.chargeTypes).toEqual(["DETACHED"]);
+      expect(sentBody.billingTypes).toEqual(["PIX", "CREDIT_CARD"]);
+
+      // Fix MENT-06/MENT-22 (validation.md, ciclo 1): o redirecionamento
+      // pós-pagamento (sucesso -> /obrigado, recusa/cancelamento -> landing)
+      // depende destes dois valores - não bastava a página /obrigado existir
+      // isoladamente.
+      expect(sentBody.callback.successUrl).toBe(
+        "https://mentoria.example.com/obrigado",
+      );
+      expect(sentBody.callback.cancelUrl).toBe("https://mentoria.example.com");
     },
   );
 
