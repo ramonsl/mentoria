@@ -558,15 +558,17 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] Evento com token válido é registrado e retorna 200
-- [ ] Token inválido/ausente retorna 401 sem gravar nada
-- [ ] Mesmo event id enviado duas vezes não duplica o registro (idempotência)
-- [ ] Payload com campos extras desconhecidos é aceito sem erro
-- [ ] Gate check passa: `npm run test`
+- [x] Evento com token válido é registrado e retorna 200
+- [x] Token inválido/ausente retorna 401 sem gravar nada
+- [x] Mesmo event id enviado duas vezes não duplica o registro (idempotência)
+- [x] Payload com campos extras desconhecidos é aceito sem erro
+- [x] Gate check passa: `npm run test`
 
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(webhook): add Asaas webhook endpoint`
+
+**Status**: ✅ Complete
 
 ---
 
