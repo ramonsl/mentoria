@@ -1013,11 +1013,13 @@ T40 → T41
 - Skill: NONE
 
 **Done when**:
-- [ ] Renderiza copyright (com o ano atual), e os 4 links de `FOOTER_COPY` (LinkedIn, e-mail, reembolso, privacidade)
+- [x] Renderiza copyright (com o ano atual), e os 4 links de `FOOTER_COPY` (LinkedIn, e-mail, reembolso, privacidade)
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(ui): add footer component`
+
+**Status**: ✅ Complete
 
 ---
 
