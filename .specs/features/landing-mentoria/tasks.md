@@ -1412,11 +1412,13 @@ T49 → T51
 - Skill: NONE
 
 **Done when**:
-- [ ] Renderiza título, texto e botão de `FINAL_CTA_COPY`, linkando para `#planos`
+- [x] Renderiza título, texto e botão de `FINAL_CTA_COPY`, linkando para `#planos`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(ui): add final cta section component`
+
+**Status**: ✅ Complete
 
 ---
 
