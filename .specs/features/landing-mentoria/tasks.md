@@ -990,11 +990,13 @@ T40 → T41
 - Skill: NONE
 
 **Done when**:
-- [ ] Renderiza as 8 perguntas e respostas de `FAQ_ITEMS`
+- [x] Renderiza as 8 perguntas e respostas de `FAQ_ITEMS`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(ui): add faq section component`
+
+**Status**: ✅ Complete
 
 ---
 
