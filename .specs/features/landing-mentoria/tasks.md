@@ -728,12 +728,16 @@ T28
 - Skill: NONE
 
 **Done when**:
-- [ ] e2e: acessar `/obrigado` diretamente renderiza o texto esperado
-- [ ] Gate check passa: `npm run test:e2e`
+- [x] e2e: acessar `/obrigado` diretamente renderiza o texto esperado
+- [x] Gate check passa: `npm run test:e2e`
 
 **Tests**: e2e
 **Gate**: full
 **Commit**: `feat(ui): add thank-you page`
+
+**Status**: ✅ Complete
+
+> **Nota de implementação**: `content/copy.ts` nunca tinha recebido o texto de content.md §9 (gap de T7, página de obrigado ainda não existia) - adicionado `THANK_YOU_COPY` como infraestrutura mínima necessária, evitando copy hardcoded no componente (design.md, Content Module).
 
 ---
 

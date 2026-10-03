@@ -39,6 +39,17 @@ export const LEGAL_NOTICE_COPY = {
   text: "Você tem 7 dias corridos a partir do pagamento para desistir da compra e receber 100% do valor de volta, conforme o art. 49 do Código de Defesa do Consumidor. Basta enviar um e-mail para ramonsl@gmail.com pedindo o reembolso. O estorno é feito pelo mesmo meio de pagamento.",
 };
 
+// content.md §9 - página de obrigado (MENT-22). O placeholder
+// ⚠️[e-mail de contato] usa o mesmo contactEmail já resolvido em
+// LEGAL_NOTICE_COPY (content.md §14 item 3).
+export const THANK_YOU_COPY = {
+  title: "Pagamento recebido. Bem-vindo(a)!",
+  text: "Em alguns minutos você recebe um e-mail com os próximos passos e o link para agendar sua call. Se não aparecer, confira a caixa de spam ou promoções.",
+  secondaryText: `Pagou com Pix e a confirmação ainda não chegou? Pode levar alguns minutos. Dúvidas: ${LEGAL_NOTICE_COPY.contactEmail}.`,
+  buttonLabel: "Voltar para o início",
+  buttonHref: "/",
+};
+
 export const FOOTER_COPY = {
   copyrightTemplate:
     "© {year} Ramon dos Santos Lummertz · Atendimento online a partir de Torres, RS",
