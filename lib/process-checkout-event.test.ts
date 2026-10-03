@@ -1,0 +1,191 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { PLANS } from "../content/plans";
+
+// Fake Supabase client suportando insert+select+single (createEnrollment),
+// select+eq*+maybeSingle (findActiveByEmailAndPlan) e update+eq aguardado
+// direto sem .select() (activateEnrollment) - mesmo padrão de
+// lib/enrollments.test.ts, estendido para o caso de update sem select.
+function createFakeSupabaseClient(initialRows: Record<string, unknown>[] = []) {
+  const rows: Record<string, unknown>[] = [...initialRows];
+  let nextId = rows.length + 1;
+
+  type Filter = { col: string; val: unknown };
+
+  function matches(row: Record<string, unknown>, filters: Filter[]): boolean {
+    return filters.every(({ col, val }) => row[col] === val);
+  }
+
+  function from(_table: string) {
+    const filters: Filter[] = [];
+    let insertPayload: Record<string, unknown> | null = null;
+    let updatePayload: Record<string, unknown> | null = null;
+
+    const api = {
+      insert(payload: Record<string, unknown>) {
+        insertPayload = payload;
+        return api;
+      },
+      update(payload: Record<string, unknown>) {
+        updatePayload = payload;
+        return api;
+      },
+      select() {
+        return api;
+      },
+      eq(col: string, val: unknown) {
+        filters.push({ col, val });
+        return api;
+      },
+      async single() {
+        if (insertPayload) {
+          const row = {
+            ...insertPayload,
+            id: `id-${nextId++}`,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
+          rows.push(row);
+          return { data: row, error: null };
+        }
+        const match = rows.find((r) => matches(r, filters)) ?? null;
+        return { data: match, error: null };
+      },
+      async maybeSingle() {
+        const match = rows.find((r) => matches(r, filters)) ?? null;
+        return { data: match, error: null };
+      },
+      then(resolve: (value: { data: unknown; error: null }) => void) {
+        if (updatePayload) {
+          const idx = rows.findIndex((r) => matches(r, filters));
+          if (idx !== -1) {
+            rows[idx] = { ...rows[idx], ...updatePayload };
+          }
+          resolve({ data: null, error: null });
+          return;
+        }
+        const matched = rows.filter((r) => matches(r, filters));
+        resolve({ data: matched, error: null });
+      },
+    };
+
+    return api;
+  }
+
+  return { from, _rows: rows };
+}
+
+const { getFakeClient, setFakeClient } = vi.hoisted(() => {
+  let client: ReturnType<typeof createFakeSupabaseClient> | null = null;
+  return {
+    getFakeClient: () => client,
+    setFakeClient: (c: typeof client) => {
+      client = c;
+    },
+  };
+});
+
+vi.mock("./supabase", () => ({
+  getSupabaseClient: () => getFakeClient(),
+}));
+
+import { processCheckoutEvent, type AsaasCheckoutEvent } from "./process-checkout-event";
+
+function makeEvent(overrides: Partial<AsaasCheckoutEvent> = {}): AsaasCheckoutEvent {
+  return {
+    id: "evt-1",
+    event: "CHECKOUT_PAID",
+    checkout: {
+      id: "chk-1",
+      customerData: { name: "Fulano de Tal", email: "fulano@example.com" },
+      items: [{ name: PLANS[0].name, value: PLANS[0].priceCents / 100 }],
+    },
+    ...overrides,
+  };
+}
+
+describe("processCheckoutEvent - CHECKOUT_PAID", () => {
+  beforeEach(() => {
+    setFakeClient(createFakeSupabaseClient());
+  });
+
+  it.each(PLANS)(
+    "cria a inscrição com expiresAt = pagamento + 6 meses e status ativa para o plano $slug",
+    async (plan) => {
+      const now = new Date("2026-01-15T12:00:00.000Z");
+      const event = makeEvent({
+        checkout: {
+          id: `chk-${plan.slug}`,
+          customerData: { name: "Fulano de Tal", email: "fulano@example.com" },
+          items: [{ name: plan.name, value: plan.priceCents / 100 }],
+        },
+      });
+
+      const outcome = await processCheckoutEvent(event, { now });
+
+      expect(outcome.type).toBe("enrolled");
+      if (outcome.type !== "enrolled") throw new Error("unreachable");
+      expect(outcome.enrollment.plan).toBe(plan.slug);
+      expect(outcome.enrollment.expiresAt.toISOString()).toBe(
+        "2026-07-15T12:00:00.000Z",
+      );
+      // Decisão documentada em process-checkout-event.ts: a inscrição sai do
+      // mesmo processamento já em "ativa", não "paga" - sem passo manual de
+      // ativação em nenhuma task do projeto.
+      expect(outcome.enrollment.status).toBe("ativa");
+    },
+  );
+
+  it("e-mail do cliente malformado: nenhuma inscrição é criada e o resultado sinaliza alerta ao mentor", async () => {
+    const client = createFakeSupabaseClient();
+    setFakeClient(client);
+
+    const outcome = await processCheckoutEvent(
+      makeEvent({
+        checkout: {
+          id: "chk-bad-email",
+          customerData: { name: "Fulano", email: "nao-e-um-email" },
+          items: [{ name: PLANS[0].name, value: PLANS[0].priceCents / 100 }],
+        },
+      }),
+    );
+
+    expect(outcome.type).toBe("rejected");
+    expect(client._rows).toHaveLength(0);
+  });
+
+  it("e-mail já com inscrição ativa no mesmo plano: cria mesmo assim e sinaliza duplicidade", async () => {
+    const client = createFakeSupabaseClient([
+      {
+        id: "id-existente",
+        asaas_checkout_id: "checkout-anterior",
+        plan: PLANS[0].slug,
+        status: "ativa",
+        customer_name: "Fulano de Tal",
+        customer_email: "fulano@example.com",
+        amount_cents: PLANS[0].priceCents,
+        paid_at: "2026-01-01T00:00:00.000Z",
+        expires_at: "2026-07-01T00:00:00.000Z",
+        created_at: "2026-01-01T00:00:00.000Z",
+        updated_at: "2026-01-01T00:00:00.000Z",
+      },
+    ]);
+    setFakeClient(client);
+
+    const outcome = await processCheckoutEvent(
+      makeEvent({
+        checkout: {
+          id: "chk-novo",
+          customerData: { name: "Fulano de Tal", email: "fulano@example.com" },
+          items: [{ name: PLANS[0].name, value: PLANS[0].priceCents / 100 }],
+        },
+      }),
+    );
+
+    expect(outcome.type).toBe("enrolled");
+    if (outcome.type !== "enrolled") throw new Error("unreachable");
+    expect(outcome.duplicateAlert).toBe(true);
+    // Cria mesmo assim: a inscrição existente permanece e uma nova é
+    // adicionada - não é um bloqueio da compra.
+    expect(client._rows).toHaveLength(2);
+  });
+});

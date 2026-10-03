@@ -585,14 +585,18 @@ T25 → T26
 - Skill: NONE
 
 **Done when**:
-- [ ] `CHECKOUT_PAID` válido (qualquer plano - `primeira-vaga` ou `proximo-nivel`) cria inscrição com `expiresAt` = pagamento + 6 meses
-- [ ] E-mail do cliente malformado → nenhuma inscrição criada, resultado sinalizado para alerta ao mentor
-- [ ] E-mail já com inscrição ativa no mesmo plano → cria mesmo assim e sinaliza duplicidade
-- [ ] Gate check passa: `npm run test`
+- [x] `CHECKOUT_PAID` válido (qualquer plano - `primeira-vaga` ou `proximo-nivel`) cria inscrição com `expiresAt` = pagamento + 6 meses
+- [x] E-mail do cliente malformado → nenhuma inscrição criada, resultado sinalizado para alerta ao mentor
+- [x] E-mail já com inscrição ativa no mesmo plano → cria mesmo assim e sinaliza duplicidade
+- [x] Gate check passa: `npm run test`
 
 **Tests**: unit
 **Gate**: full
 **Commit**: `feat(webhook): handle CHECKOUT_PAID processing`
+
+**Status**: ✅ Complete
+
+> **Nota de implementação (fora do "Done when" literal, decisão explícita do processo de batch)**: `createEnrollment` grava status inicial `"paga"`; nenhuma task do projeto define um passo manual de ativação separado, então `processCheckoutEvent` transiciona `paga→ativa` no mesmo processamento do evento (transição já permitida por `lib/enrollment-state.ts`). Sem isso, `markExpiredEnrollments` (T9, só opera sobre `"ativa"`) nunca encontraria nada para expirar. Ver comentário em `lib/process-checkout-event.ts` (`activateEnrollment`).
 
 ---
 
