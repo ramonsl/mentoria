@@ -14,7 +14,11 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 **Escopo original (T1-T28): P1 (MVP).** Verificado com PASS em 2026-10-02 (`.specs/features/landing-mentoria/validation.md`).
 
-**Escopo desta rodada (T29-T41, adicionada em 2026-10-03): P2 - Hero, Sobre o mentor, FAQ, rodapé, política de privacidade (MENT-33, requisito novo) e lista de inscrições para o mentor.** Analytics de conversão (MENT-26) e todo o P3 (depoimentos, triagem) continuam fora - sem demanda confirmada ainda.
+**Rodada P2 parte 1 (T29-T41, 2026-10-03): Hero, Sobre o mentor, FAQ, rodapé, política de privacidade e lista de inscrições para o mentor.**
+
+**Rodada P2 parte 2 (T42-T51, 2026-10-03, pesquisa de concorrentes): menu fixo, seção de dores, "pra quem é/não é", selo de 30 vagas reais, recomendações de ex-alunos (reais, do LinkedIn), e o "Como funciona"/CTA final que já existiam como conteúdo desde T7 mas nunca tinham sido renderizados.**
+
+Analytics de conversão (MENT-26) e formulário de triagem (P3) continuam fora - sem demanda confirmada ainda.
 
 **Planos (slugs de código)**: `primeira-vaga` (R$199, foco 1º emprego/estágio) e `proximo-nivel` (R$499, foco progressão de carreira). Os dois planos entregam exatamente o mesmo pacote - call, relatório, trilha no Classroom e grupo de WhatsApp, 6 meses de acesso - a diferença é só o público-alvo e o conteúdo da trilha (decisão de 2026-10-01, ver `context.md` §"Escopo por plano"). Nenhuma lógica de código deve ramificar por plano, exceto preço/descrição no checkout.
 
@@ -129,6 +133,18 @@ T37 → T40
 T38 → T41
 T39 → T41
 T40 → T41
+```
+
+### Phase 12: Reforço de conversão (P2, pesquisa de concorrentes)
+
+```
+T43 → T44 → T51
+T43 → T45 → T51
+T43 → T46 → T51
+T43 → T50 → T51
+T42 → T47 → T51
+T48 → T51
+T49 → T51
 ```
 
 ---
@@ -1206,10 +1222,235 @@ T40 → T41
 
 ---
 
+### Phase 12: Reforço de conversão (P2, pesquisa de concorrentes)
+
+#### T42: Módulo de conteúdo das recomendações
+
+**What**: Transcrever `content.md` §7 (título, subtítulo e as 4 recomendações selecionadas - nome, cargo, texto, link do LinkedIn) para `content/testimonials.ts`, tipado.
+**Where**: `content/testimonials.ts`
+**Depends on**: None
+**Reuses**: `.specs/features/landing-mentoria/content.md` §7 (fonte)
+**Requirement**: MENT-27, MENT-40
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Exporta título, subtítulo e as 4 recomendações (nome, cargo, texto, link) de `content.md` §7, texto exatamente como está lá (sem parafrasear)
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(content): transcribe testimonials copy into typed content module`
+
+---
+
+#### T43: Módulo de conteúdo de reforço de conversão
+
+**What**: Transcrever `content.md` §15.1-15.4 (menu fixo, seção de dores, qualificação "pra quem é/não é", selo de vagas) para `content/conversion.ts`, tipado.
+**Where**: `content/conversion.ts`
+**Depends on**: None
+**Reuses**: `.specs/features/landing-mentoria/content.md` §15 (fonte)
+**Requirement**: MENT-34, MENT-35, MENT-36, MENT-37
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Exporta os links do menu (Planos/Sobre/FAQ) e o CTA
+- [ ] Exporta as duas colunas de dores (Primeira Vaga / Próximo Nível)
+- [ ] Exporta as listas "é pra você se" / "não é pra você se"
+- [ ] Exporta o texto do selo de vagas com o número 30
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(content): transcribe conversion-boost copy into typed content module`
+
+---
+
+#### T44: Componente NavBar
+
+**What**: Menu fixo no topo, com links âncora para `#planos`, `#sobre`, `#faq` e um CTA "Ver planos", lendo de `content/conversion.ts`.
+**Where**: `components/NavBar.tsx`
+**Depends on**: T43
+**Reuses**: `content/conversion.ts`
+**Requirement**: MENT-36
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Renderiza os 3 links âncora e o CTA
+- [ ] Fica fixo/visível durante a rolagem
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(ui): add fixed navigation bar component`
+
+---
+
+#### T45: Componente PainPoints (seção de dores)
+
+**What**: Seção com as duas colunas de dores (Primeira Vaga / Próximo Nível), lendo de `content/conversion.ts`.
+**Where**: `components/PainPoints.tsx`
+**Depends on**: T43
+**Reuses**: `content/conversion.ts`
+**Requirement**: MENT-34
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Renderiza as duas colunas de dores de `content/conversion.ts`
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(ui): add pain points section component`
+
+---
+
+#### T46: Componente Qualification (pra quem é/não é)
+
+**What**: Seção com as listas "é pra você se" / "não é pra você se", lendo de `content/conversion.ts`.
+**Where**: `components/Qualification.tsx`
+**Depends on**: T43
+**Reuses**: `content/conversion.ts`
+**Requirement**: MENT-35
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Renderiza as duas listas de `content/conversion.ts`
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(ui): add qualification section component`
+
+---
+
+#### T47: Componente Testimonials
+
+**What**: Seção de prova social com as 4 recomendações de `content/testimonials.ts` - nome, cargo, texto e link para o LinkedIn - com o título/subtítulo deixando claro que são recomendações profissionais, não avaliações desta mentoria.
+**Where**: `components/Testimonials.tsx`
+**Depends on**: T42
+**Reuses**: `content/testimonials.ts`
+**Requirement**: MENT-27, MENT-40
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Renderiza as 4 recomendações com nome, cargo e texto
+- [ ] Cada card linka para o LinkedIn (MENT-40)
+- [ ] Título/subtítulo da seção aparecem como escritos em `content.md` §7 (rotulagem honesta)
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(ui): add testimonials section component`
+
+---
+
+#### T48: Componente HowItWorks
+
+**What**: Seção "Como funciona" com os 4 passos de `HOW_IT_WORKS_STEPS` (já existe em `content/copy.ts` desde T7, nunca foi renderizado).
+**Where**: `components/HowItWorks.tsx`
+**Depends on**: None
+**Reuses**: `content/copy.ts`
+**Requirement**: MENT-38
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Renderiza os 4 passos de `HOW_IT_WORKS_STEPS`
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(ui): add how-it-works section component`
+
+---
+
+#### T49: Componente FinalCta
+
+**What**: Seção de CTA final com `FINAL_CTA_COPY` (já existe em `content/copy.ts` desde T7, nunca foi renderizado).
+**Where**: `components/FinalCta.tsx`
+**Depends on**: None
+**Reuses**: `content/copy.ts`
+**Requirement**: MENT-39
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Renderiza título, texto e botão de `FINAL_CTA_COPY`, linkando para `#planos`
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(ui): add final cta section component`
+
+---
+
+#### T50: Selo de vagas no PlanComparison
+
+**What**: Adicionar o selo "Turma com 30 vagas - novo ciclo mensal" (de `content/conversion.ts`) próximo aos planos em `components/PlanComparison.tsx` - modificação pontual, não reescrita do componente.
+**Where**: `components/PlanComparison.tsx`
+**Depends on**: T43
+**Reuses**: `content/conversion.ts`
+**Requirement**: MENT-37
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Selo com o texto de vagas visível perto dos planos
+- [ ] Os testes e2e existentes de `PlanComparison` (T13/T16/T36) continuam passando sem alteração
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(ui): add cohort size badge to plan comparison`
+
+---
+
+#### T51: Montar a página final com a nova ordem de seções
+
+**What**: Recompor `app/page.tsx` na ordem: NavBar → Hero → PainPoints → PlanComparison (com selo) → Qualification → LegalNotice → HowItWorks → AboutMentor → Testimonials → FaqSection → FinalCta → Footer.
+**Where**: `app/page.tsx`
+**Depends on**: T44, T45, T46, T47, T48, T49, T50
+**Reuses**: todos os componentes de `components/`
+**Requirement**: MENT-34, MENT-35, MENT-36, MENT-37, MENT-38, MENT-39, MENT-27, MENT-40
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] e2e: NavBar visível e seus 3 links levam às âncoras certas
+- [ ] e2e: seção de dores aparece antes dos planos
+- [ ] e2e: selo de 30 vagas visível perto dos planos
+- [ ] e2e: seção "pra quem é/não é" aparece após os planos
+- [ ] e2e: "Como funciona", recomendações (com link ao LinkedIn) e CTA final aparecem na página
+- [ ] Os testes e2e existentes de T13/T16/T36 (planos, legal notice, mobile, CTAs, hero, about, faq, footer) continuam passando sem alteração
+- [ ] Gate check passa: `npm run test:e2e`
+
+**Tests**: e2e
+**Gate**: full
+**Commit**: `feat(ui): assemble final landing page with conversion sections`
+
+---
+
 ## Phase Execution Map
 
 ```
-Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7 → Phase 8 → Phase 9 → Phase 10 → Phase 11
+Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7 → Phase 8 → Phase 9 → Phase 10 → Phase 11 → Phase 12
 
 Phase 1:  T1 → T2 → T6
           T1 → T3
@@ -1234,13 +1475,22 @@ Phase 10: T29 → T32 → T36
 Phase 11: T37 → T38 → T41
           T37 → T40 → T41
           T39 → T41
+Phase 12: T43 → T44 → T51
+          T43 → T45 → T51
+          T43 → T46 → T51
+          T43 → T50 → T51
+          T42 → T47 → T51
+          T48 → T51
+          T49 → T51
 ```
 
 Execution is strictly sequential within each phase - a single agent (or batch worker) works one task at a time, in the order listed above. Cross-phase dependencies (e.g., T7 depends on T1, T14 depends on T7, T27 depends on T18) are backward-only and enforced by the phase order itself, not re-drawn here.
 
 **T1-T28 (28 tasks) → 4 batches, executado em 2026-10-02/03, PASS.** Batch 1 = Phases 1-2 (T1-T7), Batch 2 = Phases 3-4 (T8-T13), Batch 3 = Phases 5-6 (T14-T20), Batch 4 = Phases 7-9 (T21-T28).
 
-**T29-T41 (13 tasks, rodada P2 de 2026-10-03) → 2 batches**: Batch 5 = Phase 10 (T29-T36, 8 tasks), Batch 6 = Phase 11 (T37-T41, 5 tasks).
+**T29-T41 (13 tasks, rodada P2 parte 1 de 2026-10-03) → 2 batches**: Batch 5 = Phase 10 (T29-T36, 8 tasks), Batch 6 = Phase 11 (T37-T41, 5 tasks).
+
+**T42-T51 (10 tasks, rodada P2 parte 2 de 2026-10-03 - pesquisa de concorrentes) → 1 batch**: Batch 7 = Phase 12 (T42-T51, 10 tasks) - fase coesa (tudo converge em T51), mantida como lote único em vez de forçar uma divisão artificial.
 
 ---
 
@@ -1289,6 +1539,16 @@ Execution is strictly sequential within each phase - a single agent (or batch wo
 | T39: listEnrollments | 1 arquivo (lib/enrollments.ts, modificação) | ✅ Granular |
 | T40: Página de login admin | 1 arquivo | ✅ Granular |
 | T41: Página de lista de inscrições | 1 arquivo | ✅ Granular |
+| T42: content/testimonials.ts | 1 arquivo | ✅ Granular |
+| T43: content/conversion.ts | 1 arquivo | ✅ Granular |
+| T44: NavBar | 1 componente | ✅ Granular |
+| T45: PainPoints | 1 componente | ✅ Granular |
+| T46: Qualification | 1 componente | ✅ Granular |
+| T47: Testimonials | 1 componente | ✅ Granular |
+| T48: HowItWorks | 1 componente | ✅ Granular |
+| T49: FinalCta | 1 componente | ✅ Granular |
+| T50: Selo de vagas | 1 arquivo (PlanComparison, modificação) | ✅ Granular |
+| T51: Montar página final | 1 arquivo (app/page.tsx, modificação) | ✅ Granular |
 
 ---
 
@@ -1337,6 +1597,16 @@ Execution is strictly sequential within each phase - a single agent (or batch wo
 | T39 | None | - | ✅ Match |
 | T40 | T37 | T37→T40 | ✅ Match |
 | T41 | T38, T39, T40 | T38→T41, T39→T41, T40→T41 | ✅ Match |
+| T42 | None | - | ✅ Match |
+| T43 | None | - | ✅ Match |
+| T44 | T43 | T43→T44 | ✅ Match |
+| T45 | T43 | T43→T45 | ✅ Match |
+| T46 | T43 | T43→T46 | ✅ Match |
+| T47 | T42 | T42→T47 | ✅ Match |
+| T48 | None | - | ✅ Match |
+| T49 | None | - | ✅ Match |
+| T50 | T43 | T43→T50 | ✅ Match |
+| T51 | T44, T45, T46, T47, T48, T49, T50 | T44→T51, T45→T51, T46→T51, T50→T51, T47→T51, T48→T51, T49→T51 | ✅ Match |
 
 **Rules reminder**: cross-phase dependencies are enforced by phase order (no task above depends on a later phase), not by diagram arrows - arrows only represent intra-phase edges, per `validate_tasks.py`'s own scope.
 
@@ -1387,5 +1657,15 @@ Execution is strictly sequential within each phase - a single agent (or batch wo
 | T39 | lib (domínio) | unit | unit | ✅ OK |
 | T40 | Página / interação client-side | none (comportamento provado em T41) | none | ✅ OK |
 | T41 | Página | e2e | e2e | ✅ OK |
+| T42 | Conteúdo estático | none | none | ✅ OK |
+| T43 | Conteúdo estático | none | none | ✅ OK |
+| T44 | Componente apresentacional | none | none | ✅ OK |
+| T45 | Componente apresentacional | none | none | ✅ OK |
+| T46 | Componente apresentacional | none | none | ✅ OK |
+| T47 | Componente apresentacional | none | none | ✅ OK |
+| T48 | Componente apresentacional | none | none | ✅ OK |
+| T49 | Componente apresentacional | none | none | ✅ OK |
+| T50 | Componente apresentacional (modificação) | none | none | ✅ OK |
+| T51 | Página | e2e | e2e | ✅ OK |
 
 Nenhuma violação - nenhuma task usa "testado em outra task" como justificativa para `Tests: none`; todo `none` corresponde a uma linha `none` da matriz.

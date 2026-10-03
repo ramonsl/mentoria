@@ -45,6 +45,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | Processo de reembolso dentro da janela de 7 dias (Art. 49 CDC) | Processo manual: mentor estorna via painel do Asaas ao receber o pedido | Baixo volume não justifica automação agora; o requisito legal de *informar* o direito permanece obrigatório (MENT-07) | y |
 | Painel de acompanhamento de inscrições/expiração | P2 - lista simples protegida por senha básica | O e-mail de notificação (P1) já cobre o essencial para o mentor agir; o painel é conveniência, não bloqueio do MVP | y |
 | Duplicidade de e-mail com inscrição ativa no mesmo plano | Registra o novo pagamento e alerta o mentor para verificação manual, não bloqueia a compra | Decisão automática arriscaria recusar um pagamento legítimo (ex: presente, reposição); mentor decide caso a caso | y |
+| Consentimento para usar recomendações do LinkedIn (MENT-27) numa página comercial | Usar o texto como está, com nome/cargo reais e link para a fonte - usuário decidiu usar o conteúdo | São recomendações públicas, escritas para o contexto do LinkedIn, não para uma página de venda; recomendação (não bloqueio) é o usuário avisar os 4 autores antes de publicar | y |
 
 **Open questions:** none - all resolved or logged above.
 
@@ -192,15 +193,16 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 ---
 
-### P3: Depoimentos de mentorados
+### P2: Recomendações de ex-alunos ~~Depoimentos de mentorados~~
 
-**User Story**: Como visitante cético, quero ver depoimentos de quem já fez a mentoria, para confiar que funciona.
+**User Story**: Como visitante cético, quero ver evidência de que o mentor já ajudou gente de verdade, para confiar que vale a pena pagar.
 
-**Why P3**: Sem depoimentos coletados hoje (decisão explícita do usuário); a estrutura fica pronta para quando existirem.
+**Why P2** (promovida de P3 em 2026-10-03): ninguém ainda pagou por *esta* mentoria (site não tinha nem sido lançado), então não existe "depoimento de mentorado" no sentido literal - mas o mentor tem recomendações públicas reais no LinkedIn, de ex-alunos que ele orientou como coordenador/professor, sobre o mesmo tipo de trabalho (orientação de carreira). Conteúdo real existe agora, decisão do usuário foi usá-lo.
 
 **Acceptance Criteria**:
 
-1. WHERE depoimentos estiverem disponíveis o sistema SHALL exibi-los em uma seção de prova social na landing page.
+1. The system SHALL exibir uma seção de prova social com recomendações reais de ex-alunos (texto, nome e cargo atual), rotulada honestamente como recomendações profissionais do LinkedIn sobre a trajetória do mentor como professor/coordenador - nunca apresentada como avaliação de quem pagou por esta mentoria especificamente.
+2. The system SHALL exibir, ao lado de cada recomendação, um link para a fonte (perfil do LinkedIn do autor ou o próprio LinkedIn do mentor).
 
 ---
 
@@ -213,6 +215,23 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 **Acceptance Criteria**:
 
 1. WHERE um formulário de aplicação estiver habilitado o sistema SHALL coletar respostas do candidato antes de liberar o botão de checkout.
+
+---
+
+### P2: Reforço de conversão (adicionada em 2026-10-03, pesquisa de concorrentes)
+
+**User Story**: Como visitante avaliando se compra, quero entender rápido se a mentoria é pra mim, ver que outras pessoas já tiveram resultado, e saber que as vagas da turma não são infinitas, para decidir com confiança.
+
+**Why P2**: Conteúdo ("Como funciona" e CTA final) já existia desde a primeira leva mas nunca foi renderizado - gap real. Os demais itens vêm da pesquisa de duas páginas concorrentes (`suacarreiratech.com.br`, `viumavaga.com.br/mentoria`) e usam dados reais (30 vagas/turma, confirmado pelo usuário) - sem nenhum número inventado.
+
+**Acceptance Criteria**:
+
+1. The system SHALL exibir a seção "Como funciona" (4 passos) entre a seção de planos e a seção "Sobre o mentor", conforme `content.md` §5.
+2. The system SHALL exibir uma chamada final (CTA) com link para os planos, antes do rodapé, conforme `content.md` §8.
+3. The system SHALL exibir um menu fixo no topo da página com links âncora para Planos, Sobre e FAQ, visível durante a rolagem.
+4. The system SHALL exibir, antes da seção de planos, uma seção descrevendo as dificuldades comuns de quem busca o primeiro emprego ou progressão de carreira em tecnologia, uma por cada público-alvo dos dois planos.
+5. The system SHALL exibir uma seção "Para quem é" e "Para quem não é" a mentoria, ajudando o visitante a se autoavaliar antes de comprar.
+6. The system SHALL exibir, próximo aos planos, o número real de vagas disponíveis por turma (30), sem usar contagem regressiva nem linguagem que sugira urgência falsa.
 
 ---
 
@@ -259,14 +278,21 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | MENT-24 | P2: FAQ | - | Pending |
 | MENT-25 | P2: Lista de inscrições | - | Pending |
 | MENT-26 | P2: Analytics de conversão | - | Pending |
-| MENT-27 | P3: Depoimentos | - | Pending |
+| MENT-27 | P2: Recomendações de ex-alunos | - | Pending |
 | MENT-28 | P3: Formulário de triagem | - | Pending |
+| MENT-34 | P2: Reforço de conversão | - | Pending |
+| MENT-35 | P2: Reforço de conversão | - | Pending |
+| MENT-36 | P2: Reforço de conversão | - | Pending |
+| MENT-37 | P2: Reforço de conversão | - | Pending |
+| MENT-38 | P2: Reforço de conversão | - | Pending |
+| MENT-39 | P2: Reforço de conversão | - | Pending |
+| MENT-40 | P2: Recomendações de ex-alunos | - | Pending |
 
 **ID format:** `MENT-[NUMBER]`
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 33 total, 22 mapped to tasks and Verified (P1: MENT-01 a MENT-22), 11 unmapped (P2/P3: MENT-23 a MENT-33) ⚠️
+**Coverage:** 40 total, 22 mapped to tasks and Verified (P1: MENT-01 a MENT-22), 18 unmapped (P2/P3: MENT-23 a MENT-40) ⚠️
 
 ---
 
