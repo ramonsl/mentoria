@@ -12,7 +12,9 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 **Content**: `.specs/features/landing-mentoria/content.md`
 **Status**: Approved
 
-**Escopo desta rodada: P1 (MVP) apenas.** P2 (Sobre o mentor, FAQ, lista de inscrições, analytics) e P3 (depoimentos, triagem) ganham uma rodada de Tasks própria depois que o P1 estiver no ar e verificado - evita inflar esta leva além do necessário pra ter algo vendável.
+**Escopo original (T1-T28): P1 (MVP).** Verificado com PASS em 2026-10-02 (`.specs/features/landing-mentoria/validation.md`).
+
+**Escopo desta rodada (T29-T41, adicionada em 2026-10-03): P2 - Hero, Sobre o mentor, FAQ, rodapé, política de privacidade (MENT-33, requisito novo) e lista de inscrições para o mentor.** Analytics de conversão (MENT-26) e todo o P3 (depoimentos, triagem) continuam fora - sem demanda confirmada ainda.
 
 **Planos (slugs de código)**: `primeira-vaga` (R$199, foco 1º emprego/estágio) e `proximo-nivel` (R$499, foco progressão de carreira). Os dois planos entregam exatamente o mesmo pacote - call, relatório, trilha no Classroom e grupo de WhatsApp, 6 meses de acesso - a diferença é só o público-alvo e o conteúdo da trilha (decisão de 2026-10-01, ver `context.md` §"Escopo por plano"). Nenhuma lógica de código deve ramificar por plano, exceto preço/descrição no checkout.
 
@@ -106,6 +108,27 @@ T25 → T26
 
 ```
 T28
+```
+
+### Phase 10: Hero, Sobre, FAQ, rodapé e privacidade (P2)
+
+```
+T29 → T32
+T30 → T35
+T31 → T36
+T32 → T36
+T33 → T36
+T34 → T36
+```
+
+### Phase 11: Lista de inscrições para o mentor (P2)
+
+```
+T37 → T38
+T37 → T40
+T38 → T41
+T39 → T41
+T40 → T41
 ```
 
 ---
@@ -856,10 +879,307 @@ T28
 
 ---
 
+### Phase 10: Hero, Sobre, FAQ, rodapé e privacidade (P2)
+
+#### T29: Módulo de conteúdo "Sobre o mentor"
+
+**What**: Transcrever `.specs/features/landing-mentoria/content.md` §3 (cabeçalho, bio longa, bio curta, 4 stat tiles, credenciais, link do LinkedIn) para `content/about.ts`, tipado, seguindo o mesmo padrão de `content/plans.ts`/`content/faq.ts` já existentes.
+**Where**: `content/about.ts`
+**Depends on**: None
+**Reuses**: `.specs/features/landing-mentoria/content.md` §3 (fonte)
+**Requirement**: MENT-23
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Exporta nome, cargo, local, bio longa, bio curta, os 4 stat tiles, a lista de credenciais e a URL do LinkedIn
+- [ ] Nenhum item ⚠️ de `content.md` §3 vira texto final silenciosamente
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(content): transcribe about-mentor copy into typed content module`
+
+---
+
+#### T30: Conteúdo da política de privacidade (LGPD)
+
+**What**: Escrever `content/privacy.ts` com o texto padrão de política de privacidade (LGPD): dados coletados no checkout (nome, e-mail), finalidade (processar pagamento e contato sobre a mentoria), terceiros que recebem os dados (Asaas, Resend, Supabase) e como o titular exerce direitos de acesso/correção/exclusão (pelo e-mail de contato já resolvido em `content/copy.ts`). Este texto é novo - `content.md` só apontava a lacuna (§13), não tinha o conteúdo pronto.
+**Where**: `content/privacy.ts`
+**Depends on**: None
+**Reuses**: `content/copy.ts` (e-mail de contato)
+**Requirement**: MENT-33
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Cobre: dados coletados, finalidade, terceiros (Asaas/Resend/Supabase nomeados), direitos do titular e canal de contato
+- [ ] Linguagem direta, sem jargão jurídico desnecessário (mesmo tom do resto do site)
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(content): add privacy policy copy`
+
+---
+
+#### T31: Componente Hero
+
+**What**: Componente apresentacional lendo `HERO_COPY` de `content/copy.ts` (já existe) - eyebrow, título, subtítulo, selo de confiança, CTA primário (âncora `#planos`) e CTA secundário (âncora `#sobre`), como links HTML simples.
+**Where**: `components/Hero.tsx`
+**Depends on**: None
+**Reuses**: `content/copy.ts`
+**Requirement**: MENT-29, MENT-30, MENT-31
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Renderiza eyebrow, título, subtítulo e selo de confiança de `HERO_COPY`
+- [ ] CTA primário é um link para `#planos`; CTA secundário é um link para `#sobre`
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(ui): add hero section component`
+
+---
+
+#### T32: Componente AboutMentor
+
+**What**: Componente apresentacional lendo `content/about.ts` (T29) - foto, bio, stat tiles, credenciais e link do LinkedIn. Foto real (`public/mentor.jpg`) ainda não existe - usa um placeholder com as iniciais "RL" como fallback (default já registrado em `content.md` §14 item 2).
+**Where**: `components/AboutMentor.tsx`
+**Depends on**: T29
+**Reuses**: `content/about.ts`
+**Requirement**: MENT-23
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Renderiza bio, os 4 stat tiles, credenciais e link para o LinkedIn de `content/about.ts`
+- [ ] Sem `public/mentor.jpg`, mostra o placeholder de iniciais "RL" sem quebrar o layout
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(ui): add about-mentor section component`
+
+---
+
+#### T33: Componente FaqSection
+
+**What**: Componente apresentacional lendo `FAQ_ITEMS` de `content/faq.ts` (já existe) - lista as 8 perguntas e respostas.
+**Where**: `components/FaqSection.tsx`
+**Depends on**: None
+**Reuses**: `content/faq.ts`
+**Requirement**: MENT-24
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Renderiza as 8 perguntas e respostas de `FAQ_ITEMS`
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(ui): add faq section component`
+
+---
+
+#### T34: Componente Footer
+
+**What**: Componente apresentacional lendo `FOOTER_COPY` de `content/copy.ts` (já existe) - copyright, link do LinkedIn, e-mail de contato, âncora da política de reembolso (`#planos`) e link para `/privacidade`.
+**Where**: `components/Footer.tsx`
+**Depends on**: None
+**Reuses**: `content/copy.ts`
+**Requirement**: MENT-32
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Renderiza copyright (com o ano atual), e os 4 links de `FOOTER_COPY` (LinkedIn, e-mail, reembolso, privacidade)
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(ui): add footer component`
+
+---
+
+#### T35: Página de política de privacidade
+
+**What**: `app/privacidade/page.tsx` renderizando o conteúdo de `content/privacy.ts` (T30).
+**Where**: `app/privacidade/page.tsx`
+**Depends on**: T30
+**Reuses**: `content/privacy.ts`
+**Requirement**: MENT-33
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] e2e: acessar `/privacidade` renderiza o conteúdo de `content/privacy.ts` (dados coletados, finalidade, terceiros, direitos do titular)
+
+**Tests**: e2e
+**Gate**: full
+**Commit**: `feat(ui): add privacy policy page`
+
+---
+
+#### T36: Montar a landing page completa
+
+**What**: Integrar `Hero`, `PlanComparison` (seção com `id="planos"`), `LegalNotice`, `AboutMentor` (seção com `id="sobre"`), `FaqSection` e `Footer` em `app/page.tsx` - substituindo a versão atual (que só tinha `PlanComparison` + `LegalNotice`).
+**Where**: `app/page.tsx`
+**Depends on**: T31, T32, T33, T34
+**Reuses**: `components/Hero.tsx`, `components/PlanComparison.tsx`, `components/LegalNotice.tsx`, `components/AboutMentor.tsx`, `components/FaqSection.tsx`, `components/Footer.tsx`
+**Requirement**: MENT-29, MENT-30, MENT-31, MENT-32
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] e2e: Hero aparece acima da seção de planos
+- [ ] e2e: clicar no CTA primário do Hero navega para a seção `#planos` (planos visíveis no viewport)
+- [ ] e2e: clicar no CTA secundário do Hero navega para a seção `#sobre` (About visível no viewport)
+- [ ] e2e: seção "Sobre o mentor", FAQ e rodapé (com link para `/privacidade`) aparecem na página
+- [ ] Os testes e2e existentes de T13 (planos, legal notice, mobile) continuam passando sem alteração
+- [ ] Gate check passa: `npm run test:e2e`
+
+**Tests**: e2e
+**Gate**: full
+**Commit**: `feat(ui): assemble full landing page with hero, about, faq and footer`
+
+---
+
+### Phase 11: Lista de inscrições para o mentor (P2)
+
+#### T37: Rota de login do admin
+
+**What**: `POST /api/admin/login` recebe `{ password }`, valida contra `ADMIN_PASSWORD` (`lib/env.ts`), e em caso de sucesso seta um cookie `httpOnly` (ex. `admin_session`) com um valor não-adivinhável (ex. hash de `ADMIN_PASSWORD` + um segredo, não a senha em texto puro); 401 em caso de senha incorreta.
+**Where**: `app/api/admin/login/route.ts`
+**Depends on**: None
+**Reuses**: `lib/env.ts`
+**Requirement**: MENT-25
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Senha correta → 200, cookie `httpOnly` setado
+- [ ] Senha incorreta → 401, nenhum cookie setado
+- [ ] Gate check passa: `npm run test`
+
+**Tests**: integration
+**Gate**: full
+**Commit**: `feat(admin): add admin login route`
+
+---
+
+#### T38: Middleware de proteção do admin
+
+**What**: `middleware.ts` protege `/admin/inscricoes` (mas não `/admin/login`): sem o cookie válido setado por T37, redireciona para `/admin/login`.
+**Where**: `middleware.ts`
+**Depends on**: T37
+**Reuses**: `app/api/admin/login/route.ts` (contrato do cookie)
+**Requirement**: MENT-25
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Requisição a `/admin/inscricoes` sem cookie válido é redirecionada para `/admin/login`
+- [ ] Requisição a `/admin/inscricoes` com cookie válido passa
+- [ ] `/admin/login` nunca é bloqueada pelo próprio middleware (senão ninguém consegue logar)
+- [ ] Gate check passa: `npm run test`
+
+**Tests**: integration
+**Gate**: full
+**Commit**: `feat(admin): add auth middleware for admin routes`
+
+---
+
+#### T39: Listar inscrições no repositório
+
+**What**: Adicionar `listEnrollments(): Promise<Enrollment[]>` a `lib/enrollments.ts`, ordenado por `expiresAt` ascendente (`NULLS LAST` defensivo, já que hoje todo plano preenche `expiresAt`).
+**Where**: `lib/enrollments.ts`
+**Depends on**: None
+**Reuses**: `lib/supabase.ts`
+**Requirement**: MENT-25
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Retorna todas as inscrições ordenadas por `expiresAt` ascendente (mais próxima de expirar primeiro)
+- [ ] Gate check passa: `npm run test`
+
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(domain): add listEnrollments to enrollment repository`
+
+---
+
+#### T40: Página de login do admin
+
+**What**: `app/admin/login/page.tsx` com um formulário de senha, submete para `POST /api/admin/login` (T37) e redireciona para `/admin/inscricoes` em caso de sucesso; mostra erro inline em caso de 401.
+**Where**: `app/admin/login/page.tsx`
+**Depends on**: T37
+**Reuses**: `app/api/admin/login/route.ts`
+**Requirement**: MENT-25
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] Formulário com campo de senha e botão de entrar
+- [ ] Senha errada mostra mensagem de erro sem navegar
+- [ ] Senha certa redireciona para `/admin/inscricoes` (comportamento provado de ponta a ponta em T41, não isoladamente aqui)
+
+**Tests**: none
+**Gate**: build
+**Commit**: `feat(admin): add admin login page`
+
+---
+
+#### T41: Página de lista de inscrições
+
+**What**: `app/admin/inscricoes/page.tsx` (protegida pelo middleware de T38) exibe nome, e-mail, plano, data de pagamento e data de expiração de cada inscrição, via `listEnrollments()` (T39), ordenadas por proximidade da expiração.
+**Where**: `app/admin/inscricoes/page.tsx`
+**Depends on**: T38, T39, T40
+**Reuses**: `lib/enrollments.ts`
+**Requirement**: MENT-25
+
+**Tools**:
+- MCP: NONE
+- Skill: NONE
+
+**Done when**:
+- [ ] e2e: acessar `/admin/inscricoes` sem login redireciona para `/admin/login`
+- [ ] e2e: logar com a senha correta leva de volta a `/admin/inscricoes` e exibe a lista (dados de teste semeados), ordenada por proximidade da expiração
+- [ ] e2e: cada linha mostra nome, e-mail, plano, data de pagamento e data de expiração
+- [ ] Gate check passa: `npm run test:e2e`
+
+**Tests**: e2e
+**Gate**: full
+**Commit**: `feat(admin): add enrollments list page`
+
+---
+
 ## Phase Execution Map
 
 ```
-Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7 → Phase 8 → Phase 9
+Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7 → Phase 8 → Phase 9 → Phase 10 → Phase 11
 
 Phase 1:  T1 → T2 → T6
           T1 → T3
@@ -876,11 +1196,21 @@ Phase 7:  T21 → T22 → T23 → T27
           T24
 Phase 8:  T25 → T26
 Phase 9:  T28
+Phase 10: T29 → T32 → T36
+          T30 → T35
+          T31 → T36
+          T33 → T36
+          T34 → T36
+Phase 11: T37 → T38 → T41
+          T37 → T40 → T41
+          T39 → T41
 ```
 
 Execution is strictly sequential within each phase - a single agent (or batch worker) works one task at a time, in the order listed above. Cross-phase dependencies (e.g., T7 depends on T1, T14 depends on T7, T27 depends on T18) are backward-only and enforced by the phase order itself, not re-drawn here.
 
-**28 tasks total → packs into 4 batches** (whole phases, cut never splits a phase): Batch 1 = Phases 1-2 (T1-T7, 7 tasks), Batch 2 = Phases 3-4 (T8-T13, 6 tasks), Batch 3 = Phases 5-6 (T14-T20, 7 tasks), Batch 4 = Phases 7-9 (T21-T28, 8 tasks) - Phase 9 is a 1-task tail folded into Batch 4 rather than spawning a 5th batch.
+**T1-T28 (28 tasks) → 4 batches, executado em 2026-10-02/03, PASS.** Batch 1 = Phases 1-2 (T1-T7), Batch 2 = Phases 3-4 (T8-T13), Batch 3 = Phases 5-6 (T14-T20), Batch 4 = Phases 7-9 (T21-T28).
+
+**T29-T41 (13 tasks, rodada P2 de 2026-10-03) → 2 batches**: Batch 5 = Phase 10 (T29-T36, 8 tasks), Batch 6 = Phase 11 (T37-T41, 5 tasks).
 
 ---
 
@@ -916,6 +1246,19 @@ Execution is strictly sequential within each phase - a single agent (or batch wo
 | T26: vercel.json | 1 arquivo | ✅ Granular |
 | T27: Wire webhook→processamento | 1 arquivo (route.ts, modificação) | ✅ Granular |
 | T28: externalReference | 1 arquivo (lib/asaas.ts, + ponto de leitura em process-checkout-event.ts) | ⚠️ OK - mesmo bug, duas pontas do mesmo contrato |
+| T29: content/about.ts | 1 arquivo | ✅ Granular |
+| T30: content/privacy.ts | 1 arquivo | ✅ Granular |
+| T31: Hero | 1 componente | ✅ Granular |
+| T32: AboutMentor | 1 componente | ✅ Granular |
+| T33: FaqSection | 1 componente | ✅ Granular |
+| T34: Footer | 1 componente | ✅ Granular |
+| T35: app/privacidade/page.tsx | 1 arquivo | ✅ Granular |
+| T36: Montar landing completa | 1 arquivo (app/page.tsx, modificação) | ✅ Granular |
+| T37: Rota de login admin | 1 endpoint | ✅ Granular |
+| T38: middleware.ts | 1 arquivo | ✅ Granular |
+| T39: listEnrollments | 1 arquivo (lib/enrollments.ts, modificação) | ✅ Granular |
+| T40: Página de login admin | 1 arquivo | ✅ Granular |
+| T41: Página de lista de inscrições | 1 arquivo | ✅ Granular |
 
 ---
 
@@ -951,6 +1294,19 @@ Execution is strictly sequential within each phase - a single agent (or batch wo
 | T26 | T25 | T25→T26 | ✅ Match |
 | T27 | T18 (cross-fase), T23 | T23→T27 | ✅ Match |
 | T28 | T14 (cross-fase), T20 (cross-fase) | - (fora do escopo do diagrama da Fase 9) | ✅ Match |
+| T29 | None | - | ✅ Match |
+| T30 | None | - | ✅ Match |
+| T31 | None | - | ✅ Match |
+| T32 | T29 | T29→T32 | ✅ Match |
+| T33 | None | - | ✅ Match |
+| T34 | None | - | ✅ Match |
+| T35 | T30 | T30→T35 | ✅ Match |
+| T36 | T31, T32, T33, T34 | T31→T36, T32→T36, T33→T36, T34→T36 | ✅ Match |
+| T37 | None | - | ✅ Match |
+| T38 | T37 | T37→T38 | ✅ Match |
+| T39 | None | - | ✅ Match |
+| T40 | T37 | T37→T40 | ✅ Match |
+| T41 | T38, T39, T40 | T38→T41, T39→T41, T40→T41 | ✅ Match |
 
 **Rules reminder**: cross-phase dependencies are enforced by phase order (no task above depends on a later phase), not by diagram arrows - arrows only represent intra-phase edges, per `validate_tasks.py`'s own scope.
 
@@ -988,5 +1344,18 @@ Execution is strictly sequential within each phase - a single agent (or batch wo
 | T26 | Config (deploy) | none | none | ✅ OK |
 | T27 | API route | integration | integration | ✅ OK |
 | T28 | lib (domínio) | unit | unit | ✅ OK |
+| T29 | Conteúdo estático | none | none | ✅ OK |
+| T30 | Conteúdo estático | none | none | ✅ OK |
+| T31 | Componente apresentacional | none | none | ✅ OK |
+| T32 | Componente apresentacional | none | none | ✅ OK |
+| T33 | Componente apresentacional | none | none | ✅ OK |
+| T34 | Componente apresentacional | none | none | ✅ OK |
+| T35 | Página | e2e | e2e | ✅ OK |
+| T36 | Página | e2e | e2e | ✅ OK |
+| T37 | API route | integration | integration | ✅ OK |
+| T38 | API route (middleware) | integration | integration | ✅ OK |
+| T39 | lib (domínio) | unit | unit | ✅ OK |
+| T40 | Página / interação client-side | none (comportamento provado em T41) | none | ✅ OK |
+| T41 | Página | e2e | e2e | ✅ OK |
 
 Nenhuma violação - nenhuma task usa "testado em outra task" como justificativa para `Tests: none`; todo `none` corresponde a uma linha `none` da matriz.
