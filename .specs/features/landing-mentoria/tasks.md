@@ -1170,13 +1170,15 @@ T40 → T41
 - Skill: NONE
 
 **Done when**:
-- [ ] Formulário com campo de senha e botão de entrar
-- [ ] Senha errada mostra mensagem de erro sem navegar
-- [ ] Senha certa redireciona para `/admin/inscricoes` (comportamento provado de ponta a ponta em T41, não isoladamente aqui)
+- [x] Formulário com campo de senha e botão de entrar
+- [x] Senha errada mostra mensagem de erro sem navegar
+- [x] Senha certa redireciona para `/admin/inscricoes` (comportamento provado de ponta a ponta em T41, não isoladamente aqui)
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(admin): add admin login page`
+
+**Status**: ✅ Complete
 
 ---
 
