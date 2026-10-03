@@ -73,6 +73,7 @@ function fakeRecordedEvent(
 
 describe("POST /api/webhooks/asaas", () => {
   const originalEnv = { ...process.env };
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     for (const [key, value] of Object.entries(VALID_ENV)) {
@@ -84,10 +85,12 @@ describe("POST /api/webhooks/asaas", () => {
       type: "ignored",
       reason: "mocked in this test file - see route.paid-processing.test.ts",
     });
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
     process.env = { ...originalEnv };
+    consoleErrorSpy.mockRestore();
   });
 
   it("registra o evento e retorna 200 quando o token é válido", async () => {
@@ -123,6 +126,10 @@ describe("POST /api/webhooks/asaas", () => {
     // tasks.md T27 "Done when": token inválido continua retornando 401 sem
     // chamar processCheckoutEvent.
     expect(mockProcessCheckoutEvent).not.toHaveBeenCalled();
+    // Fix MENT-11 (validation.md, ciclo 1): a tentativa rejeitada é
+    // registrada para auditoria.
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+    expect(consoleErrorSpy.mock.calls[0][0]).toContain("rejected request");
   });
 
   it("retorna 401 e não grava nada quando o token está ausente", async () => {
@@ -137,6 +144,7 @@ describe("POST /api/webhooks/asaas", () => {
     expect(response.status).toBe(401);
     expect(mockRecordEvent).not.toHaveBeenCalled();
     expect(mockProcessCheckoutEvent).not.toHaveBeenCalled();
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
   });
 
   it("o mesmo event id enviado duas vezes não duplica o registro (idempotência)", async () => {
@@ -179,5 +187,95 @@ describe("POST /api/webhooks/asaas", () => {
     );
 
     expect(response.status).toBe(200);
+  });
+
+  // Fix MENT-13/MENT-16 (validation.md, ciclo 1): a rota não pode mascarar
+  // um conflito ou uma rejeição como "success", nem perder o motivo de uma
+  // falha final de processamento (ex.: e-mail que esgotou as 3 tentativas).
+  describe("logOutcome reflete o tipo de resultado de processCheckoutEvent", () => {
+    it("outcome 'enrolled' grava success", async () => {
+      mockRecordEvent.mockResolvedValue(fakeRecordedEvent("evt-enrolled", true));
+      mockProcessCheckoutEvent.mockResolvedValue({
+        type: "enrolled",
+        enrollment: {},
+        duplicateAlert: false,
+      });
+
+      await POST(
+        makeRequest(
+          { id: "evt-enrolled", event: "CHECKOUT_PAID", checkout: { id: "chk-1" } },
+          "correct-webhook-token",
+        ),
+      );
+
+      expect(mockLogOutcome).toHaveBeenCalledWith("evt-enrolled", "success");
+    });
+
+    it("outcome 'conflict' (MENT-13, evento fora de ordem) grava error com o motivo, não success", async () => {
+      mockRecordEvent.mockResolvedValue(fakeRecordedEvent("evt-conflict", true));
+      mockProcessCheckoutEvent.mockResolvedValue({
+        type: "conflict",
+        reason: "CHECKOUT_CANCELED received after CHECKOUT_PAID already processed",
+        enrollment: {},
+      });
+
+      await POST(
+        makeRequest(
+          { id: "evt-conflict", event: "CHECKOUT_CANCELED", checkout: { id: "chk-1" } },
+          "correct-webhook-token",
+        ),
+      );
+
+      expect(mockLogOutcome).toHaveBeenCalledWith(
+        "evt-conflict",
+        "error",
+        "CHECKOUT_CANCELED received after CHECKOUT_PAID already processed",
+      );
+    });
+
+    it("outcome 'rejected' (MENT-17, dado malformado) grava error com o motivo, não success", async () => {
+      mockRecordEvent.mockResolvedValue(fakeRecordedEvent("evt-rejected", true));
+      mockProcessCheckoutEvent.mockResolvedValue({
+        type: "rejected",
+        reason: "Malformed or missing customer email for checkout chk-1",
+      });
+
+      await POST(
+        makeRequest(
+          { id: "evt-rejected", event: "CHECKOUT_PAID", checkout: { id: "chk-1" } },
+          "correct-webhook-token",
+        ),
+      );
+
+      expect(mockLogOutcome).toHaveBeenCalledWith(
+        "evt-rejected",
+        "error",
+        "Malformed or missing customer email for checkout chk-1",
+      );
+    });
+
+    it("processCheckoutEvent lançando erro (ex.: e-mail esgotou as 3 tentativas, MENT-16) grava error com a mensagem final, e a resposta continua 200", async () => {
+      mockRecordEvent.mockResolvedValue(fakeRecordedEvent("evt-email-fail", true));
+      // Mensagem ilustrativa - este teste prova que a rota repassa qualquer
+      // erro final de processCheckoutEvent (aqui mockado) pro log de
+      // auditoria, não um texto específico de produção.
+      mockProcessCheckoutEvent.mockRejectedValue(
+        new Error("Resend API error: rate limited"),
+      );
+
+      const response = await POST(
+        makeRequest(
+          { id: "evt-email-fail", event: "CHECKOUT_PAID", checkout: { id: "chk-1" } },
+          "correct-webhook-token",
+        ),
+      );
+
+      expect(response.status).toBe(200);
+      expect(mockLogOutcome).toHaveBeenCalledWith(
+        "evt-email-fail",
+        "error",
+        "Resend API error: rate limited",
+      );
+    });
   });
 });

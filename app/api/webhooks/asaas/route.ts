@@ -29,6 +29,14 @@ interface AsaasWebhookPayload {
 export async function POST(request: Request): Promise<Response> {
   const token = request.headers.get("asaas-access-token");
   if (!isValidWebhookToken(token)) {
+    // Fix MENT-11 (validation.md, ciclo 1): spec.md AC2 exige registrar a
+    // tentativa para auditoria, não só retornar 401. Sem uma tabela de
+    // auditoria dedicada (fora do escopo desta correção pontual - seria uma
+    // migration nova), o log estruturado via console é o registro mínimo
+    // capturado pela observabilidade da plataforma (Vercel/Runtime logs).
+    console.error("[webhook-audit] rejected request: invalid or missing asaas-access-token", {
+      tokenProvided: token !== null,
+    });
     return Response.json(
       { error: "Invalid or missing webhook token" },
       { status: 401 },
@@ -64,8 +72,18 @@ export async function POST(request: Request): Promise<Response> {
     };
 
     try {
-      await processCheckoutEvent(asaasEvent);
-      await logOutcome(recordResult.event.id, "success");
+      const outcome = await processCheckoutEvent(asaasEvent);
+      // Fix MENT-13 (validation.md, ciclo 1): um "conflict" (evento fora de
+      // ordem após um CHECKOUT_PAID já processado) ou um "rejected" (dados
+      // malformados) não lança exceção - processCheckoutEvent resolve
+      // normalmente - mas nenhum dos dois é um "success" de verdade: ambos
+      // precisam de revisão manual (MENT-13, MENT-17), então o resultado
+      // gravado reflete isso em vez de mascarar como sucesso.
+      if (outcome.type === "conflict" || outcome.type === "rejected") {
+        await logOutcome(recordResult.event.id, "error", outcome.reason);
+      } else {
+        await logOutcome(recordResult.event.id, "success");
+      }
     } catch (err) {
       await logOutcome(
         recordResult.event.id,
