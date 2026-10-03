@@ -184,19 +184,22 @@ async function processCheckoutPaid(
   });
 
   const activated = await activateEnrollment(created, now);
+  const duplicateAlert = existingActive !== null;
 
   // AC5 (mentorando) e AC6 (mentor) são dois gatilhos independentes da
   // mesma "inscrição registrada com sucesso" - disparados juntos via
   // Promise.all para que a falha de um não impeça a tentativa do outro.
+  // Fix MENT-18 (validation.md, ciclo 1): o mentor precisa ver o aviso de
+  // duplicidade no próprio e-mail, não só receber o flag internamente.
   await Promise.all([
     sendMenteeConfirmation(activated),
-    sendMentorNewEnrollmentAlert(activated),
+    sendMentorNewEnrollmentAlert(activated, { duplicateAlert }),
   ]);
 
   return {
     type: "enrolled",
     enrollment: activated,
-    duplicateAlert: existingActive !== null,
+    duplicateAlert,
   };
 }
 

@@ -88,6 +88,7 @@ export async function sendMenteeConfirmation(
  */
 export async function sendMentorNewEnrollmentAlert(
   enrollment: Enrollment,
+  options: { duplicateAlert?: boolean } = {},
 ): Promise<void> {
   const plan = planDisplayFor(enrollment.plan);
   const copy = EMAIL_TEMPLATES_COPY.mentorNewEnrollmentAlert;
@@ -102,10 +103,18 @@ export async function sendMentorNewEnrollmentAlert(
     expiresAt: formatDate(enrollment.expiresAt),
   };
 
+  // Fix MENT-18 (validation.md, ciclo 1): quando já existe uma inscrição
+  // ativa no mesmo e-mail+plano, anexa o aviso de duplicidade ao corpo -
+  // sem isso o mentor recebia o mesmo e-mail de sempre, sem saber que
+  // precisa verificar manualmente.
+  const bodyLines = options.duplicateAlert
+    ? [...copy.body, copy.duplicateWarningLine]
+    : copy.body;
+
   await sendEmail({
     to: env.MENTOR_EMAIL,
     subject: interpolate(copy.subject, vars),
-    text: renderBody(copy.body, vars),
+    text: renderBody(bodyLines, vars),
   });
 }
 

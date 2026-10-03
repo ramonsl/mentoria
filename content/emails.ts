@@ -42,6 +42,12 @@ export const EMAIL_TEMPLATES_COPY = {
       "☐ adicionar ao Classroom",
       "☐ adicionar ao WhatsApp",
     ],
+    // Fix MENT-18 (validation.md, ciclo 1): anexada ao corpo acima só quando
+    // já existe uma inscrição ativa no mesmo e-mail+plano - spec.md AC9 exige
+    // alertar o mentor sobre a possível duplicidade, não só registrar o
+    // pagamento normalmente.
+    duplicateWarningLine:
+      "⚠️ Possível duplicidade: já existe uma inscrição ativa com este e-mail e este plano antes deste pagamento. Verifique manualmente antes de liberar acesso duplicado.",
   },
 
   mentorExpirationAlert: {

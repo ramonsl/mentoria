@@ -258,6 +258,14 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
     // Cria mesmo assim: a inscrição existente permanece e uma nova é
     // adicionada - não é um bloqueio da compra.
     expect(client._rows).toHaveLength(2);
+
+    // Fix MENT-18 (validation.md, ciclo 1): não basta o outcome sinalizar
+    // duplicateAlert internamente - o e-mail que o mentor de fato recebe
+    // precisa conter o aviso.
+    const mentorCall = mockSend.mock.calls.find(
+      (call) => call[0].to === "mentor@example.com",
+    );
+    expect(mentorCall?.[0].text).toContain("Possível duplicidade");
   });
 });
 
@@ -317,4 +325,24 @@ describe("processCheckoutEvent - CHECKOUT_CANCELED / CHECKOUT_EXPIRED", () => {
       expect(client._rows[0].status).toBe("ativa");
     },
   );
+});
+
+// Fix (validation.md, ciclo 1): edge case de spec.md não coberto antes -
+// "evento de tipo desconhecido... ignorar sem lançar erro, processando
+// apenas o que reconhece" (distinto de campos extras desconhecidos no
+// payload, já coberto em app/api/webhooks/asaas/route.test.ts).
+describe("processCheckoutEvent - tipo de evento desconhecido", () => {
+  it("evento de tipo não reconhecido é ignorado sem lançar erro e sem gravar nada", async () => {
+    const client = createFakeSupabaseClient();
+    setFakeClient(client);
+    mockSend.mockReset();
+
+    const outcome = await processCheckoutEvent(
+      makeEvent({ event: "CHECKOUT_REFUNDED", checkout: { id: "chk-desconhecido" } }),
+    );
+
+    expect(outcome.type).toBe("ignored");
+    expect(client._rows).toHaveLength(0);
+    expect(mockSend).not.toHaveBeenCalled();
+  });
 });

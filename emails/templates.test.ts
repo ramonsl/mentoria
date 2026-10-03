@@ -101,8 +101,23 @@ describe("emails/templates", () => {
         expect(call.text).toContain(`Plano: ${plan.name}`);
         expect(call.text).toContain("Data de pagamento: 15/01/2026");
         expect(call.text).toContain("Data de expiração: 15/07/2026");
+        expect(call.text).not.toContain("Possível duplicidade");
       },
     );
+
+    // Fix MENT-18 (validation.md, ciclo 1): spec.md AC9 exige que o mentor
+    // seja alertado sobre a possível duplicidade, não só que o pagamento
+    // seja registrado normalmente.
+    it("inclui o aviso de possível duplicidade quando duplicateAlert é true", async () => {
+      await sendMentorNewEnrollmentAlert(makeEnrollment(), {
+        duplicateAlert: true,
+      });
+
+      const call = mockSend.mock.calls[0][0];
+      expect(call.text).toContain(
+        "Possível duplicidade: já existe uma inscrição ativa",
+      );
+    });
   });
 
   describe("sendMentorExpirationAlert", () => {
