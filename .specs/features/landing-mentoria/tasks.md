@@ -784,14 +784,18 @@ T28
 - Skill: NONE
 
 **Done when**:
-- [ ] Secret ausente ou incorreto → 401, nada é processado
-- [ ] Inscrições vencidas (qualquer plano) são marcadas `expirada` e o mentor recebe um e-mail por cada uma
-- [ ] Inscrições não vencidas permanecem intactas
-- [ ] Gate check passa: `npm run test`
+- [x] Secret ausente ou incorreto → 401, nada é processado
+- [x] Inscrições vencidas (qualquer plano) são marcadas `expirada` e o mentor recebe um e-mail por cada uma
+- [x] Inscrições não vencidas permanecem intactas
+- [x] Gate check passa: `npm run test`
 
 **Tests**: integration
 **Gate**: full
 **Commit**: `feat(cron): add expiration sweep endpoint`
+
+**Status**: ✅ Complete
+
+> **Nota de implementação**: "inscrições não vencidas permanecem intactas" já é responsabilidade de `markExpiredEnrollments` (testado em `lib/enrollments.test.ts`); no nível da rota, o teste equivalente é "nenhuma vencida retornada → nenhum e-mail enviado", provando que a rota não força processamento além do que o repositório devolve.
 
 ---
 
