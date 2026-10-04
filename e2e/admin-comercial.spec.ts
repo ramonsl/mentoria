@@ -6,7 +6,11 @@ test("admin atualiza um preço comercial", async ({ page }) => {
   await page.getByLabel("Senha").fill(E2E_ADMIN_PASSWORD);
   await page.getByRole("button", { name: "Entrar" }).click();
 
-  await page.goto("/admin/comercial");
+  const commercialLink = page.getByRole("link", { name: "Preços e cupons" });
+  await expect(commercialLink).toBeVisible();
+  await commercialLink.click();
+  await expect(page).toHaveURL(/\/admin\/comercial$/);
+
   const priceInput = page.getByLabel("Novo preço para Direção de Carreira");
   await expect(priceInput).toHaveValue("29900");
 
@@ -15,4 +19,10 @@ test("admin atualiza um preço comercial", async ({ page }) => {
 
   await expect(priceInput).toHaveValue("34900");
   await expect(page.getByText("R$ 349,00")).toBeVisible();
+});
+
+test("admin comercial exige uma sessão autenticada", async ({ page }) => {
+  await page.goto("/admin/comercial");
+
+  await expect(page).toHaveURL(/\/admin\/login$/);
 });

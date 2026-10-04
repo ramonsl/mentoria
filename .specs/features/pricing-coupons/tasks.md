@@ -130,9 +130,9 @@ T7 → T10
 **Requirement**: PRC-01, PRC-03
 **Tools**: MCP: filesystem. Skill: NONE.
 **Done when**:
-- [ ] Unauthenticated access to `/admin/comercial` redirects to login.
-- [ ] Authenticated navigation exposes “Preços e cupons”.
-- [ ] Existing middleware tests and an E2E navigation assertion pass.
+- [x] Unauthenticated access to `/admin/comercial` redirects to login.
+- [x] Authenticated navigation exposes “Preços e cupons”.
+- [x] Existing middleware tests and an E2E navigation assertion pass.
 **Tests**: e2e
 **Gate**: full
 

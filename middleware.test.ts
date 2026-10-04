@@ -51,6 +51,15 @@ describe("middleware", () => {
     );
   });
 
+  it("requisição a /admin/comercial sem cookie é redirecionada para /admin/login", async () => {
+    const response = await middleware(makeRequest("/admin/comercial"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "http://localhost:3000/admin/login",
+    );
+  });
+
   it("requisição a /admin/inscricoes com cookie inválido é redirecionada para /admin/login", async () => {
     const response = await middleware(
       makeRequest("/admin/inscricoes", "admin_session=token-forjado"),
@@ -83,5 +92,6 @@ describe("middleware", () => {
     // lista, logo não pode ser bloqueada por este middleware.
     expect(config.matcher).not.toContain("/admin/login");
     expect(config.matcher).toContain("/admin/inscricoes");
+    expect(config.matcher).toContain("/admin/comercial");
   });
 });
