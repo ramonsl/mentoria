@@ -100,9 +100,9 @@ T7 → T10
 **Requirement**: PRC-01, PRC-03, PRC-04
 **Tools**: MCP: filesystem. Skill: NONE.
 **Done when**:
-- [ ] Every action rejects a missing or invalid admin session.
-- [ ] Valid actions mutate only their intended commercial record and revalidate landing/admin pages.
-- [ ] Unit tests cover unauthorized, invalid and successful actions.
+- [x] Every action rejects a missing or invalid admin session.
+- [x] Valid actions mutate only their intended commercial record and revalidate landing/admin pages.
+- [x] Unit tests cover unauthorized, invalid and successful actions.
 **Tests**: unit
 **Gate**: quick
 
