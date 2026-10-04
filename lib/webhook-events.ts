@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import type { Db } from "./db";
 import { getDb } from "./db";
 import { webhookEvents as webhookEventsTable } from "./schema";
@@ -81,6 +81,23 @@ export async function recordEvent(
 
     return { recorded: false, event: mapRow(existing) };
   }
+}
+
+/**
+ * Every event recorded for one checkout, oldest first - the timeline on the
+ * admin detail view (.tasks/painel-inscricoes.md critério 14).
+ */
+export async function listEventsByCheckoutId(
+  checkoutId: string,
+  db: Db = getDb(),
+): Promise<WebhookEvent[]> {
+  const rows = await db
+    .select()
+    .from(webhookEventsTable)
+    .where(eq(webhookEventsTable.checkoutId, checkoutId))
+    .orderBy(asc(webhookEventsTable.processedAt));
+
+  return rows.map(mapRow);
 }
 
 export async function logOutcome(

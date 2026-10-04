@@ -6,6 +6,7 @@ export default defineConfig({
     include: [
       "lib/**/*.test.ts",
       "app/api/**/*.test.ts",
+      "app/admin/**/*.test.ts",
       "emails/**/*.test.ts",
       "middleware.test.ts",
     ],

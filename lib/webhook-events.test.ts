@@ -1,12 +1,23 @@
 import { describe, expect, it } from "vitest";
 import type { Db } from "./db";
-import { logOutcome, recordEvent } from "./webhook-events";
+import { listEventsByCheckoutId, logOutcome, recordEvent } from "./webhook-events";
 
 type Row = Record<string, unknown>;
 
 function makeThenable(rows: Row[]) {
   return {
     limit: (n: number) => Promise.resolve(rows.slice(0, n)),
+    // Único uso real hoje é `asc(processedAt)` (listEventsByCheckoutId) -
+    // ordena por esse campo em vez de ignorar o argumento, pra que um teste
+    // que semeia fora de ordem realmente exercite a ordenação.
+    orderBy: (_s: unknown) =>
+      Promise.resolve(
+        [...rows].sort(
+          (a, b) =>
+            (a.processedAt as Date).getTime() -
+            (b.processedAt as Date).getTime(),
+        ),
+      ),
     then: (
       resolve: (v: Row[]) => unknown,
       reject?: (e: unknown) => unknown,
@@ -98,6 +109,40 @@ describe("recordEvent", () => {
     const payload = { event: "CHECKOUT_PAID", data: { id: "x" } };
     const result = await recordEvent({ ...BASE_INPUT, payload }, db);
     expect(result.event.payload).toEqual(payload);
+  });
+});
+
+describe("listEventsByCheckoutId", () => {
+  it("devolve os eventos ordenados por processedAt ascendente (painel-inscricoes.md critério 14)", async () => {
+    const db = createFakeDb([
+      {
+        id: "evt-paid",
+        eventType: "CHECKOUT_PAID",
+        checkoutId: "chk-1",
+        payload: {},
+        result: "success",
+        errorMessage: null,
+        processedAt: new Date("2026-03-02T00:00:00Z"),
+      },
+      {
+        id: "evt-created",
+        eventType: "CHECKOUT_CREATED",
+        checkoutId: "chk-1",
+        payload: {},
+        result: "success",
+        errorMessage: null,
+        processedAt: new Date("2026-03-01T00:00:00Z"),
+      },
+    ]);
+
+    const events = await listEventsByCheckoutId("chk-1", db);
+
+    expect(events.map((e) => e.id)).toEqual(["evt-created", "evt-paid"]);
+  });
+
+  it("devolve lista vazia quando o checkout não tem nenhum evento registrado (critério 15)", async () => {
+    const db = createFakeDb();
+    expect(await listEventsByCheckoutId("chk-sem-eventos", db)).toEqual([]);
   });
 });
 

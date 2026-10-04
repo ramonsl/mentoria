@@ -4,6 +4,7 @@ import {
   createEnrollment,
   findActiveByEmailAndPlan,
   findByCheckoutId,
+  findById,
   listEnrollments,
   markExpiredEnrollments,
   updateEnrollmentStatus,
@@ -181,6 +182,34 @@ describe("findByCheckoutId", () => {
   it("retorna null quando não existe", async () => {
     const db = createFakeDb();
     expect(await findByCheckoutId("nenhum", db)).toBeNull();
+  });
+});
+
+describe("findById", () => {
+  it("retorna a inscrição com esse id (painel-inscricoes.md critério 12)", async () => {
+    const db = createFakeDb([
+      {
+        id: "id-abc",
+        asaasCheckoutId: "checkout-abc",
+        plan: "avulso",
+        status: "paga",
+        customerEmail: "j@j.com",
+        customerName: "J",
+        amountCents: 29900,
+        paidAt: null,
+        expiresAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    const result = await findById("id-abc", db);
+    expect(result?.id).toBe("id-abc");
+    expect(result?.customerName).toBe("J");
+  });
+
+  it("retorna null quando o id não bate com nenhuma inscrição (critério 13 - vira 404)", async () => {
+    const db = createFakeDb();
+    expect(await findById("nenhum", db)).toBeNull();
   });
 });
 

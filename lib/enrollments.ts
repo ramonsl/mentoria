@@ -102,6 +102,24 @@ export async function findActiveByEmailAndPlan(
   return row ? mapRow(row) : null;
 }
 
+/**
+ * Looks up one enrollment by its primary key, for the admin detail view
+ * (.tasks/painel-inscricoes.md criterion 12). Returns null when the id
+ * doesn't match any row, which the caller turns into a 404 (criterion 13).
+ */
+export async function findById(
+  id: string,
+  db: Db = getDb(),
+): Promise<Enrollment | null> {
+  const [row] = await db
+    .select()
+    .from(enrollmentsTable)
+    .where(eq(enrollmentsTable.id, id))
+    .limit(1);
+
+  return row ? mapRow(row) : null;
+}
+
 export async function findByCheckoutId(
   checkoutId: string,
   db: Db = getDb(),
