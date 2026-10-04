@@ -7,6 +7,7 @@ import {
   type EnrollmentFilters,
   type StatusLabel,
 } from "@/lib/enrollment-filters";
+import { statusAccent } from "@/lib/admin-theme";
 
 // Lista de inscrições do mentor (spec.md P2 "Lista de inscrições para o
 // mentor", MENT-25; .tasks/painel-inscricoes.md) - protegida por
@@ -72,12 +73,10 @@ export default async function AdminEnrollmentsPage({
   return (
     <main className="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-16">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-black dark:text-zinc-50">
-          Inscrições
-        </h1>
+        <h1 className="text-2xl font-bold">Inscrições</h1>
         <a
           href={`/admin/inscricoes/export${exportQuery ? `?${exportQuery}` : ""}`}
-          className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium text-black dark:border-white/10 dark:text-zinc-50"
+          className="rounded-full px-4 py-2 text-sm font-medium text-[var(--wv-accent)]"
         >
           Exportar CSV
         </a>
@@ -85,14 +84,14 @@ export default async function AdminEnrollmentsPage({
 
       <form
         method="get"
-        className="flex flex-wrap items-end gap-3 text-sm text-zinc-700 dark:text-zinc-300"
+        className="admin-card flex flex-wrap items-end gap-3 text-sm text-[var(--wv-muted)]"
       >
         <label className="flex flex-col gap-1">
           Status
           <select
             name="status"
             defaultValue={filters.status ?? ""}
-            className="rounded-lg border border-black/10 bg-white px-3 py-2 dark:border-white/10 dark:bg-zinc-950"
+            className="rounded-lg border border-[var(--wv-border)] bg-[var(--wv-bg)] px-3 py-2 text-[var(--wv-text)]"
           >
             <option value="">Todos</option>
             {STATUS_LABELS.map((label) => (
@@ -108,7 +107,7 @@ export default async function AdminEnrollmentsPage({
           <select
             name="plano"
             defaultValue={filters.plano ?? ""}
-            className="rounded-lg border border-black/10 bg-white px-3 py-2 dark:border-white/10 dark:bg-zinc-950"
+            className="rounded-lg border border-[var(--wv-border)] bg-[var(--wv-bg)] px-3 py-2 text-[var(--wv-text)]"
           >
             <option value="">Todos</option>
             {PLANS.map((plan) => (
@@ -125,7 +124,7 @@ export default async function AdminEnrollmentsPage({
             type="date"
             name="de"
             defaultValue={filters.de ?? ""}
-            className="rounded-lg border border-black/10 bg-white px-3 py-2 dark:border-white/10 dark:bg-zinc-950"
+            className="rounded-lg border border-[var(--wv-border)] bg-[var(--wv-bg)] px-3 py-2 text-[var(--wv-text)]"
           />
         </label>
 
@@ -135,7 +134,7 @@ export default async function AdminEnrollmentsPage({
             type="date"
             name="ate"
             defaultValue={filters.ate ?? ""}
-            className="rounded-lg border border-black/10 bg-white px-3 py-2 dark:border-white/10 dark:bg-zinc-950"
+            className="rounded-lg border border-[var(--wv-border)] bg-[var(--wv-bg)] px-3 py-2 text-[var(--wv-text)]"
           />
         </label>
 
@@ -146,58 +145,60 @@ export default async function AdminEnrollmentsPage({
             name="q"
             placeholder="Nome ou e-mail"
             defaultValue={filters.q ?? ""}
-            className="rounded-lg border border-black/10 bg-white px-3 py-2 dark:border-white/10 dark:bg-zinc-950"
+            className="rounded-lg border border-[var(--wv-border)] bg-[var(--wv-bg)] px-3 py-2 text-[var(--wv-text)]"
           />
         </label>
 
         <button
           type="submit"
-          className="rounded-full bg-black px-5 py-2 text-sm font-medium text-white dark:bg-white dark:text-black"
+          className="rounded-full bg-[var(--wv-accent)] px-5 py-2 text-sm font-medium text-[var(--wv-bg)]"
         >
           Filtrar
         </button>
       </form>
 
       {loadError ? (
-        <p className="text-sm text-red-600 dark:text-red-400">
+        <p className="admin-alert text-sm">
           Não foi possível carregar as inscrições. Tente novamente.
         </p>
       ) : enrollments.length === 0 ? (
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="admin-card text-sm text-[var(--wv-muted)]">
           Nenhuma inscrição encontrada.
         </p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-zinc-700 dark:text-zinc-300">
+        <div className="admin-card overflow-x-auto" style={{ padding: 0 }}>
+          <table className="w-full text-left text-sm text-[var(--wv-muted)]">
             <thead>
-              <tr className="border-b border-black/10 dark:border-white/10">
-                <th className="py-2 pr-4 font-medium">Nome</th>
-                <th className="py-2 pr-4 font-medium">E-mail</th>
-                <th className="py-2 pr-4 font-medium">Plano</th>
-                <th className="py-2 pr-4 font-medium">Status</th>
-                <th className="py-2 pr-4 font-medium">Pago em</th>
-                <th className="py-2 pr-4 font-medium">Expira em</th>
-                <th className="py-2 pr-4 font-medium" />
+              <tr className="border-b border-[var(--wv-border)]">
+                <th className="px-5 py-3 font-medium">Nome</th>
+                <th className="px-5 py-3 font-medium">E-mail</th>
+                <th className="px-5 py-3 font-medium">Plano</th>
+                <th className="px-5 py-3 font-medium">Status</th>
+                <th className="px-5 py-3 font-medium">Pago em</th>
+                <th className="px-5 py-3 font-medium">Expira em</th>
+                <th className="px-5 py-3 font-medium" />
               </tr>
             </thead>
             <tbody>
               {enrollments.map((enrollment) => {
                 const row = toDisplayRow(enrollment);
                 return (
-                  <tr
-                    key={enrollment.id}
-                    className="border-b border-black/5 dark:border-white/5"
-                  >
-                    <td className="py-2 pr-4">{row.name}</td>
-                    <td className="py-2 pr-4">{row.email}</td>
-                    <td className="py-2 pr-4">{row.plan}</td>
-                    <td className="py-2 pr-4">{row.status}</td>
-                    <td className="py-2 pr-4">{row.paidAt}</td>
-                    <td className="py-2 pr-4">{row.expiresAt}</td>
-                    <td className="py-2 pr-4">
+                  <tr key={enrollment.id}>
+                    <td className="px-5 py-3 text-[var(--wv-text)]">{row.name}</td>
+                    <td className="px-5 py-3">{row.email}</td>
+                    <td className="px-5 py-3">{row.plan}</td>
+                    <td
+                      className="px-5 py-3 font-medium"
+                      style={{ color: statusAccent(row.status) }}
+                    >
+                      {row.status}
+                    </td>
+                    <td className="px-5 py-3">{row.paidAt}</td>
+                    <td className="px-5 py-3">{row.expiresAt}</td>
+                    <td className="px-5 py-3">
                       <Link
                         href={`/admin/inscricoes/${enrollment.id}`}
-                        className="font-medium text-blue-700 dark:text-blue-400"
+                        className="font-medium text-[var(--wv-accent)]"
                       >
                         Ver detalhes
                       </Link>

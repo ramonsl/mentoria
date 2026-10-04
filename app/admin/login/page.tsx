@@ -46,12 +46,10 @@ export default function AdminLoginPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-6">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">
-        Acesso restrito
-      </h1>
+      <h1 className="text-xl font-semibold">Acesso restrito</h1>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+      <form onSubmit={handleSubmit} className="admin-card flex flex-col gap-4">
+        <label className="flex flex-col gap-2 text-sm text-[var(--wv-muted)]">
           Senha
           <input
             type="password"
@@ -59,20 +57,20 @@ export default function AdminLoginPage() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
-            className="rounded-lg border border-black/10 bg-white px-4 py-2 text-black dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-50"
+            className="rounded-lg border border-[var(--wv-border)] bg-[var(--wv-bg)] px-4 py-2 text-[var(--wv-text)]"
           />
         </label>
 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full rounded-full bg-blue-700 px-5 py-3 text-base font-medium text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-full bg-[var(--wv-accent)] px-5 py-3 text-base font-medium text-[var(--wv-bg)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Entrar
         </button>
 
         {error ? (
-          <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+          <p role="alert" className="admin-alert text-sm">
             {error}
           </p>
         ) : null}

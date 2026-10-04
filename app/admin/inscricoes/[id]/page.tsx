@@ -1,7 +1,13 @@
 import { notFound } from "next/navigation";
+import { JetBrains_Mono } from "next/font/google";
 import { findById } from "@/lib/enrollments";
 import { listEventsByCheckoutId } from "@/lib/webhook-events";
 import { formatCentsBrl, toDisplayRow } from "@/lib/enrollment-filters";
+
+// Fonte monoespaçada pro valor pago (.tasks/admin-wattvision-theme.md
+// critério 14) - reaproveita a regra tipográfica do design system WattVision
+// de usar monoespaçada pra métricas numéricas.
+const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"] });
 
 // Detalhe de uma inscrição (.tasks/painel-inscricoes.md critérios 12-17):
 // dados do lead, plano, valor e a linha do tempo de eventos do webhook pro
@@ -44,47 +50,42 @@ export default async function AdminEnrollmentDetailPage({
 
   return (
     <main className="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-16">
-      <h1 className="text-2xl font-bold text-black dark:text-zinc-50">
-        {row.name}
-      </h1>
+      <h1 className="text-2xl font-bold">{row.name}</h1>
 
-      <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-zinc-700 dark:text-zinc-300">
+      <dl className="admin-card grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-[var(--wv-muted)]">
         <dt className="font-medium">E-mail</dt>
-        <dd>{row.email}</dd>
+        <dd className="text-[var(--wv-text)]">{row.email}</dd>
 
         <dt className="font-medium">Plano</dt>
-        <dd>{row.plan}</dd>
+        <dd className="text-[var(--wv-text)]">{row.plan}</dd>
 
         <dt className="font-medium">Valor pago</dt>
-        <dd>{formatCentsBrl(enrollment.amountCents)}</dd>
+        <dd className={`${jetbrainsMono.className} font-bold text-[var(--wv-text)]`}>
+          {formatCentsBrl(enrollment.amountCents)}
+        </dd>
 
         <dt className="font-medium">Status</dt>
-        <dd>{row.status}</dd>
+        <dd className="text-[var(--wv-text)]">{row.status}</dd>
 
         <dt className="font-medium">Pago em</dt>
-        <dd>{row.paidAt}</dd>
+        <dd className="text-[var(--wv-text)]">{row.paidAt}</dd>
 
         <dt className="font-medium">Expira em</dt>
-        <dd>{row.expiresAt}</dd>
+        <dd className="text-[var(--wv-text)]">{row.expiresAt}</dd>
       </dl>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold text-black dark:text-zinc-50">
-          Linha do tempo
-        </h2>
+        <h2 className="text-lg font-semibold">Linha do tempo</h2>
 
         {events.length === 0 ? (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="admin-card text-sm text-[var(--wv-muted)]">
             Nenhum evento registrado.
           </p>
         ) : (
-          <ol className="flex flex-col gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+          <ol className="admin-card flex flex-col gap-2 text-sm text-[var(--wv-muted)]">
             {events.map((event) => (
-              <li
-                key={event.id}
-                className="flex justify-between border-b border-black/5 py-2 dark:border-white/5"
-              >
-                <span>{event.eventType}</span>
+              <li key={event.id} className="flex justify-between py-2">
+                <span className="text-[var(--wv-text)]">{event.eventType}</span>
                 <span>{formatDateTime(event.processedAt)}</span>
               </li>
             ))}

@@ -36,3 +36,45 @@ html {
   background: #b9d6ff;
   color: var(--navy-deep);
 }
+
+/* Tokens WattVision (.tasks/admin-wattvision-theme.md) - escopados a
+   /admin via esta classe, nunca aplicados ao :root público. */
+.admin-theme {
+  --wv-bg: #121212;
+  --wv-surface: #1e1e1e;
+  --wv-border: #2c2c2e;
+  --wv-row-hover: #252525;
+  --wv-accent: #00e5ff;
+  --wv-success: #32d74b;
+  --wv-alert: #ff453a;
+  --wv-alert-bg: #3a1c1c;
+  --wv-text: #ffffff;
+  --wv-muted: #98989d;
+}
+
+.admin-card {
+  border-radius: 1rem;
+  background: var(--wv-surface);
+  border: 1px solid var(--wv-border);
+  padding: 1.25rem;
+}
+
+.admin-alert {
+  background: var(--wv-alert-bg);
+  color: var(--wv-alert);
+  border-left: 4px solid var(--wv-alert);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.admin-theme table tbody tr {
+  border-bottom: 1px solid var(--wv-border);
+}
+
+.admin-theme table tbody tr:hover {
+  background: var(--wv-row-hover);
+}
+
+.admin-theme ol li {
+  border-bottom: 1px solid var(--wv-border);
+}
