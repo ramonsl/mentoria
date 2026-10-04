@@ -42,7 +42,7 @@ Geist em `app/layout.tsx`.
 **C1** - As 3 páginas de `/admin` renderizam com fundo `#121212` e texto principal `#FFFFFF`, independentemente da preferência de cor do SO/navegador
 Proof: `npx playwright test e2e/admin-theme.spec.ts -g "fundo e texto principal fixos nas 3 telas"`
 
-**C2** - Títulos (`h1`) usam Inter; corpo usa Inter (substitui Geist herdado do layout público)
+**C2** - Títulos (`h1`) usam Inter Semi Bold 24px nas 3 telas; corpo usa Inter Regular 14px (substitui Geist herdado do layout público)
 Proof: `npx playwright test e2e/admin-theme.spec.ts -g "tipografia Inter"`
 
 **C3** - Texto secundário (rótulos, legendas, estados vazios) usa `#98989D`
@@ -56,12 +56,12 @@ Proof: `npx playwright test e2e/admin-theme.spec.ts -g "botão Entrar usa o acen
 **C5** - A mensagem de senha incorreta renderiza como alerta: fundo `#3A1C1C`, texto `#FF453A`, borda esquerda de 4px
 Proof: `npx playwright test e2e/admin-theme.spec.ts -g "alerta de senha incorreta"`
 
-**C6** - O formulário de senha renderiza dentro de um card: fundo `#1E1E1E`, `border-radius` 16px, borda `1px solid #2C2C2E`
+**C6** - O formulário de senha renderiza dentro de um card: fundo `#1E1E1E`, `border-radius` 16px, borda `1px solid #2C2C2E` (cor da borda incluída)
 Proof: `npx playwright test e2e/admin-theme.spec.ts -g "card do formulário de login"`
 
 ### Lista de inscrições · 1 file · ~2k
 
-**C7** - Os filtros e o botão "Filtrar" renderizam dentro de um card (mesmos tokens de C6); "Filtrar" usa `#00E5FF`
+**C7** - Os filtros e o botão "Filtrar" renderizam dentro de um card (mesmos tokens de C6, cor da borda incluída); "Filtrar" usa `#00E5FF`
 Proof: `npx playwright test e2e/admin-theme.spec.ts -g "card de filtros e botão Filtrar"`
 
 **C8** - O link "Exportar CSV" usa `#00E5FF`
@@ -82,13 +82,13 @@ Proof: `npx playwright test e2e/admin-theme.spec.ts -g "mensagem de lista vazia"
 
 ### Detalhe da inscrição · 1 file · ~2k
 
-**C13** - A lista de campos renderiza dentro de um card (mesmos tokens de C6)
+**C13** - A lista de campos renderiza dentro de um card (mesmos tokens de C6, cor da borda incluída)
 Proof: `npx playwright test e2e/admin-theme.spec.ts -g "card dos dados da inscrição"`
 
 **C14** - O valor pago (BRL) renderiza em fonte monoespaçada (JetBrains Mono), negrito
 Proof: `npx playwright test e2e/admin-theme.spec.ts -g "valor pago em monoespaçada"`
 
-**C15** - A timeline renderiza dentro de um card; cada linha tem borda inferior `#2C2C2E`
+**C15** - A timeline renderiza dentro de um card (cor da borda do card incluída); cada linha tem borda inferior `#2C2C2E`
 Proof: `npx playwright test e2e/admin-theme.spec.ts -g "card da timeline e borda de linha"`
 
 **C16** - "Nenhum evento registrado." usa `#98989D`
@@ -105,6 +105,24 @@ Proof: `npx playwright test e2e/admin-theme.spec.ts -g "mensagem de timeline vaz
 - external-dependency failure: existing - `next/font/google` segue o mesmo mecanismo já usado pro Geist
 - state transitions: n/a - nenhum status muda, só a cor do rótulo (C10)
 - observability: n/a - nenhum log/métrica pedido
+
+## Verification
+
+Verificado por um agente fresco (não o autor), `45e250e..dc5701a`. Achou 5 CONCERN (nenhum
+FAIL), ambos corrigidos num commit seguinte:
+
+- **C2**: o teste só checava a família da fonte na página de lista, não tamanho/peso nem as
+  outras 2 telas - e o código nem batia com o critério: login usava `text-xl font-semibold`
+  (20px/600), lista e detalhe usavam `text-2xl font-bold` (24px/700), nenhum dos dois era
+  "Semi Bold 24px". Corrigido pras 3 telas usarem `text-2xl font-semibold` (24px/600) e o
+  teste passou a checar tamanho/peso nas 3 + a fonte do corpo (14px/400).
+- **C6/C7/C13/C15**: nenhum teste checava a cor da borda do `.admin-card` (`#2C2C2E`), mesmo
+  os 4 critérios citando-a explicitamente - mutante sobrevivente confirmado por injeção de
+  falha. Corrigido acrescentando a asserção de `border-*-color` nos 4 testes.
+
+Re-rodado depois da correção: 14/14 e2e + os 2 vitest, mais a suíte inteira do projeto
+(`npm run test` 158/158, `npx playwright test` 45/46 - a 1 falha é pré-existente e não
+relacionada, no `PlanComparison`).
 
 ## Handoff
 

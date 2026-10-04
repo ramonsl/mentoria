@@ -73,7 +73,7 @@ export default async function AdminEnrollmentsPage({
   return (
     <main className="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-16">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">Inscrições</h1>
+        <h1 className="text-2xl font-semibold">Inscrições</h1>
         <a
           href={`/admin/inscricoes/export${exportQuery ? `?${exportQuery}` : ""}`}
           className="rounded-full px-4 py-2 text-sm font-medium text-[var(--wv-accent)]"

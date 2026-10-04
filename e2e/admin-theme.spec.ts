@@ -71,14 +71,44 @@ test.describe("admin - tema WattVision", () => {
   test("tipografia Inter nos títulos e no corpo (critério 2)", async ({
     page,
   }) => {
-    await loginAsAdmin(page);
-
-    const heading = page.getByRole("heading", { name: "Inscrições" });
-    const { "font-family": headingFont } = await computed(
-      heading,
+    // Título: Inter Semi Bold 24px, nas 3 telas.
+    await page.goto("/admin/login");
+    const loginHeading = page.getByRole("heading", { name: "Acesso restrito" });
+    expect(
+      await computed(loginHeading, "font-family", "font-size", "font-weight"),
+    ).toMatchObject({ "font-size": "24px", "font-weight": "600" });
+    const { "font-family": loginFont } = await computed(
+      loginHeading,
       "font-family",
     );
-    expect(headingFont.toLowerCase()).toContain("inter");
+    expect(loginFont.toLowerCase()).toContain("inter");
+
+    await loginAsAdmin(page);
+    const listHeading = page.getByRole("heading", { name: "Inscrições" });
+    expect(
+      await computed(listHeading, "font-size", "font-weight"),
+    ).toMatchObject({ "font-size": "24px", "font-weight": "600" });
+
+    await page.goto("/admin/inscricoes/e2e-seed-1");
+    const detailHeading = page.getByRole("heading", {
+      name: "Ana Beatriz Souza",
+    });
+    expect(
+      await computed(detailHeading, "font-size", "font-weight"),
+    ).toMatchObject({ "font-size": "24px", "font-weight": "600" });
+
+    // Corpo: Inter Regular 14px - amostrado numa célula da tabela.
+    await page.goto("/admin/inscricoes");
+    const bodyCell = page.getByText("ana.beatriz@example.com");
+    const bodyStyle = await computed(
+      bodyCell,
+      "font-family",
+      "font-size",
+      "font-weight",
+    );
+    expect(bodyStyle["font-family"].toLowerCase()).toContain("inter");
+    expect(bodyStyle["font-size"]).toBe("14px");
+    expect(bodyStyle["font-weight"]).toBe("400");
   });
 
   test("texto secundário usa o tom neutro (critério 3)", async ({ page }) => {
@@ -127,19 +157,27 @@ test.describe("admin - tema WattVision", () => {
       "background-color",
       "border-radius",
       "border-top-width",
+      "border-top-color",
     );
     expect(style["background-color"]).toBe(WV.surface);
     expect(style["border-radius"]).toBe("16px");
     expect(style["border-top-width"]).toBe("1px");
+    expect(style["border-top-color"]).toBe(WV.border);
   });
 
   test("card de filtros e botão Filtrar (critério 7)", async ({ page }) => {
     await loginAsAdmin(page);
 
     const form = page.locator("form");
-    const formStyle = await computed(form, "background-color", "border-radius");
+    const formStyle = await computed(
+      form,
+      "background-color",
+      "border-radius",
+      "border-top-color",
+    );
     expect(formStyle["background-color"]).toBe(WV.surface);
     expect(formStyle["border-radius"]).toBe("16px");
+    expect(formStyle["border-top-color"]).toBe(WV.border);
 
     const button = page.getByRole("button", { name: "Filtrar" });
     const { "background-color": buttonBg } = await computed(
@@ -204,9 +242,15 @@ test.describe("admin - tema WattVision", () => {
     await page.goto("/admin/inscricoes/e2e-seed-1");
 
     const dl = page.locator("dl");
-    const style = await computed(dl, "background-color", "border-radius");
+    const style = await computed(
+      dl,
+      "background-color",
+      "border-radius",
+      "border-top-color",
+    );
     expect(style["background-color"]).toBe(WV.surface);
     expect(style["border-radius"]).toBe("16px");
+    expect(style["border-top-color"]).toBe(WV.border);
   });
 
   test("valor pago em monoespaçada (critério 14)", async ({ page }) => {
@@ -224,9 +268,15 @@ test.describe("admin - tema WattVision", () => {
     await page.goto("/admin/inscricoes/e2e-seed-1");
 
     const ol = page.locator("ol");
-    const olStyle = await computed(ol, "background-color", "border-radius");
+    const olStyle = await computed(
+      ol,
+      "background-color",
+      "border-radius",
+      "border-top-color",
+    );
     expect(olStyle["background-color"]).toBe(WV.surface);
     expect(olStyle["border-radius"]).toBe("16px");
+    expect(olStyle["border-top-color"]).toBe(WV.border);
 
     const firstItem = page.locator("ol li").first();
     const { "border-bottom-color": borderColor } = await computed(

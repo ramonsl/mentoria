@@ -50,7 +50,7 @@ export default async function AdminEnrollmentDetailPage({
 
   return (
     <main className="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-16">
-      <h1 className="text-2xl font-bold">{row.name}</h1>
+      <h1 className="text-2xl font-semibold">{row.name}</h1>
 
       <dl className="admin-card grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-[var(--wv-muted)]">
         <dt className="font-medium">E-mail</dt>
