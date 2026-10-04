@@ -6,11 +6,12 @@
 import {
   createEnrollment,
   findActiveByEmailAndPlan,
+  findByCheckoutId,
+  updateEnrollmentStatus,
   type Enrollment,
   type Plan,
 } from "./enrollments";
 import { canTransition } from "./enrollment-state";
-import { getSupabaseClient } from "./supabase";
 import { PLANS, type PlanDisplay } from "../content/plans";
 import {
   sendMenteeConfirmation,
@@ -78,20 +79,7 @@ async function activateEnrollment(
   if (!canTransition(enrollment.status, "ativa")) {
     return enrollment;
   }
-
-  const client = getSupabaseClient();
-  const { error } = await client
-    .from("enrollments")
-    .update({ status: "ativa", updated_at: now.toISOString() })
-    .eq("id", enrollment.id);
-
-  if (error) {
-    throw new Error(
-      `Failed to activate enrollment ${enrollment.id}: ${error.message}`,
-    );
-  }
-
-  return { ...enrollment, status: "ativa", updatedAt: now };
+  return updateEnrollmentStatus(enrollment.id, "ativa", now);
 }
 
 function rejectionReason(
@@ -109,47 +97,6 @@ function rejectionReason(
   return `Unable to determine plan for checkout ${checkoutId}`;
 }
 
-function mapEnrollmentRow(row: Record<string, unknown>): Enrollment {
-  return {
-    id: row.id as string,
-    asaasCheckoutId: row.asaas_checkout_id as string,
-    plan: row.plan as Plan,
-    status: row.status as Enrollment["status"],
-    customerName: row.customer_name as string,
-    customerEmail: row.customer_email as string,
-    amountCents: row.amount_cents as number,
-    paidAt: row.paid_at ? new Date(row.paid_at as string) : null,
-    expiresAt: new Date(row.expires_at as string),
-    createdAt: new Date(row.created_at as string),
-    updatedAt: new Date(row.updated_at as string),
-  };
-}
-
-/**
- * Looks up an enrollment already created for this Asaas checkout id, used
- * to detect whether a CHECKOUT_PAID was already processed for it (MENT-13 -
- * out-of-order events). lib/enrollments.ts has no such lookup (T20 is scoped
- * to this file only), so this queries Supabase directly, same pattern as
- * activateEnrollment above.
- */
-async function findEnrollmentByCheckoutId(
-  checkoutId: string,
-): Promise<Enrollment | null> {
-  const client = getSupabaseClient();
-  const { data, error } = await client
-    .from("enrollments")
-    .select()
-    .eq("asaas_checkout_id", checkoutId)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(
-      `Failed to look up enrollment for checkout ${checkoutId}: ${error.message}`,
-    );
-  }
-
-  return data ? mapEnrollmentRow(data as Record<string, unknown>) : null;
-}
 
 async function processCheckoutPaid(
   event: AsaasCheckoutEvent,
@@ -216,7 +163,7 @@ const TERMINAL_EVENT_TYPES = new Set(["CHECKOUT_CANCELED", "CHECKOUT_EXPIRED"]);
 async function processTerminalEvent(
   event: AsaasCheckoutEvent,
 ): Promise<ProcessOutcome> {
-  const existing = await findEnrollmentByCheckoutId(event.checkout.id);
+  const existing = await findByCheckoutId(event.checkout.id);
 
   if (!existing) {
     return {

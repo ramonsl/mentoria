@@ -8,8 +8,7 @@ const VALID_ENV: Record<string, string> = {
   ASAAS_API_KEY: "asaas-key",
   ASAAS_API_BASE_URL: "https://api.asaas.com/v3",
   ASAAS_WEBHOOK_TOKEN: "webhook-token",
-  SUPABASE_URL: "https://project.supabase.co",
-  SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+  DATABASE_URL: "postgresql://localhost/test",
   RESEND_API_KEY: "resend-key",
   MENTOR_EMAIL: "mentor@example.com",
   ADMIN_PASSWORD: "admin-password",
@@ -31,7 +30,7 @@ describe("createCheckout", () => {
     globalThis.fetch = originalFetch;
   });
 
-  it.each(["primeira-vaga", "proximo-nivel"] as const)(
+  it.each(["avulso", "acompanhamento-3m", "acompanhamento-6m"] as const)(
     "retorna uma URL de checkout válida em caso de sucesso para o plano %s",
     async (plan) => {
       const fetchMock = vi.fn().mockResolvedValue({
@@ -87,7 +86,7 @@ describe("createCheckout", () => {
     const { createCheckout, AsaasApiError } = await import("./asaas");
 
     await expect(
-      createCheckout("primeira-vaga", "https://mentoria.example.com"),
+      createCheckout("avulso", "https://mentoria.example.com"),
     ).rejects.toBeInstanceOf(AsaasApiError);
   });
 
@@ -99,7 +98,7 @@ describe("createCheckout", () => {
     const { createCheckout, AsaasApiError } = await import("./asaas");
 
     await expect(
-      createCheckout("primeira-vaga", "https://mentoria.example.com"),
+      createCheckout("avulso", "https://mentoria.example.com"),
     ).rejects.toBeInstanceOf(AsaasApiError);
   });
 });

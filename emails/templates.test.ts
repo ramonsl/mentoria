@@ -27,8 +27,7 @@ const VALID_ENV: Record<string, string> = {
   ASAAS_API_KEY: "asaas-key",
   ASAAS_API_BASE_URL: "https://api.asaas.com/v3",
   ASAAS_WEBHOOK_TOKEN: "webhook-token",
-  SUPABASE_URL: "https://project.supabase.co",
-  SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+  DATABASE_URL: "postgresql://localhost/test",
   RESEND_API_KEY: "resend-key",
   MENTOR_EMAIL: "mentor@example.com",
   ADMIN_PASSWORD: "admin-password",
@@ -39,7 +38,7 @@ function makeEnrollment(overrides: Partial<Enrollment> = {}): Enrollment {
   return {
     id: "enr-1",
     asaasCheckoutId: "chk-1",
-    plan: "primeira-vaga",
+    plan: PLANS[0].slug,
     status: "ativa",
     customerName: "Fulano de Tal",
     customerEmail: "fulano@example.com",

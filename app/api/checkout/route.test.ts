@@ -34,7 +34,7 @@ describe("POST /api/checkout", () => {
     mockCreateCheckout.mockReset();
   });
 
-  it.each(["primeira-vaga", "proximo-nivel"] as const)(
+  it.each(["avulso", "acompanhamento-3m", "acompanhamento-6m"] as const)(
     "retorna checkoutUrl para o plano %s no caminho feliz",
     async (plan) => {
       mockCreateCheckout.mockResolvedValue({
@@ -56,7 +56,7 @@ describe("POST /api/checkout", () => {
       new AsaasApiError("Asaas API returned 502", 502),
     );
 
-    const response = await POST(makeRequest({ plan: "primeira-vaga" }));
+    const response = await POST(makeRequest({ plan: "avulso" }));
     const json = (await response.json()) as { error?: string };
 
     expect(response.status).toBe(502);

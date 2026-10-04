@@ -1,61 +1,82 @@
-// Transcrito de .specs/features/landing-mentoria/content.md §4.
-// Os dois planos entregam exatamente o mesmo pacote; só o público-alvo e o
-// foco da trilha no Classroom diferem (decisão registrada no spec).
+// Transcrito de .specs/features/landing-mentoria/content.md §4 (reformulado
+// em 2026-10-03). Modelo substituído: de 2 planos por público-alvo (mesma
+// entrega) para 3 planos por nível de acompanhamento - cada um com entregas
+// próprias, não mais um pacote compartilhado.
 
-export type PlanSlug = "primeira-vaga" | "proximo-nivel";
+export type PlanSlug =
+  | "avulso"
+  | "acompanhamento-3m"
+  | "acompanhamento-6m";
 
 export interface PlanDisplay {
   slug: PlanSlug;
   name: string;
   priceCents: number;
   priceLabel: string;
+  installmentLabel: string;
+  pixPriceLabel: string;
   badge?: string;
   targetAudience: string;
   deliverables: string[];
   ctaLabel: string;
 }
 
-// content.md §14 resolve a duração da call (item 5: 60 min) e a extensão
-// quando inclui entrevista (item 6: mesma call, até 90 min) e o prazo do
-// relatório (item 5: 5 dias úteis) - usados como texto final, não como TODO.
-const SHARED_DELIVERABLES_INTRO = [
-  "1 call ao vivo de 60 minutos (até 90 minutos quando inclui preparação para entrevista) para revisar currículo, LinkedIn e GitHub, com preparação para entrevistas (técnica e comportamental)",
-  "Relatório escrito com os ajustes priorizados, entregue em até 5 dias úteis após a call",
-];
-
-const SHARED_DELIVERABLES_OUTRO = [
-  "Grupo de WhatsApp com vagas selecionadas",
-  "Acesso por 6 meses à trilha e ao grupo",
-];
-
 export const PLANS: PlanDisplay[] = [
   {
-    slug: "primeira-vaga",
-    name: "Plano Primeira Vaga",
-    priceCents: 19900,
-    priceLabel: "R$ 199",
-    targetAudience:
-      "Para quem está buscando o primeiro emprego ou estágio em tecnologia.",
+    slug: "avulso",
+    name: "Direção de Carreira",
+    priceCents: 29900,
+    priceLabel: "R$ 299,00",
+    installmentLabel: "ou até 12x de R$ 24,92 no cartão",
+    pixPriceLabel: "R$ 254,15 no Pix (15% OFF)",
+    targetAudience: "Quer organizar sua apresentação profissional e receber direção prática para buscar novas oportunidades.",
     deliverables: [
-      ...SHARED_DELIVERABLES_INTRO,
-      "Trilha de estudos personalizada no Google Classroom, com foco em fundamentos para destravar a primeira vaga",
-      ...SHARED_DELIVERABLES_OUTRO,
+      "Trabalhamos seu currículo/CV, LinkedIn e GitHub",
+      "Você recebe um diagnóstico individual com os principais pontos de melhoria",
+      "Plano de ação priorizado, com orientações claras sobre o que fazer depois do diagnóstico",
+      "Durante 3 meses, envio ativamente vagas alinhadas ao seu perfil para você se candidatar",
     ],
-    ctaLabel: "Quero o Primeira Vaga",
+    ctaLabel: "Quero minha Direção",
   },
   {
-    slug: "proximo-nivel",
-    name: "Plano Próximo Nível",
-    priceCents: 49900,
-    priceLabel: "R$ 499",
-    badge: "Para quem já está no mercado",
-    targetAudience:
-      "Para quem já atua na área de tecnologia e busca progressão de carreira (promoção, mudança de nível, nova posição).",
+    slug: "acompanhamento-3m",
+    name: "Aceleração de Carreira",
+    priceCents: 59900,
+    priceLabel: "R$ 599,00",
+    installmentLabel: "ou até 12x de R$ 49,92 no cartão",
+    pixPriceLabel: "R$ 509,15 no Pix (15% OFF)",
+    targetAudience: "Quer acompanhamento próximo por um ciclo curto.",
     deliverables: [
-      ...SHARED_DELIVERABLES_INTRO,
-      "Trilha de estudos personalizada no Google Classroom, com foco em tópicos avançados e liderança, direcionada a quem já tem experiência no mercado",
-      ...SHARED_DELIVERABLES_OUTRO,
+      "3 encontros síncronos individuais, previamente agendados, ao longo de 3 meses",
+      "Acompanhamento individual pelo WhatsApp entre os encontros",
+      "Revisão de currículo, LinkedIn e GitHub",
+      "Preparação para entrevistas técnicas e comportamentais",
+      "Plano de ação priorizado, com orientações claras sobre o que fazer depois do diagnóstico",
+      "Plano de estudos personalizado com projetos reais para construir experiência prática",
+      "Durante 3 meses, envio ativamente vagas alinhadas ao seu perfil para você se candidatar",
     ],
-    ctaLabel: "Quero o Próximo Nível",
+    ctaLabel: "Quero acelerar minha carreira",
+  },
+  {
+    slug: "acompanhamento-6m",
+    name: "Próximo Nível",
+    priceCents: 99900,
+    priceLabel: "R$ 999,00",
+    installmentLabel: "ou até 12x de R$ 83,25 no cartão",
+    pixPriceLabel: "R$ 849,15 no Pix (15% OFF)",
+    badge: "Mais completo",
+    targetAudience: "Quer acompanhamento contínuo para evoluir, construir experiência prática e buscar novas oportunidades.",
+    deliverables: [
+      "6 encontros síncronos individuais, previamente agendados, ao longo de 6 meses",
+      "Acompanhamento individual pelo WhatsApp entre os encontros",
+      "Revisão de currículo, LinkedIn e GitHub",
+      "Preparação para entrevistas técnicas e comportamentais",
+      "Plano de ação priorizado, com orientações claras sobre o que fazer depois do diagnóstico",
+      "Guia de estudos personalizado conforme seus interesses e objetivos",
+      "Execução de projetos reais para construir portfólio e experiência prática",
+      "Durante 12 meses, envio ativamente vagas alinhadas ao seu perfil para você se candidatar",
+      "Orientação para buscar vagas internacionais, incluindo plataformas, posicionamento e processos seletivos",
+    ],
+    ctaLabel: "Quero chegar ao próximo nível",
   },
 ];

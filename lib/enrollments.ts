@@ -1,10 +1,10 @@
-// Repositório de inscrições. Ver design.md ("EnrollmentRepository" e "Data
-// Models") para a assinatura e o shape canônicos.
-
-import { getSupabaseClient } from "./supabase";
+import { asc, and, eq, lte } from "drizzle-orm";
+import type { Db } from "./db";
+import { getDb } from "./db";
 import { canTransition, type EnrollmentStatus } from "./enrollment-state";
+import { enrollments as enrollmentsTable } from "./schema";
 
-export type Plan = "primeira-vaga" | "proximo-nivel";
+export type Plan = "avulso" | "acompanhamento-3m" | "acompanhamento-6m";
 
 export interface Enrollment {
   id: string;
@@ -15,7 +15,7 @@ export interface Enrollment {
   customerEmail: string;
   amountCents: number;
   paidAt: Date | null;
-  expiresAt: Date;
+  expiresAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,7 +29,11 @@ export interface NewEnrollment {
   paidAt: Date;
 }
 
-const ACCESS_DURATION_MONTHS = 6;
+const ACCESS_DURATION_MONTHS: Record<Plan, number | null> = {
+  avulso: null,
+  "acompanhamento-3m": 3,
+  "acompanhamento-6m": 6,
+};
 
 function addMonthsUtc(date: Date, months: number): Date {
   const result = new Date(date.getTime());
@@ -37,123 +41,117 @@ function addMonthsUtc(date: Date, months: number): Date {
   return result;
 }
 
-function mapRow(row: Record<string, unknown>): Enrollment {
+function mapRow(row: typeof enrollmentsTable.$inferSelect): Enrollment {
   return {
-    id: row.id as string,
-    asaasCheckoutId: row.asaas_checkout_id as string,
+    id: row.id,
+    asaasCheckoutId: row.asaasCheckoutId,
     plan: row.plan as Plan,
     status: row.status as EnrollmentStatus,
-    customerName: row.customer_name as string,
-    customerEmail: row.customer_email as string,
-    amountCents: row.amount_cents as number,
-    paidAt: row.paid_at ? new Date(row.paid_at as string) : null,
-    expiresAt: new Date(row.expires_at as string),
-    createdAt: new Date(row.created_at as string),
-    updatedAt: new Date(row.updated_at as string),
+    customerName: row.customerName,
+    customerEmail: row.customerEmail,
+    amountCents: row.amountCents,
+    paidAt: row.paidAt ?? null,
+    expiresAt: row.expiresAt ?? null,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
   };
 }
 
-/**
- * Creates an enrollment for a confirmed payment. expiresAt is always
- * paidAt + 6 months, for either plan - both plans include Classroom and
- * WhatsApp access now (spec.md MENT-10). Initial status is "paga": the
- * payment just happened, no automated step in this feature moves it to
- * "ativa" yet (out of this task's scope).
- */
 export async function createEnrollment(
   input: NewEnrollment,
+  db: Db = getDb(),
 ): Promise<Enrollment> {
-  const client = getSupabaseClient();
-  const expiresAt = addMonthsUtc(input.paidAt, ACCESS_DURATION_MONTHS);
+  const durationMonths = ACCESS_DURATION_MONTHS[input.plan];
+  const expiresAt =
+    durationMonths === null ? null : addMonthsUtc(input.paidAt, durationMonths);
 
-  const { data, error } = await client
-    .from("enrollments")
-    .insert({
-      asaas_checkout_id: input.asaasCheckoutId,
+  const [row] = await db
+    .insert(enrollmentsTable)
+    .values({
+      asaasCheckoutId: input.asaasCheckoutId,
       plan: input.plan,
       status: "paga",
-      customer_name: input.customerName,
-      customer_email: input.customerEmail,
-      amount_cents: input.amountCents,
-      paid_at: input.paidAt.toISOString(),
-      expires_at: expiresAt.toISOString(),
+      customerName: input.customerName,
+      customerEmail: input.customerEmail,
+      amountCents: input.amountCents,
+      paidAt: input.paidAt,
+      expiresAt,
     })
-    .select()
-    .single();
+    .returning();
 
-  if (error) {
-    throw new Error(`Failed to create enrollment: ${error.message}`);
-  }
-
-  return mapRow(data);
+  return mapRow(row);
 }
 
-/**
- * Finds an enrollment with status "ativa" for the same e-mail and plan,
- * used for duplicate-payment detection (spec.md MENT-18).
- */
 export async function findActiveByEmailAndPlan(
   email: string,
   plan: Plan,
+  db: Db = getDb(),
 ): Promise<Enrollment | null> {
-  const client = getSupabaseClient();
-
-  const { data, error } = await client
-    .from("enrollments")
+  const [row] = await db
     .select()
-    .eq("customer_email", email)
-    .eq("plan", plan)
-    .eq("status", "ativa")
-    .maybeSingle();
+    .from(enrollmentsTable)
+    .where(
+      and(
+        eq(enrollmentsTable.customerEmail, email),
+        eq(enrollmentsTable.plan, plan),
+        eq(enrollmentsTable.status, "ativa"),
+      ),
+    )
+    .limit(1);
 
-  if (error) {
-    throw new Error(`Failed to look up active enrollment: ${error.message}`);
-  }
-
-  return data ? mapRow(data) : null;
+  return row ? mapRow(row) : null;
 }
 
-/**
- * Moves every enrollment past its expiresAt to "expirada", only when that
- * transition is valid per the state machine (ativa -> expirada is the only
- * path into "expirada" from an existing paid enrollment). Returns the
- * enrollments that actually changed state, for the caller (cron, T25) to
- * notify the mentor.
- */
+export async function findByCheckoutId(
+  checkoutId: string,
+  db: Db = getDb(),
+): Promise<Enrollment | null> {
+  const [row] = await db
+    .select()
+    .from(enrollmentsTable)
+    .where(eq(enrollmentsTable.asaasCheckoutId, checkoutId))
+    .limit(1);
+
+  return row ? mapRow(row) : null;
+}
+
+export async function updateEnrollmentStatus(
+  id: string,
+  status: EnrollmentStatus,
+  updatedAt: Date,
+  db: Db = getDb(),
+): Promise<Enrollment> {
+  const [row] = await db
+    .update(enrollmentsTable)
+    .set({ status, updatedAt })
+    .where(eq(enrollmentsTable.id, id))
+    .returning();
+
+  if (!row) throw new Error(`Enrollment not found: ${id}`);
+  return mapRow(row);
+}
+
 export async function markExpiredEnrollments(
   now: Date,
+  db: Db = getDb(),
 ): Promise<Enrollment[]> {
-  const client = getSupabaseClient();
-
-  const { data, error } = await client
-    .from("enrollments")
+  const candidates = await db
     .select()
-    .lte("expires_at", now.toISOString());
+    .from(enrollmentsTable)
+    .where(lte(enrollmentsTable.expiresAt, now));
 
-  if (error) {
-    throw new Error(`Failed to list expired enrollments: ${error.message}`);
-  }
-
-  const candidates = (data ?? []).map(mapRow);
   const expired: Enrollment[] = [];
 
   for (const enrollment of candidates) {
-    if (!canTransition(enrollment.status, "expirada")) {
+    if (!canTransition(enrollment.status as EnrollmentStatus, "expirada")) {
       continue;
     }
 
-    const { data: updated, error: updateError } = await client
-      .from("enrollments")
-      .update({ status: "expirada", updated_at: now.toISOString() })
-      .eq("id", enrollment.id)
-      .select()
-      .single();
-
-    if (updateError) {
-      throw new Error(
-        `Failed to mark enrollment ${enrollment.id} as expired: ${updateError.message}`,
-      );
-    }
+    const [updated] = await db
+      .update(enrollmentsTable)
+      .set({ status: "expirada", updatedAt: now })
+      .where(eq(enrollmentsTable.id, enrollment.id))
+      .returning();
 
     expired.push(mapRow(updated));
   }
@@ -161,25 +159,15 @@ export async function markExpiredEnrollments(
   return expired;
 }
 
-/**
- * Lists every enrollment ordered by expiresAt ascending (closest to
- * expiring first), for the mentor's admin list (spec.md P2 "Lista de
- * inscrições para o mentor", MENT-25). `nullsFirst: false` is defensive:
- * every enrollment today always has expiresAt filled (createEnrollment
- * always computes it), so no row is expected to hit that branch in
- * practice.
- */
-export async function listEnrollments(): Promise<Enrollment[]> {
-  const client = getSupabaseClient();
-
-  const { data, error } = await client
-    .from("enrollments")
+export async function listEnrollments(db: Db = getDb()): Promise<Enrollment[]> {
+  const rows = await db
     .select()
-    .order("expires_at", { ascending: true, nullsFirst: false });
+    .from(enrollmentsTable)
+    .orderBy(asc(enrollmentsTable.expiresAt));
 
-  if (error) {
-    throw new Error(`Failed to list enrollments: ${error.message}`);
-  }
+  // avulso (expiresAt null) vai para o final, como o comportamento anterior
+  const withExpiry = rows.filter((r) => r.expiresAt !== null);
+  const nullExpiry = rows.filter((r) => r.expiresAt === null);
 
-  return (data ?? []).map(mapRow);
+  return [...withExpiry, ...nullExpiry].map(mapRow);
 }

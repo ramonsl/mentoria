@@ -5,15 +5,15 @@ import { E2E_ADMIN_PASSWORD } from "../playwright.config";
 // Cobre tasks.md T41 "Done when" (spec.md P2 "Lista de inscrições para o
 // mentor", MENT-25): acesso sem sessão redireciona pro login; login com a
 // senha correta volta pra /admin/inscricoes e exibe a lista (dados semeados
-// por e2e/support/fake-supabase-fetch.cjs, carregado pelo webServer via
-// NODE_OPTIONS - não há projeto Supabase real disponível neste ambiente,
-// mesma limitação já documentada em tasks.md T5/T26); cada linha mostra
-// nome/e-mail/plano/data de pagamento/data de expiração; lista ordenada por
-// proximidade da expiração. Os 3 registros semeados (ver
-// fake-supabase-fetch.cjs) vencem em 2026-07-10 (Ana), 2026-10-15 (Bruno) e
+// por e2e/support/fake-neon-fetch.cjs, carregado pelo webServer via
+// NODE_OPTIONS); cada linha mostra nome/e-mail/plano/data de pagamento/data
+// de expiração; lista ordenada por proximidade da expiração. Os 3 registros
+// semeados vencem em 2026-07-10 (Ana), 2026-10-15 (Bruno) e
 // 2027-04-01 (Carla), nessa ordem.
 
-const PRIMEIRA_VAGA_NAME = PLANS.find((p) => p.slug === "primeira-vaga")!.name;
+const ACOMPANHAMENTO_3M_NAME = PLANS.find(
+  (p) => p.slug === "acompanhamento-3m",
+)!.name;
 
 test.describe("admin - lista de inscrições", () => {
   test("acessar /admin/inscricoes sem sessão redireciona para /admin/login", async ({
@@ -54,7 +54,7 @@ test.describe("admin - lista de inscrições", () => {
     const firstRow = page.locator("table tbody tr").nth(0);
     await expect(firstRow).toContainText("Ana Beatriz Souza");
     await expect(firstRow).toContainText("ana.beatriz@example.com");
-    await expect(firstRow).toContainText(PRIMEIRA_VAGA_NAME);
+    await expect(firstRow).toContainText(ACOMPANHAMENTO_3M_NAME);
     await expect(firstRow).toContainText("10/01/2026"); // pago em
     await expect(firstRow).toContainText("10/07/2026"); // expira em
   });

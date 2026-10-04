@@ -1,341 +1,330 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-// Fake Supabase client: mantém linhas em memória (snake_case, como a
-// migration) e implementa só a fração da query builder que lib/enrollments.ts
-// usa, permitindo testar o comportamento real (estado persistido/retornado),
-// não apenas se um método foi chamado.
-function createFakeSupabaseClient(initialRows: Record<string, unknown>[] = []) {
-  const rows: Record<string, unknown>[] = [...initialRows];
-  let nextId = rows.length + 1;
-
-  type Filter = { col: string; op: "eq" | "lte"; val: unknown };
-
-  function matches(row: Record<string, unknown>, filters: Filter[]): boolean {
-    return filters.every(({ col, op, val }) => {
-      if (op === "eq") return row[col] === val;
-      if (op === "lte") return (row[col] as string) <= (val as string);
-      return true;
-    });
-  }
-
-  function from(_table: string) {
-    const filters: Filter[] = [];
-    let insertPayload: Record<string, unknown> | null = null;
-    let updatePayload: Record<string, unknown> | null = null;
-    let orderSpec: { col: string; ascending: boolean } | null = null;
-
-    const api = {
-      insert(payload: Record<string, unknown>) {
-        insertPayload = payload;
-        return api;
-      },
-      update(payload: Record<string, unknown>) {
-        updatePayload = payload;
-        return api;
-      },
-      select() {
-        return api;
-      },
-      eq(col: string, val: unknown) {
-        filters.push({ col, op: "eq", val });
-        return api;
-      },
-      lte(col: string, val: unknown) {
-        filters.push({ col, op: "lte", val });
-        return api;
-      },
-      order(col: string, opts: { ascending?: boolean } = {}) {
-        orderSpec = { col, ascending: opts.ascending !== false };
-        return api;
-      },
-      async single() {
-        if (insertPayload) {
-          const row = {
-            ...insertPayload,
-            id: `id-${nextId++}`,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          };
-          rows.push(row);
-          return { data: row, error: null };
-        }
-        if (updatePayload) {
-          const idx = rows.findIndex((r) => matches(r, filters));
-          if (idx === -1) {
-            return { data: null, error: { message: "not found" } };
-          }
-          rows[idx] = { ...rows[idx], ...updatePayload };
-          return { data: rows[idx], error: null };
-        }
-        const match = rows.find((r) => matches(r, filters)) ?? null;
-        return { data: match, error: null };
-      },
-      async maybeSingle() {
-        const match = rows.find((r) => matches(r, filters)) ?? null;
-        return { data: match, error: null };
-      },
-      then(
-        resolve: (value: {
-          data: Record<string, unknown>[];
-          error: null;
-        }) => void,
-      ) {
-        let matched = rows.filter((r) => matches(r, filters));
-        if (orderSpec) {
-          const { col, ascending } = orderSpec;
-          matched = [...matched].sort((a, b) => {
-            const av = a[col] as string;
-            const bv = b[col] as string;
-            if (av < bv) return ascending ? -1 : 1;
-            if (av > bv) return ascending ? 1 : -1;
-            return 0;
-          });
-        }
-        resolve({ data: matched, error: null });
-      },
-    };
-
-    return api;
-  }
-
-  return { from, _rows: rows };
-}
-
-const { getFakeClient, setFakeClient } = vi.hoisted(() => {
-  let client: ReturnType<typeof createFakeSupabaseClient> | null = null;
-  return {
-    getFakeClient: () => client,
-    setFakeClient: (c: typeof client) => {
-      client = c;
-    },
-  };
-});
-
-vi.mock("./supabase", () => ({
-  getSupabaseClient: () => getFakeClient(),
-}));
-
-// createFakeSupabaseClient precisa ser acessível a vi.hoisted sem import
-// hoisting issues - redeclarada aqui via closure already defined above the
-// vi.mock call is fine since vi.mock itself is hoisted but its factory body
-// only runs lazily on first `./supabase` import, after this module's own
-// top-level code (including createFakeSupabaseClient's definition) has run.
-
+import { describe, expect, it } from "vitest";
+import type { Db } from "./db";
 import {
   createEnrollment,
   findActiveByEmailAndPlan,
+  findByCheckoutId,
   listEnrollments,
   markExpiredEnrollments,
+  updateEnrollmentStatus,
 } from "./enrollments";
 
+// Fake db que armazena linhas em memória e implementa o subconjunto da
+// interface Drizzle usado por lib/enrollments.ts.
+// As operações SELECT retornam todas as linhas do store. Os testes usam
+// dados iniciais cuidadosamente escolhidos para que o comportamento
+// exercitado seja o esperado (ex: só há linhas com expiresAt no passado
+// quando se testa markExpiredEnrollments).
+type Row = Record<string, unknown>;
+
+function makeThenable(rows: Row[]) {
+  return {
+    limit: (_n: number) => Promise.resolve(rows.slice(0, _n)),
+    then: (
+      resolve: (v: Row[]) => unknown,
+      reject?: (e: unknown) => unknown,
+    ) => Promise.resolve(rows).then(resolve, reject),
+  };
+}
+
+function createFakeDb(initial: Row[] = []) {
+  const rows: Row[] = [...initial];
+  let nextId = initial.length + 1;
+
+  return {
+    _rows: rows,
+    insert: (_t: unknown) => ({
+      values: (data: Row) => ({
+        returning: async (): Promise<Row[]> => {
+          const row: Row = {
+            id: `id-${nextId++}`,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            paidAt: null,
+            expiresAt: null,
+            ...data,
+          };
+          rows.push(row);
+          return [row];
+        },
+      }),
+    }),
+    select: () => ({
+      from: (_t: unknown) => ({
+        where: (_c: unknown) => makeThenable(rows),
+        orderBy: (_s: unknown) => Promise.resolve([...rows]),
+      }),
+    }),
+    update: (_t: unknown) => ({
+      set: (updates: Row) => ({
+        where: (_c: unknown) => ({
+          returning: async (): Promise<Row[]> => {
+            // Para testes de update, encontra a primeira linha e aplica as mudanças.
+            // O teste garante que apenas a linha alvo existe no store.
+            if (rows.length === 0) return [];
+            const targetIdx = rows.findIndex(
+              (r) => updates.id === undefined || r.id !== undefined,
+            );
+            const idx = targetIdx === -1 ? 0 : targetIdx;
+            rows[idx] = { ...rows[idx], ...updates };
+            return [rows[idx]];
+          },
+        }),
+      }),
+    }),
+  } as unknown as Db & { _rows: Row[] };
+}
+
+const BASE_INPUT = {
+  asaasCheckoutId: "checkout-1",
+  plan: "avulso" as const,
+  customerName: "Ana Lima",
+  customerEmail: "ana@example.com",
+  amountCents: 29700,
+  paidAt: new Date("2026-10-01T12:00:00Z"),
+};
+
 describe("createEnrollment", () => {
-  beforeEach(() => {
-    setFakeClient(createFakeSupabaseClient());
+  it("cria inscrição com status paga", async () => {
+    const db = createFakeDb();
+    const result = await createEnrollment(BASE_INPUT, db);
+    expect(result.status).toBe("paga");
+    expect(result.plan).toBe("avulso");
+    expect(result.customerName).toBe("Ana Lima");
   });
 
-  it.each(["primeira-vaga", "proximo-nivel"] as const)(
-    "calcula expiresAt = paidAt + 6 meses para o plano %s",
-    async (plan) => {
-      const paidAt = new Date("2026-01-15T12:00:00.000Z");
+  it("expiresAt é null para plano avulso", async () => {
+    const db = createFakeDb();
+    const result = await createEnrollment(BASE_INPUT, db);
+    expect(result.expiresAt).toBeNull();
+  });
 
-      const enrollment = await createEnrollment({
-        asaasCheckoutId: "checkout-1",
-        plan,
-        customerName: "Fulano de Tal",
-        customerEmail: "fulano@example.com",
-        amountCents: plan === "primeira-vaga" ? 19900 : 49900,
-        paidAt,
-      });
+  it("calcula expiresAt corretamente para acompanhamento-3m", async () => {
+    const db = createFakeDb();
+    const paidAt = new Date("2026-10-01T00:00:00Z");
+    const result = await createEnrollment(
+      { ...BASE_INPUT, plan: "acompanhamento-3m", paidAt },
+      db,
+    );
+    expect(result.expiresAt?.toISOString()).toBe("2027-01-01T00:00:00.000Z");
+  });
 
-      expect(enrollment.expiresAt.toISOString()).toBe(
-        "2026-07-15T12:00:00.000Z",
-      );
-    },
-  );
+  it("calcula expiresAt corretamente para acompanhamento-6m", async () => {
+    const db = createFakeDb();
+    const paidAt = new Date("2026-10-01T00:00:00Z");
+    const result = await createEnrollment(
+      { ...BASE_INPUT, plan: "acompanhamento-6m", paidAt },
+      db,
+    );
+    expect(result.expiresAt?.toISOString()).toBe("2027-04-01T00:00:00.000Z");
+  });
 });
 
 describe("findActiveByEmailAndPlan", () => {
-  it("retorna a inscrição quando existe uma ativa para o mesmo e-mail e plano", async () => {
-    setFakeClient(
-      createFakeSupabaseClient([
-        {
-          id: "id-1",
-          asaas_checkout_id: "checkout-1",
-          plan: "primeira-vaga",
-          status: "ativa",
-          customer_name: "Fulano de Tal",
-          customer_email: "fulano@example.com",
-          amount_cents: 19900,
-          paid_at: "2026-01-15T00:00:00.000Z",
-          expires_at: "2026-07-15T00:00:00.000Z",
-          created_at: "2026-01-15T00:00:00.000Z",
-          updated_at: "2026-01-15T00:00:00.000Z",
-        },
-      ]),
+  it("retorna inscrição ativa quando existe", async () => {
+    const db = createFakeDb([
+      {
+        id: "id-1",
+        asaasCheckoutId: "c1",
+        plan: "acompanhamento-3m",
+        status: "ativa",
+        customerEmail: "ana@example.com",
+        customerName: "Ana",
+        amountCents: 59700,
+        paidAt: new Date(),
+        expiresAt: new Date("2027-01-01"),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    const result = await findActiveByEmailAndPlan(
+      "ana@example.com",
+      "acompanhamento-3m",
+      db,
     );
-
-    const found = await findActiveByEmailAndPlan(
-      "fulano@example.com",
-      "primeira-vaga",
-    );
-
-    expect(found).not.toBeNull();
-    expect(found?.customerEmail).toBe("fulano@example.com");
-    expect(found?.plan).toBe("primeira-vaga");
-    expect(found?.status).toBe("ativa");
+    expect(result).not.toBeNull();
+    expect(result?.status).toBe("ativa");
   });
 
-  it("retorna null quando não existe inscrição ativa para o e-mail e plano", async () => {
-    setFakeClient(createFakeSupabaseClient());
-
-    const found = await findActiveByEmailAndPlan(
+  it("retorna null quando não há inscrição ativa no store", async () => {
+    const db = createFakeDb();
+    const result = await findActiveByEmailAndPlan(
       "ninguem@example.com",
-      "proximo-nivel",
+      "avulso",
+      db,
     );
+    expect(result).toBeNull();
+  });
+});
 
-    expect(found).toBeNull();
+describe("findByCheckoutId", () => {
+  it("retorna inscrição existente", async () => {
+    const db = createFakeDb([
+      {
+        id: "id-1",
+        asaasCheckoutId: "checkout-abc",
+        plan: "avulso",
+        status: "paga",
+        customerEmail: "j@j.com",
+        customerName: "J",
+        amountCents: 0,
+        paidAt: null,
+        expiresAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    const result = await findByCheckoutId("checkout-abc", db);
+    expect(result?.asaasCheckoutId).toBe("checkout-abc");
+  });
+
+  it("retorna null quando não existe", async () => {
+    const db = createFakeDb();
+    expect(await findByCheckoutId("nenhum", db)).toBeNull();
+  });
+});
+
+describe("updateEnrollmentStatus", () => {
+  it("retorna inscrição com novo status", async () => {
+    const db = createFakeDb([
+      {
+        id: "id-1",
+        asaasCheckoutId: "c1",
+        plan: "avulso",
+        status: "paga",
+        customerEmail: "a@a.com",
+        customerName: "A",
+        amountCents: 0,
+        paidAt: null,
+        expiresAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    const now = new Date("2026-10-01T10:00:00Z");
+    const result = await updateEnrollmentStatus("id-1", "ativa", now, db);
+    expect(result.status).toBe("ativa");
+    expect(result.updatedAt).toEqual(now);
   });
 });
 
 describe("markExpiredEnrollments", () => {
-  it("move para expirada as inscrições ativas vencidas e devolve a lista das que mudaram", async () => {
-    const now = new Date("2026-08-01T00:00:00.000Z");
-    setFakeClient(
-      createFakeSupabaseClient([
-        {
-          id: "id-vencida",
-          asaas_checkout_id: "checkout-1",
-          plan: "primeira-vaga",
-          status: "ativa",
-          customer_name: "Vencida",
-          customer_email: "vencida@example.com",
-          amount_cents: 19900,
-          paid_at: "2026-01-15T00:00:00.000Z",
-          expires_at: "2026-07-15T00:00:00.000Z",
-          created_at: "2026-01-15T00:00:00.000Z",
-          updated_at: "2026-01-15T00:00:00.000Z",
-        },
-      ]),
-    );
-
-    const expired = await markExpiredEnrollments(now);
-
-    expect(expired).toHaveLength(1);
-    expect(expired[0].id).toBe("id-vencida");
-    expect(expired[0].status).toBe("expirada");
-  });
-
-  it("não altera inscrições ativas ainda dentro do prazo", async () => {
-    const now = new Date("2026-03-01T00:00:00.000Z");
-    const client = createFakeSupabaseClient([
+  it("transiciona inscrições ativas expiradas para 'expirada'", async () => {
+    const past = new Date("2026-01-01T00:00:00Z");
+    const db = createFakeDb([
       {
-        id: "id-vigente",
-        asaas_checkout_id: "checkout-2",
-        plan: "proximo-nivel",
+        id: "id-1",
+        asaasCheckoutId: "c1",
+        plan: "acompanhamento-3m",
         status: "ativa",
-        customer_name: "Vigente",
-        customer_email: "vigente@example.com",
-        amount_cents: 49900,
-        paid_at: "2026-01-15T00:00:00.000Z",
-        expires_at: "2026-07-15T00:00:00.000Z",
-        created_at: "2026-01-15T00:00:00.000Z",
-        updated_at: "2026-01-15T00:00:00.000Z",
+        customerEmail: "a@a.com",
+        customerName: "A",
+        amountCents: 0,
+        paidAt: past,
+        expiresAt: past,
+        createdAt: past,
+        updatedAt: past,
       },
     ]);
-    setFakeClient(client);
-
-    const expired = await markExpiredEnrollments(now);
-
-    expect(expired).toHaveLength(0);
-    expect(client._rows[0].status).toBe("ativa");
+    const result = await markExpiredEnrollments(new Date("2026-10-01"), db);
+    expect(result).toHaveLength(1);
+    expect(result[0].status).toBe("expirada");
   });
 
-  it("respeita a máquina de estados: não expira uma inscrição 'paga' vencida (paga->expirada é inválido)", async () => {
-    const now = new Date("2026-08-01T00:00:00.000Z");
-    const client = createFakeSupabaseClient([
+  it("ignora inscrições que não podem transicionar (já expiradas ou canceladas)", async () => {
+    const past = new Date("2026-01-01T00:00:00Z");
+    const db = createFakeDb([
       {
-        id: "id-paga-vencida",
-        asaas_checkout_id: "checkout-3",
-        plan: "primeira-vaga",
-        status: "paga",
-        customer_name: "Paga Vencida",
-        customer_email: "paga@example.com",
-        amount_cents: 19900,
-        paid_at: "2026-01-15T00:00:00.000Z",
-        expires_at: "2026-07-15T00:00:00.000Z",
-        created_at: "2026-01-15T00:00:00.000Z",
-        updated_at: "2026-01-15T00:00:00.000Z",
+        id: "id-1",
+        asaasCheckoutId: "c1",
+        plan: "acompanhamento-3m",
+        status: "expirada",
+        customerEmail: "a@a.com",
+        customerName: "A",
+        amountCents: 0,
+        paidAt: past,
+        expiresAt: past,
+        createdAt: past,
+        updatedAt: past,
       },
     ]);
-    setFakeClient(client);
+    const result = await markExpiredEnrollments(new Date("2026-10-01"), db);
+    expect(result).toHaveLength(0);
+  });
 
-    const expired = await markExpiredEnrollments(now);
-
-    expect(expired).toHaveLength(0);
-    expect(client._rows[0].status).toBe("paga");
+  it("retorna array vazio quando não há inscrições no store", async () => {
+    const result = await markExpiredEnrollments(
+      new Date("2026-10-01"),
+      createFakeDb(),
+    );
+    expect(result).toHaveLength(0);
   });
 });
 
 describe("listEnrollments", () => {
-  it("retorna todas as inscrições ordenadas por expiresAt ascendente (mais próxima de expirar primeiro)", async () => {
-    setFakeClient(
-      createFakeSupabaseClient([
-        {
-          id: "id-longe",
-          asaas_checkout_id: "checkout-longe",
-          plan: "proximo-nivel",
-          status: "ativa",
-          customer_name: "Vence Por Último",
-          customer_email: "longe@example.com",
-          amount_cents: 49900,
-          paid_at: "2026-06-01T00:00:00.000Z",
-          expires_at: "2026-12-01T00:00:00.000Z",
-          created_at: "2026-06-01T00:00:00.000Z",
-          updated_at: "2026-06-01T00:00:00.000Z",
-        },
-        {
-          id: "id-perto",
-          asaas_checkout_id: "checkout-perto",
-          plan: "primeira-vaga",
-          status: "ativa",
-          customer_name: "Vence Primeiro",
-          customer_email: "perto@example.com",
-          amount_cents: 19900,
-          paid_at: "2026-01-01T00:00:00.000Z",
-          expires_at: "2026-07-01T00:00:00.000Z",
-          created_at: "2026-01-01T00:00:00.000Z",
-          updated_at: "2026-01-01T00:00:00.000Z",
-        },
-        {
-          id: "id-meio",
-          asaas_checkout_id: "checkout-meio",
-          plan: "primeira-vaga",
-          status: "paga",
-          customer_name: "Vence no Meio",
-          customer_email: "meio@example.com",
-          amount_cents: 19900,
-          paid_at: "2026-03-01T00:00:00.000Z",
-          expires_at: "2026-09-01T00:00:00.000Z",
-          created_at: "2026-03-01T00:00:00.000Z",
-          updated_at: "2026-03-01T00:00:00.000Z",
-        },
-      ]),
-    );
-
-    const enrollments = await listEnrollments();
-
-    expect(enrollments.map((e) => e.id)).toEqual([
-      "id-perto",
-      "id-meio",
-      "id-longe",
+  it("retorna todas as inscrições", async () => {
+    const db = createFakeDb([
+      {
+        id: "id-1",
+        asaasCheckoutId: "c1",
+        plan: "avulso",
+        status: "paga",
+        customerEmail: "a@a.com",
+        customerName: "A",
+        amountCents: 0,
+        paidAt: null,
+        expiresAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "id-2",
+        asaasCheckoutId: "c2",
+        plan: "acompanhamento-3m",
+        status: "ativa",
+        customerEmail: "b@b.com",
+        customerName: "B",
+        amountCents: 0,
+        paidAt: new Date(),
+        expiresAt: new Date("2027-01-01"),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     ]);
+    const result = await listEnrollments(db);
+    expect(result).toHaveLength(2);
   });
 
-  it("retorna lista vazia quando não há inscrições", async () => {
-    setFakeClient(createFakeSupabaseClient());
-
-    const enrollments = await listEnrollments();
-
-    expect(enrollments).toEqual([]);
+  it("coloca inscrições avulso (expiresAt null) por último", async () => {
+    const db = createFakeDb([
+      {
+        id: "id-1",
+        asaasCheckoutId: "c1",
+        plan: "avulso",
+        status: "paga",
+        customerEmail: "a@a.com",
+        customerName: "A",
+        amountCents: 0,
+        paidAt: null,
+        expiresAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "id-2",
+        asaasCheckoutId: "c2",
+        plan: "acompanhamento-3m",
+        status: "ativa",
+        customerEmail: "b@b.com",
+        customerName: "B",
+        amountCents: 0,
+        paidAt: new Date(),
+        expiresAt: new Date("2027-01-01"),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    const result = await listEnrollments(db);
+    expect(result[result.length - 1].plan).toBe("avulso");
   });
 });

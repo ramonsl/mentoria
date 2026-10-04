@@ -5,29 +5,29 @@
 export const HERO_COPY = {
   eyebrow: "Mentoria de carreira em tecnologia",
   title:
-    "Seu currículo, LinkedIn e GitHub revisados por quem contrata e forma devs há mais de 20 anos.",
+    "Vamos construir o próximo passo da sua carreira em tecnologia.",
   subtitle:
-    "Uma call ao vivo comigo, um relatório escrito com o que mudar, uma trilha de estudos feita para você e um grupo de vagas por 6 meses - nos dois planos, cada um pensado para um momento diferente da carreira.",
+    "Uma mentoria prática para transformar seu currículo, LinkedIn e GitHub em oportunidades reais — com diagnóstico individual, plano de ação e direcionamento para se posicionar melhor, evoluir tecnicamente e buscar as vagas certas.",
   primaryCta: { label: "Ver planos", href: "#planos" },
   secondaryCta: { label: "Conhecer o mentor", href: "#sobre" },
   // content.md §14 item 8 resolve o parcelamento máximo por plano e que os
   // juros ficam com o comprador - texto final, não é mais um ⚠️ em aberto.
   trustBadge:
-    "Pagamento seguro via Asaas · Pix ou cartão parcelado (até 6x no Primeira Vaga, até 12x no Próximo Nível, juros por conta do comprador) · 7 dias de garantia",
+    "Pagamento seguro via Asaas · cartão em até 12x · Pix com 15% de desconto · 7 dias de garantia",
 };
 
 // content.md §14 item 7 resolve a ausência de link de agendamento: o e-mail
 // avisa que o contato para agendar a call acontece em até 2 dias úteis.
 export const HOW_IT_WORKS_STEPS: string[] = [
-  "Escolha o plano e pague com Pix ou cartão, em ambiente seguro do Asaas.",
-  "Receba o e-mail de boas-vindas: você recebe contato em até 2 dias úteis para combinar sua call.",
-  "Call ao vivo comigo (online) para revisar seu currículo, LinkedIn e GitHub.",
-  "Receba seu relatório, o acesso à trilha no Classroom e ao grupo de vagas.",
+  "Escolha entre Direção de Carreira, Aceleração de Carreira ou Próximo Nível e faça o pagamento pelo Asaas.",
+  "Envie seu currículo/CV, LinkedIn e GitHub para receber um diagnóstico individual e um plano de ação priorizado.",
+  "Nos planos de acompanhamento, avance com encontros síncronos, suporte pelo WhatsApp, preparação para entrevistas e projetos reais.",
+  "Ao longo da jornada, acompanho sua evolução e compartilho oportunidades alinhadas ao seu perfil por 3 ou 12 meses. No Próximo Nível, também exploramos juntos caminhos para buscar vagas internacionais.",
 ];
 
 export const FINAL_CTA_COPY = {
   title: "Pronto para destravar sua próxima vaga?",
-  text: "Escolha o plano e marque sua call ainda esta semana.",
+  text: "Escolha o plano que combina com o seu momento e comece a construir seu próximo passo.",
   buttonLabel: "Ver planos",
   buttonHref: "#planos",
 };

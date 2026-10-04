@@ -1,123 +1,105 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PLANS } from "../../../../content/plans";
+import type { Db } from "../../../../lib/db";
+import { enrollments as enrollmentsTable, webhookEvents as webhookEventsTable } from "../../../../lib/schema";
 
 // Cobre tasks.md T27 "Done when" fim a fim pela ROTA REAL - diferente de
 // app/api/webhooks/asaas/route.test.ts (T18), que mocka processCheckoutEvent
 // inteiro. Aqui só a borda externa de cada integração é substituída:
-// lib/supabase.ts (Postgres real) e lib/email.ts (Resend real). Tudo entre a
+// lib/db.ts (Postgres real) e lib/email.ts (Resend real). Tudo entre a
 // rota HTTP e essas duas bordas - validação de token, recordEvent,
 // processCheckoutEvent, createEnrollment, os templates de e-mail - roda com
 // o código de verdade, provando que T27 liga o fio de ponta a ponta (não só
 // que processCheckoutEvent funciona isoladamente, já coberto por
 // lib/process-checkout-event.test.ts).
 
-// Fake Supabase com tabelas separadas (enrollments, webhook_events), cada
-// uma com a fração da query builder usada pelos repositórios reais:
-// insert/update/select/eq/maybeSingle/single/then, mais detecção de
-// conflito de PK (23505) só relevante para webhook_events (idempotência).
-function createFakeSupabaseClient() {
-  const tables: Record<string, Record<string, unknown>[]> = {
-    enrollments: [],
-    webhook_events: [],
+type Row = Record<string, unknown>;
+
+function makeThenable(rows: Row[]) {
+  return {
+    limit: (n: number) => Promise.resolve(rows.slice(0, n)),
+    then: (
+      resolve: (v: Row[]) => unknown,
+      reject?: (e: unknown) => unknown,
+    ) => Promise.resolve(rows).then(resolve, reject),
   };
-  let nextId = 1;
-
-  type Filter = { col: string; val: unknown };
-
-  function matches(row: Record<string, unknown>, filters: Filter[]): boolean {
-    return filters.every(({ col, val }) => row[col] === val);
-  }
-
-  function from(table: string) {
-    const rows = tables[table] ?? (tables[table] = []);
-    const filters: Filter[] = [];
-    let insertPayload: Record<string, unknown> | null = null;
-    let updatePayload: Record<string, unknown> | null = null;
-
-    const api = {
-      insert(payload: Record<string, unknown>) {
-        insertPayload = payload;
-        return api;
-      },
-      update(payload: Record<string, unknown>) {
-        updatePayload = payload;
-        return api;
-      },
-      select() {
-        return api;
-      },
-      eq(col: string, val: unknown) {
-        filters.push({ col, val });
-        return api;
-      },
-      async single() {
-        if (insertPayload) {
-          if (table === "webhook_events") {
-            const conflict = rows.find((r) => r.id === insertPayload!.id);
-            if (conflict) {
-              return {
-                data: null,
-                error: {
-                  code: "23505",
-                  message:
-                    'duplicate key value violates unique constraint "webhook_events_pkey"',
-                },
-              };
-            }
-          }
-          const row = {
-            ...insertPayload,
-            id: insertPayload.id ?? `id-${nextId++}`,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            processed_at: new Date().toISOString(),
-          };
-          rows.push(row);
-          return { data: row, error: null };
-        }
-        if (updatePayload) {
-          const idx = rows.findIndex((r) => matches(r, filters));
-          if (idx === -1) return { data: null, error: { message: "not found" } };
-          rows[idx] = { ...rows[idx], ...updatePayload };
-          return { data: rows[idx], error: null };
-        }
-        const match = rows.find((r) => matches(r, filters)) ?? null;
-        return { data: match, error: null };
-      },
-      async maybeSingle() {
-        const match = rows.find((r) => matches(r, filters)) ?? null;
-        return { data: match, error: null };
-      },
-      then(resolve: (value: { data: unknown; error: null }) => void) {
-        if (updatePayload) {
-          const idx = rows.findIndex((r) => matches(r, filters));
-          if (idx !== -1) rows[idx] = { ...rows[idx], ...updatePayload };
-          resolve({ data: null, error: null });
-          return;
-        }
-        const matched = rows.filter((r) => matches(r, filters));
-        resolve({ data: matched, error: null });
-      },
-    };
-
-    return api;
-  }
-
-  return { from, _tables: tables };
 }
 
-const { getFakeClient, setFakeClient } = vi.hoisted(() => {
-  let client: ReturnType<typeof createFakeSupabaseClient> | null = null;
+function createFakeDb() {
+  const enrollmentRows: Row[] = [];
+  const webhookEventRows: Row[] = [];
+  let nextId = 1;
+
+  const tableRows = new Map<unknown, Row[]>([
+    [enrollmentsTable, enrollmentRows],
+    [webhookEventsTable, webhookEventRows],
+  ]);
+
+  function getRows(table: unknown): Row[] {
+    return tableRows.get(table) ?? [];
+  }
+
   return {
-    getFakeClient: () => client,
-    setFakeClient: (c: typeof client) => {
-      client = c;
+    _enrollments: enrollmentRows,
+    _webhookEvents: webhookEventRows,
+    insert: (table: unknown) => ({
+      values: (data: Row) => ({
+        returning: async (): Promise<Row[]> => {
+          const rows = getRows(table);
+          if (table === webhookEventsTable && data.id) {
+            if (rows.some((r) => r.id === data.id)) {
+              throw new Error(
+                'duplicate key value violates unique constraint "webhook_events_pkey" (23505)',
+              );
+            }
+          }
+          const row: Row = {
+            id: `id-${nextId++}`,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            processedAt: new Date(),
+            paidAt: null,
+            expiresAt: null,
+            ...data,
+          };
+          rows.push(row);
+          return [row];
+        },
+      }),
+    }),
+    select: () => ({
+      from: (table: unknown) => ({
+        where: (_c: unknown) => makeThenable(getRows(table)),
+        orderBy: (_s: unknown) => Promise.resolve([...getRows(table)]),
+      }),
+    }),
+    update: (table: unknown) => ({
+      set: (updates: Row) => ({
+        where: (_c: unknown) => ({
+          returning: async (): Promise<Row[]> => {
+            const rows = getRows(table);
+            if (rows.length === 0) return [];
+            rows[0] = { ...rows[0], ...updates };
+            return [rows[0]];
+          },
+        }),
+      }),
+    }),
+  } as unknown as Db & { _enrollments: Row[]; _webhookEvents: Row[] };
+}
+
+const { getFakeDb, setFakeDb } = vi.hoisted(() => {
+  let db: ReturnType<typeof createFakeDb> | null = null;
+  return {
+    getFakeDb: () => db,
+    setFakeDb: (d: typeof db) => {
+      db = d;
     },
   };
 });
 
-vi.mock("../../../../lib/supabase", () => ({
-  getSupabaseClient: () => getFakeClient(),
+vi.mock("../../../../lib/db", () => ({
+  getDb: () => getFakeDb(),
 }));
 
 const mockSend = vi.fn();
@@ -133,8 +115,7 @@ const VALID_ENV: Record<string, string> = {
   ASAAS_API_KEY: "asaas-key",
   ASAAS_API_BASE_URL: "https://api.asaas.com/v3",
   ASAAS_WEBHOOK_TOKEN: "correct-webhook-token",
-  SUPABASE_URL: "https://project.supabase.co",
-  SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+  DATABASE_URL: "postgresql://localhost/test",
   RESEND_API_KEY: "resend-key",
   MENTOR_EMAIL: "mentor@example.com",
   ADMIN_PASSWORD: "admin-password",
@@ -171,7 +152,7 @@ describe("POST /api/webhooks/asaas - processamento real (T27)", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
-    setFakeClient(createFakeSupabaseClient());
+    setFakeDb(createFakeDb());
     for (const [key, value] of Object.entries(VALID_ENV)) {
       process.env[key] = value;
     }
@@ -190,12 +171,12 @@ describe("POST /api/webhooks/asaas - processamento real (T27)", () => {
 
     expect(response.status).toBe(200);
 
-    const client = getFakeClient()!;
-    expect(client._tables.enrollments).toHaveLength(1);
-    expect(client._tables.enrollments[0]).toMatchObject({
+    const db = getFakeDb()!;
+    expect(db._enrollments).toHaveLength(1);
+    expect(db._enrollments[0]).toMatchObject({
       plan: PLANS[0].slug,
       status: "ativa",
-      customer_email: "fulano@example.com",
+      customerEmail: "fulano@example.com",
     });
 
     expect(mockSend).toHaveBeenCalledTimes(2);
@@ -203,7 +184,7 @@ describe("POST /api/webhooks/asaas - processamento real (T27)", () => {
     expect(recipients).toContain("fulano@example.com");
     expect(recipients).toContain("mentor@example.com");
 
-    expect(client._tables.webhook_events[0]).toMatchObject({
+    expect(db._webhookEvents[0]).toMatchObject({
       id: "evt-paid-1",
       result: "success",
     });
@@ -218,23 +199,21 @@ describe("POST /api/webhooks/asaas - processamento real (T27)", () => {
 
     expect(response.status).toBe(200);
 
-    const client = getFakeClient()!;
+    const db = getFakeDb()!;
     // AC7 (MENT-16): "mantém a inscrição registrada" mesmo com falha de
     // e-mail - o pagamento não pode "sumir" por causa disso.
-    expect(client._tables.enrollments).toHaveLength(1);
-    expect(client._tables.enrollments[0]).toMatchObject({
+    expect(db._enrollments).toHaveLength(1);
+    expect(db._enrollments[0]).toMatchObject({
       plan: PLANS[0].slug,
       status: "ativa",
     });
     // "registrando a falha final para acompanhamento manual" - o log do
     // evento reflete o erro, não um "success" mascarado.
-    expect(client._tables.webhook_events[0]).toMatchObject({
+    expect(db._webhookEvents[0]).toMatchObject({
       id: "evt-paid-1",
       result: "error",
     });
-    expect(client._tables.webhook_events[0].error_message).toContain(
-      "Resend API error",
-    );
+    expect(db._webhookEvents[0].errorMessage).toContain("Resend API error");
   });
 
   it("evento duplicado (mesmo event id) não reprocessa processCheckoutEvent nem reenvia e-mail", async () => {
@@ -246,9 +225,9 @@ describe("POST /api/webhooks/asaas - processamento real (T27)", () => {
     expect(first.status).toBe(200);
     expect(second.status).toBe(200);
 
-    const client = getFakeClient()!;
+    const db = getFakeDb()!;
     // Uma inscrição só, não duas - o reenvio do mesmo event id não recria.
-    expect(client._tables.enrollments).toHaveLength(1);
+    expect(db._enrollments).toHaveLength(1);
     // 2 e-mails (mentorando + mentor) no total, não 4 - o reenvio não
     // dispara os templates de novo.
     expect(mockSend).toHaveBeenCalledTimes(2);
@@ -261,9 +240,9 @@ describe("POST /api/webhooks/asaas - processamento real (T27)", () => {
 
     expect(response.status).toBe(401);
 
-    const client = getFakeClient()!;
-    expect(client._tables.enrollments).toHaveLength(0);
-    expect(client._tables.webhook_events).toHaveLength(0);
+    const db = getFakeDb()!;
+    expect(db._enrollments).toHaveLength(0);
+    expect(db._webhookEvents).toHaveLength(0);
     expect(mockSend).not.toHaveBeenCalled();
   });
 });

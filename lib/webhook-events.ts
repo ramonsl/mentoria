@@ -1,8 +1,7 @@
-// Repositório de eventos de webhook. Ver design.md ("WebhookEvent" nos Data
-// Models) para o shape canônico. PK = event id do Asaas, garantindo
-// idempotência (spec.md MENT-12): reenviar o mesmo event id é um no-op.
-
-import { getSupabaseClient } from "./supabase";
+import { eq } from "drizzle-orm";
+import type { Db } from "./db";
+import { getDb } from "./db";
+import { webhookEvents as webhookEventsTable } from "./schema";
 
 export interface WebhookEvent {
   id: string;
@@ -22,94 +21,83 @@ export interface NewWebhookEvent {
 }
 
 export interface RecordEventResult {
-  /** false when this event id was already recorded (idempotent no-op). */
   recorded: boolean;
   event: WebhookEvent;
 }
 
-const UNIQUE_VIOLATION_CODE = "23505";
-
-function mapRow(row: Record<string, unknown>): WebhookEvent {
+function mapRow(
+  row: typeof webhookEventsTable.$inferSelect,
+): WebhookEvent {
   return {
-    id: row.id as string,
-    eventType: row.event_type as string,
-    checkoutId: row.checkout_id as string,
+    id: row.id,
+    eventType: row.eventType,
+    checkoutId: row.checkoutId,
     payload: row.payload as Record<string, unknown>,
-    processedAt: new Date(row.processed_at as string),
+    processedAt: row.processedAt,
     result: row.result as "success" | "error",
-    errorMessage: (row.error_message as string | null) ?? null,
+    errorMessage: row.errorMessage ?? null,
   };
 }
 
-/**
- * Records a webhook event, keyed by its Asaas event id. If the id already
- * exists (PK conflict), returns the existing record with recorded: false
- * instead of throwing - MENT-12 idempotency.
- */
 export async function recordEvent(
   input: NewWebhookEvent,
+  db: Db = getDb(),
 ): Promise<RecordEventResult> {
-  const client = getSupabaseClient();
+  try {
+    const [row] = await db
+      .insert(webhookEventsTable)
+      .values({
+        id: input.id,
+        eventType: input.eventType,
+        checkoutId: input.checkoutId,
+        payload: input.payload,
+        result: "success",
+        errorMessage: null,
+      })
+      .returning();
 
-  const { data, error } = await client
-    .from("webhook_events")
-    .insert({
-      id: input.id,
-      event_type: input.eventType,
-      checkout_id: input.checkoutId,
-      payload: input.payload,
-      result: "success",
-      error_message: null,
-    })
-    .select()
-    .single();
+    return { recorded: true, event: mapRow(row) };
+  } catch (err) {
+    // PK conflict = evento já processado (idempotência MENT-12)
+    const isUniqueViolation =
+      err instanceof Error &&
+      (err.message.includes("unique") ||
+        err.message.includes("duplicate") ||
+        err.message.includes("23505"));
 
-  if (error) {
-    if (error.code === UNIQUE_VIOLATION_CODE) {
-      const existing = await client
-        .from("webhook_events")
-        .select()
-        .eq("id", input.id)
-        .single();
+    if (!isUniqueViolation) throw err;
 
-      if (existing.error) {
-        throw new Error(
-          `Failed to load already-processed webhook event ${input.id}: ${existing.error.message}`,
-        );
-      }
+    const [existing] = await db
+      .select()
+      .from(webhookEventsTable)
+      .where(eq(webhookEventsTable.id, input.id))
+      .limit(1);
 
-      return { recorded: false, event: mapRow(existing.data) };
+    if (!existing) {
+      throw new Error(
+        `Failed to load already-processed webhook event ${input.id}`,
+      );
     }
 
-    throw new Error(`Failed to record webhook event: ${error.message}`);
+    return { recorded: false, event: mapRow(existing) };
   }
-
-  return { recorded: true, event: mapRow(data) };
 }
 
-/**
- * Updates the processing outcome (success/error + message) for an
- * already-recorded event, for audit (spec.md MENT-21).
- */
 export async function logOutcome(
   id: string,
   result: "success" | "error",
   errorMessage: string | null = null,
+  db: Db = getDb(),
 ): Promise<WebhookEvent> {
-  const client = getSupabaseClient();
+  const [row] = await db
+    .update(webhookEventsTable)
+    .set({ result, errorMessage })
+    .where(eq(webhookEventsTable.id, id))
+    .returning();
 
-  const { data, error } = await client
-    .from("webhook_events")
-    .update({ result, error_message: errorMessage })
-    .eq("id", id)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(
-      `Failed to log outcome for webhook event ${id}: ${error.message}`,
-    );
+  if (!row) {
+    throw new Error(`Webhook event not found: ${id}`);
   }
 
-  return mapRow(data);
+  return mapRow(row);
 }

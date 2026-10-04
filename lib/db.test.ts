@@ -1,19 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { getSupabaseClient } from "./supabase";
+import { getDb } from "./db";
 
 const VALID_ENV: Record<string, string> = {
   ASAAS_API_KEY: "asaas-key",
   ASAAS_API_BASE_URL: "https://api.asaas.com/v3",
   ASAAS_WEBHOOK_TOKEN: "webhook-token",
-  SUPABASE_URL: "https://project.supabase.co",
-  SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+  DATABASE_URL: "postgresql://user:pass@fake.neon.test/testdb",
   RESEND_API_KEY: "resend-key",
   MENTOR_EMAIL: "mentor@example.com",
   ADMIN_PASSWORD: "admin-password",
   CRON_SECRET: "cron-secret",
 };
 
-describe("getSupabaseClient", () => {
+describe("getDb", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
@@ -26,13 +25,15 @@ describe("getSupabaseClient", () => {
     process.env = { ...originalEnv };
   });
 
-  it("returns a configured Supabase client when env is complete", () => {
-    const client = getSupabaseClient();
-    expect(typeof client.from).toBe("function");
+  it("retorna um cliente Drizzle quando DATABASE_URL está configurado", () => {
+    const db = getDb();
+    expect(typeof db.select).toBe("function");
+    expect(typeof db.insert).toBe("function");
+    expect(typeof db.update).toBe("function");
   });
 
-  it("throws a clear error naming the missing var when a required env var is absent", () => {
-    delete process.env.SUPABASE_URL;
-    expect(() => getSupabaseClient()).toThrowError(/SUPABASE_URL/);
+  it("lança erro claro quando DATABASE_URL está ausente", () => {
+    delete process.env.DATABASE_URL;
+    expect(() => getDb()).toThrowError(/DATABASE_URL/);
   });
 });

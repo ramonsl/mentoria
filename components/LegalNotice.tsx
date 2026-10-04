@@ -7,8 +7,10 @@ import { LEGAL_NOTICE_COPY } from "@/content/copy";
 
 export default function LegalNotice() {
   return (
-    <aside className="mx-6 mb-16 rounded-2xl border border-black/10 bg-zinc-50 p-6 text-sm text-zinc-700 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-300 md:mx-16">
-      {LEGAL_NOTICE_COPY.text}
-    </aside>
+    <div className="bg-white px-6 pb-20 md:px-16">
+      <aside className="mx-auto max-w-6xl rounded-2xl border border-blue-200 bg-blue-50 p-6 text-sm leading-6 text-blue-950">
+        <span className="mr-2 font-bold text-blue-800">Compra com tranquilidade.</span>{LEGAL_NOTICE_COPY.text}
+      </aside>
+    </div>
   );
 }

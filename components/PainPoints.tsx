@@ -5,24 +5,28 @@ import { PAIN_POINTS_COPY } from "@/content/conversion";
 
 export default function PainPoints() {
   return (
-    <section className="flex flex-col gap-10 px-6 py-16 md:px-16">
-      <h2 className="text-center text-2xl font-semibold text-black dark:text-zinc-50">
-        {PAIN_POINTS_COPY.title}
-      </h2>
+    <section className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-20 md:px-16">
+      <div className="max-w-2xl">
+        <p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-700">Antes de enviar mais uma candidatura</p>
+        <h2 className="mt-3 text-3xl font-bold tracking-tight text-[var(--ink)] md:text-4xl">{PAIN_POINTS_COPY.title}</h2>
+      </div>
 
       <div className="grid gap-8 md:grid-cols-2">
         {PAIN_POINTS_COPY.columns.map((column) => (
           <div
             key={column.title}
-            className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-white p-6 dark:border-white/10 dark:bg-zinc-950"
+            className="flex flex-col gap-5 rounded-3xl border border-[var(--line)] bg-white p-7 shadow-sm"
           >
-            <h3 className="text-lg font-semibold text-black dark:text-zinc-50">
+            <div className="flex items-center gap-3">
+              <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-[var(--warm)]" />
+              <h3 className="text-xl font-bold text-[var(--ink)]">
               {column.title}
-            </h3>
-            <ul className="flex flex-col gap-3 text-sm text-zinc-700 dark:text-zinc-300">
+              </h3>
+            </div>
+            <ul className="flex flex-col gap-3 text-sm leading-6 text-[var(--muted)]">
               {column.points.map((point) => (
                 <li key={point} className="flex gap-2">
-                  <span aria-hidden="true">•</span>
+                  <span aria-hidden="true" className="font-bold text-blue-600">—</span>
                   <span>{point}</span>
                 </li>
               ))}

@@ -24,18 +24,19 @@ export default function FinalCta() {
   return (
     <section
       id="cta-final"
-      className="flex flex-col items-center gap-4 px-6 py-16 text-center md:px-16"
+      className="mx-6 mb-12 flex flex-col items-center gap-5 rounded-[2rem] bg-[var(--navy-deep)] px-6 py-16 text-center text-white md:mx-16 md:px-16"
     >
-      <h2 className="text-2xl font-semibold text-black dark:text-zinc-50">
+      <p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-200">O próximo passo é seu</p>
+      <h2 className="max-w-2xl text-3xl font-bold tracking-tight md:text-4xl">
         {FINAL_CTA_COPY.title}
       </h2>
-      <p className="text-base text-zinc-600 dark:text-zinc-400">
+      <p className="max-w-xl text-base leading-7 text-slate-300">
         {FINAL_CTA_COPY.text}
       </p>
       <button
         type="button"
         onClick={handleClick}
-        className="rounded-full bg-blue-700 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-blue-800"
+        className="rounded-full bg-[var(--warm)] px-7 py-3 text-base font-bold text-[var(--navy-deep)] transition-transform hover:-translate-y-0.5 hover:bg-amber-300"
       >
         {FINAL_CTA_COPY.buttonLabel}
       </button>

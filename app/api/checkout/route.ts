@@ -3,9 +3,9 @@
 // plano escolhido" (MENT-04, MENT-05, MENT-08).
 
 import { createCheckout, AsaasApiError } from "../../../lib/asaas";
-import type { PlanSlug } from "../../../content/plans";
+import { PLANS, type PlanSlug } from "../../../content/plans";
 
-const VALID_PLANS: readonly PlanSlug[] = ["primeira-vaga", "proximo-nivel"];
+const VALID_PLANS: readonly PlanSlug[] = PLANS.map((plan) => plan.slug);
 
 function isValidPlan(value: unknown): value is PlanSlug {
   return (

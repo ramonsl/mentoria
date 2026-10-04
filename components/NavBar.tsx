@@ -20,8 +20,9 @@ export default function NavBar() {
   }
 
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-4 bg-zinc-950/90 px-6 py-4 text-zinc-50 backdrop-blur md:px-16">
-      <ul className="flex items-center gap-6 text-sm font-medium">
+    <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-4 border-b border-white/10 bg-[var(--navy-deep)]/90 px-6 py-3 text-zinc-50 backdrop-blur md:px-16">
+      <a href="#" className="hidden text-sm font-bold tracking-wide text-white sm:block">RAMON LUMMERTZ</a>
+      <ul className="flex items-center gap-4 text-sm font-medium sm:gap-6">
         {NAV_LINKS.map((link) => (
           <li key={link.label}>
             <a
@@ -37,7 +38,7 @@ export default function NavBar() {
       <button
         type="button"
         onClick={handleCtaClick}
-        className="rounded-full bg-blue-700 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-800"
+        className="rounded-full bg-[var(--warm)] px-4 py-2 text-sm font-bold text-[var(--navy-deep)] transition-colors hover:bg-amber-300 sm:px-5"
       >
         {NAV_CTA.label}
       </button>

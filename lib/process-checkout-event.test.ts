@@ -1,91 +1,73 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PLANS } from "../content/plans";
+import type { Db } from "./db";
 
-// Fake Supabase client suportando insert+select+single (createEnrollment),
-// select+eq*+maybeSingle (findActiveByEmailAndPlan) e update+eq aguardado
-// direto sem .select() (activateEnrollment) - mesmo padrão de
-// lib/enrollments.test.ts, estendido para o caso de update sem select.
-function createFakeSupabaseClient(initialRows: Record<string, unknown>[] = []) {
-  const rows: Record<string, unknown>[] = [...initialRows];
-  let nextId = rows.length + 1;
+type Row = Record<string, unknown>;
 
-  type Filter = { col: string; val: unknown };
-
-  function matches(row: Record<string, unknown>, filters: Filter[]): boolean {
-    return filters.every(({ col, val }) => row[col] === val);
-  }
-
-  function from(_table: string) {
-    const filters: Filter[] = [];
-    let insertPayload: Record<string, unknown> | null = null;
-    let updatePayload: Record<string, unknown> | null = null;
-
-    const api = {
-      insert(payload: Record<string, unknown>) {
-        insertPayload = payload;
-        return api;
-      },
-      update(payload: Record<string, unknown>) {
-        updatePayload = payload;
-        return api;
-      },
-      select() {
-        return api;
-      },
-      eq(col: string, val: unknown) {
-        filters.push({ col, val });
-        return api;
-      },
-      async single() {
-        if (insertPayload) {
-          const row = {
-            ...insertPayload,
-            id: `id-${nextId++}`,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          };
-          rows.push(row);
-          return { data: row, error: null };
-        }
-        const match = rows.find((r) => matches(r, filters)) ?? null;
-        return { data: match, error: null };
-      },
-      async maybeSingle() {
-        const match = rows.find((r) => matches(r, filters)) ?? null;
-        return { data: match, error: null };
-      },
-      then(resolve: (value: { data: unknown; error: null }) => void) {
-        if (updatePayload) {
-          const idx = rows.findIndex((r) => matches(r, filters));
-          if (idx !== -1) {
-            rows[idx] = { ...rows[idx], ...updatePayload };
-          }
-          resolve({ data: null, error: null });
-          return;
-        }
-        const matched = rows.filter((r) => matches(r, filters));
-        resolve({ data: matched, error: null });
-      },
-    };
-
-    return api;
-  }
-
-  return { from, _rows: rows };
+function makeThenable(rows: Row[]) {
+  return {
+    limit: (n: number) => Promise.resolve(rows.slice(0, n)),
+    then: (
+      resolve: (v: Row[]) => unknown,
+      reject?: (e: unknown) => unknown,
+    ) => Promise.resolve(rows).then(resolve, reject),
+  };
 }
 
-const { getFakeClient, setFakeClient } = vi.hoisted(() => {
-  let client: ReturnType<typeof createFakeSupabaseClient> | null = null;
+function createFakeDb(initial: Row[] = []) {
+  const rows: Row[] = [...initial];
+  let nextId = initial.length + 1;
+
   return {
-    getFakeClient: () => client,
-    setFakeClient: (c: typeof client) => {
-      client = c;
+    _rows: rows,
+    insert: (_t: unknown) => ({
+      values: (data: Row) => ({
+        returning: async (): Promise<Row[]> => {
+          const row: Row = {
+            id: `id-${nextId++}`,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            paidAt: null,
+            expiresAt: null,
+            ...data,
+          };
+          rows.push(row);
+          return [row];
+        },
+      }),
+    }),
+    select: () => ({
+      from: (_t: unknown) => ({
+        where: (_c: unknown) => makeThenable(rows),
+        orderBy: (_s: unknown) => Promise.resolve([...rows]),
+      }),
+    }),
+    update: (_t: unknown) => ({
+      set: (updates: Row) => ({
+        where: (_c: unknown) => ({
+          returning: async (): Promise<Row[]> => {
+            if (rows.length === 0) return [];
+            rows[0] = { ...rows[0], ...updates };
+            return [rows[0]];
+          },
+        }),
+      }),
+    }),
+  } as unknown as Db & { _rows: Row[] };
+}
+
+const { getFakeDb, setFakeDb } = vi.hoisted(() => {
+  let db: ReturnType<typeof createFakeDb> | null = null;
+  return {
+    getFakeDb: () => db,
+    setFakeDb: (d: typeof db) => {
+      db = d;
     },
   };
 });
 
-vi.mock("./supabase", () => ({
-  getSupabaseClient: () => getFakeClient(),
+vi.mock("./db", () => ({
+  getDb: () => getFakeDb(),
 }));
 
 // Mocka só o client Resend (./email, mesmo arquivo importado por
@@ -104,8 +86,7 @@ const VALID_ENV: Record<string, string> = {
   ASAAS_API_KEY: "asaas-key",
   ASAAS_API_BASE_URL: "https://api.asaas.com/v3",
   ASAAS_WEBHOOK_TOKEN: "webhook-token",
-  SUPABASE_URL: "https://project.supabase.co",
-  SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+  DATABASE_URL: "postgresql://localhost/test",
   RESEND_API_KEY: "resend-key",
   MENTOR_EMAIL: "mentor@example.com",
   ADMIN_PASSWORD: "admin-password",
@@ -132,7 +113,7 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
-    setFakeClient(createFakeSupabaseClient());
+    setFakeDb(createFakeDb());
     for (const [key, value] of Object.entries(VALID_ENV)) {
       process.env[key] = value;
     }
@@ -144,8 +125,16 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
     process.env = { ...originalEnv };
   });
 
+  // design.md "Addendum: 3 planos + envio assíncrono": duração de acesso por
+  // plano - "avulso" não tem trilha, logo nunca expira (expiresAt null).
+  const EXPECTED_EXPIRES_AT: Record<string, string | null> = {
+    avulso: null,
+    "acompanhamento-3m": "2026-04-15T12:00:00.000Z",
+    "acompanhamento-6m": "2026-07-15T12:00:00.000Z",
+  };
+
   it.each(PLANS)(
-    "cria a inscrição com expiresAt = pagamento + 6 meses e status ativa para o plano $slug",
+    "cria a inscrição com expiresAt correto por plano e status ativa para o plano $slug",
     async (plan) => {
       const now = new Date("2026-01-15T12:00:00.000Z");
       const event = makeEvent({
@@ -162,8 +151,8 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
       expect(outcome.type).toBe("enrolled");
       if (outcome.type !== "enrolled") throw new Error("unreachable");
       expect(outcome.enrollment.plan).toBe(plan.slug);
-      expect(outcome.enrollment.expiresAt.toISOString()).toBe(
-        "2026-07-15T12:00:00.000Z",
+      expect(outcome.enrollment.expiresAt?.toISOString() ?? null).toBe(
+        EXPECTED_EXPIRES_AT[plan.slug],
       );
       // Decisão documentada em process-checkout-event.ts: a inscrição sai do
       // mesmo processamento já em "ativa", não "paga" - sem passo manual de
@@ -202,8 +191,8 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
   });
 
   it("e-mail do cliente malformado: nenhuma inscrição é criada e o resultado sinaliza alerta ao mentor", async () => {
-    const client = createFakeSupabaseClient();
-    setFakeClient(client);
+    const db = createFakeDb();
+    setFakeDb(db);
 
     const outcome = await processCheckoutEvent(
       makeEvent({
@@ -216,7 +205,7 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
     );
 
     expect(outcome.type).toBe("rejected");
-    expect(client._rows).toHaveLength(0);
+    expect(db._rows).toHaveLength(0);
 
     // tasks.md T23 "Done when": dado malformado -> só o mentor recebe e-mail.
     expect(mockSend).toHaveBeenCalledTimes(1);
@@ -224,22 +213,22 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
   });
 
   it("e-mail já com inscrição ativa no mesmo plano: cria mesmo assim e sinaliza duplicidade", async () => {
-    const client = createFakeSupabaseClient([
+    const db = createFakeDb([
       {
         id: "id-existente",
-        asaas_checkout_id: "checkout-anterior",
+        asaasCheckoutId: "checkout-anterior",
         plan: PLANS[0].slug,
         status: "ativa",
-        customer_name: "Fulano de Tal",
-        customer_email: "fulano@example.com",
-        amount_cents: PLANS[0].priceCents,
-        paid_at: "2026-01-01T00:00:00.000Z",
-        expires_at: "2026-07-01T00:00:00.000Z",
-        created_at: "2026-01-01T00:00:00.000Z",
-        updated_at: "2026-01-01T00:00:00.000Z",
+        customerName: "Fulano de Tal",
+        customerEmail: "fulano@example.com",
+        amountCents: PLANS[0].priceCents,
+        paidAt: new Date("2026-01-01T00:00:00.000Z"),
+        expiresAt: new Date("2026-07-01T00:00:00.000Z"),
+        createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        updatedAt: new Date("2026-01-01T00:00:00.000Z"),
       },
     ]);
-    setFakeClient(client);
+    setFakeDb(db);
 
     const outcome = await processCheckoutEvent(
       makeEvent({
@@ -257,7 +246,7 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
     expect(outcome.duplicateAlert).toBe(true);
     // Cria mesmo assim: a inscrição existente permanece e uma nova é
     // adicionada - não é um bloqueio da compra.
-    expect(client._rows).toHaveLength(2);
+    expect(db._rows).toHaveLength(2);
 
     // Fix MENT-18 (validation.md, ciclo 1): não basta o outcome sinalizar
     // duplicateAlert internamente - o e-mail que o mentor de fato recebe
@@ -276,8 +265,8 @@ describe("processCheckoutEvent - CHECKOUT_CANCELED / CHECKOUT_EXPIRED", () => {
   it.each(["CHECKOUT_CANCELED", "CHECKOUT_EXPIRED"] as const)(
     "%s sem CHECKOUT_PAID anterior para o checkout: nenhuma inscrição é criada",
     async (eventType) => {
-      const client = createFakeSupabaseClient();
-      setFakeClient(client);
+      const db = createFakeDb();
+      setFakeDb(db);
 
       const outcome = await processCheckoutEvent(
         makeEvent({
@@ -287,29 +276,29 @@ describe("processCheckoutEvent - CHECKOUT_CANCELED / CHECKOUT_EXPIRED", () => {
       );
 
       expect(outcome.type).toBe("ignored");
-      expect(client._rows).toHaveLength(0);
+      expect(db._rows).toHaveLength(0);
     },
   );
 
   it.each(["CHECKOUT_CANCELED", "CHECKOUT_EXPIRED"] as const)(
     "%s recebido após CHECKOUT_PAID já processado do mesmo checkout: inscrição permanece ativa e o conflito é registrado",
     async (eventType) => {
-      const client = createFakeSupabaseClient([
+      const db = createFakeDb([
         {
           id: "id-ja-paga",
-          asaas_checkout_id: "chk-ja-pago",
+          asaasCheckoutId: "chk-ja-pago",
           plan: PLANS[0].slug,
           status: "ativa",
-          customer_name: "Fulano de Tal",
-          customer_email: "fulano@example.com",
-          amount_cents: PLANS[0].priceCents,
-          paid_at: "2026-01-01T00:00:00.000Z",
-          expires_at: "2026-07-01T00:00:00.000Z",
-          created_at: "2026-01-01T00:00:00.000Z",
-          updated_at: "2026-01-01T00:00:00.000Z",
+          customerName: "Fulano de Tal",
+          customerEmail: "fulano@example.com",
+          amountCents: PLANS[0].priceCents,
+          paidAt: new Date("2026-01-01T00:00:00.000Z"),
+          expiresAt: new Date("2026-07-01T00:00:00.000Z"),
+          createdAt: new Date("2026-01-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-01-01T00:00:00.000Z"),
         },
       ]);
-      setFakeClient(client);
+      setFakeDb(db);
 
       const outcome = await processCheckoutEvent(
         makeEvent({
@@ -321,8 +310,8 @@ describe("processCheckoutEvent - CHECKOUT_CANCELED / CHECKOUT_EXPIRED", () => {
       expect(outcome.type).toBe("conflict");
       if (outcome.type !== "conflict") throw new Error("unreachable");
       expect(outcome.enrollment.status).toBe("ativa");
-      expect(client._rows).toHaveLength(1);
-      expect(client._rows[0].status).toBe("ativa");
+      expect(db._rows).toHaveLength(1);
+      expect(db._rows[0].status).toBe("ativa");
     },
   );
 });
@@ -333,8 +322,8 @@ describe("processCheckoutEvent - CHECKOUT_CANCELED / CHECKOUT_EXPIRED", () => {
 // payload, já coberto em app/api/webhooks/asaas/route.test.ts).
 describe("processCheckoutEvent - tipo de evento desconhecido", () => {
   it("evento de tipo não reconhecido é ignorado sem lançar erro e sem gravar nada", async () => {
-    const client = createFakeSupabaseClient();
-    setFakeClient(client);
+    const db = createFakeDb();
+    setFakeDb(db);
     mockSend.mockReset();
 
     const outcome = await processCheckoutEvent(
@@ -342,7 +331,7 @@ describe("processCheckoutEvent - tipo de evento desconhecido", () => {
     );
 
     expect(outcome.type).toBe("ignored");
-    expect(client._rows).toHaveLength(0);
+    expect(db._rows).toHaveLength(0);
     expect(mockSend).not.toHaveBeenCalled();
   });
 });

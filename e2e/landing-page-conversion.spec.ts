@@ -106,7 +106,7 @@ test.describe("landing page - conversion boost sections (T51)", () => {
     ).toBeVisible();
   });
 
-  test("testimonials section renders the 4 recommendations, each linking to the source", async ({
+  test("testimonials section renders recommendation cards 5 per page, sliding to the next 5, each linking to the source", async ({
     page,
   }) => {
     await page.goto("/");
@@ -115,18 +115,54 @@ test.describe("landing page - conversion boost sections (T51)", () => {
       page.getByRole("heading", { name: TESTIMONIALS_COPY.title }),
     ).toBeVisible();
 
-    for (const testimonial of TESTIMONIALS) {
-      await expect(page.getByText(testimonial.name)).toBeVisible();
-      await expect(page.getByText(testimonial.role)).toBeVisible();
+    const testimonialSection = page
+      .getByRole("heading", { name: TESTIMONIALS_COPY.title })
+      .locator("xpath=ancestor::section");
+
+    // Mirrors the component's PAGE_SIZE: with more than 5 testimonials,
+    // only the first 5 render initially and pagination controls appear.
+    const PAGE_SIZE = 5;
+    const firstPage = TESTIMONIALS.slice(0, PAGE_SIZE);
+    const secondPage = TESTIMONIALS.slice(PAGE_SIZE, PAGE_SIZE * 2);
+
+    for (const testimonial of firstPage) {
+      await expect(
+        testimonialSection.getByText(testimonial.name, { exact: true }),
+      ).toBeVisible();
+    }
+    for (const testimonial of secondPage) {
+      await expect(
+        testimonialSection.getByText(testimonial.name, { exact: true }),
+      ).toHaveCount(0);
     }
 
-    const linkedinLinks = page.getByRole("link", { name: "Ver no LinkedIn" });
-    await expect(linkedinLinks).toHaveCount(TESTIMONIALS.length);
-    for (const [index, testimonial] of TESTIMONIALS.entries()) {
+    const linkedinLinks = testimonialSection.getByRole("link", {
+      name: "Ver no LinkedIn",
+    });
+    await expect(linkedinLinks).toHaveCount(firstPage.length);
+    for (const [index, testimonial] of firstPage.entries()) {
       await expect(linkedinLinks.nth(index)).toHaveAttribute(
         "href",
         testimonial.linkedinUrl,
       );
+    }
+
+    await expect(
+      testimonialSection.getByRole("button", { name: "Depoimentos anteriores" }),
+    ).toBeVisible();
+    await testimonialSection
+      .getByRole("button", { name: "Mais depoimentos" })
+      .click();
+
+    for (const testimonial of secondPage) {
+      await expect(
+        testimonialSection.getByText(testimonial.name, { exact: true }),
+      ).toBeVisible();
+    }
+    for (const testimonial of firstPage) {
+      await expect(
+        testimonialSection.getByText(testimonial.name, { exact: true }),
+      ).toHaveCount(0);
     }
   });
 

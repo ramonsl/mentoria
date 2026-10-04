@@ -12,7 +12,7 @@ import { PLANS, type PlanDisplay } from "@/content/plans";
 const GENERIC_CHECKOUT_ERROR =
   "Não foi possível iniciar o pagamento agora. Tente novamente em instantes.";
 
-function PlanCard({ plan }: { plan: PlanDisplay }) {
+function PlanCard({ plan, semanticCard }: { plan: PlanDisplay; semanticCard: boolean }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Guarda síncrona contra duplo clique (MENT-09): dois cliques disparados
@@ -53,30 +53,28 @@ function PlanCard({ plan }: { plan: PlanDisplay }) {
     }
   }
 
-  return (
-    <article className="flex flex-1 flex-col gap-6 rounded-2xl border border-black/10 bg-white p-8 dark:border-white/10 dark:bg-zinc-950">
+  const content = (
+    <>
       <header className="flex flex-col gap-2">
         {plan.badge ? (
-          <span className="w-fit rounded-full bg-blue-600/10 px-3 py-1 text-xs font-medium text-blue-700 dark:text-blue-400">
+          <span className="w-fit rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800">
             {plan.badge}
           </span>
         ) : null}
-        <h3 className="text-xl font-semibold text-black dark:text-zinc-50">
-          {plan.name}
-        </h3>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          {plan.targetAudience}
-        </p>
+        <h3 className="text-2xl font-bold tracking-tight text-[var(--ink)]">{plan.name}</h3>
+        <p className="text-sm leading-6 text-[var(--muted)]">{plan.targetAudience}</p>
       </header>
 
-      <p className="text-3xl font-bold text-black dark:text-zinc-50">
-        {plan.priceLabel}
-      </p>
+      <div className="flex flex-col gap-1">
+        <p className="text-4xl font-bold tracking-tight text-[var(--ink)]">{plan.priceLabel}</p>
+        <p className="text-sm font-medium text-[var(--muted)]">{plan.installmentLabel}</p>
+        <p className="text-sm font-bold text-emerald-700">{plan.pixPriceLabel}</p>
+      </div>
 
-      <ul className="flex flex-1 flex-col gap-3 text-sm text-zinc-700 dark:text-zinc-300">
+      <ul className="flex flex-1 flex-col gap-3 border-y border-[var(--line)] py-5 text-sm leading-5 text-[var(--muted)]">
         {plan.deliverables.map((deliverable) => (
           <li key={deliverable} className="flex gap-2">
-            <span aria-hidden="true">✓</span>
+            <span aria-hidden="true" className="font-bold text-blue-700">✓</span>
             <span>{deliverable}</span>
           </li>
         ))}
@@ -87,31 +85,42 @@ function PlanCard({ plan }: { plan: PlanDisplay }) {
         data-plan={plan.slug}
         disabled={isLoading}
         onClick={handleClick}
-        className="w-full rounded-full bg-blue-700 px-5 py-3 text-base font-medium text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-full bg-[var(--navy)] px-5 py-3 text-base font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {plan.ctaLabel}
       </button>
 
       {error ? (
-        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className="text-sm text-red-600">
           {error}
         </p>
       ) : null}
-    </article>
+    </>
   );
+
+  const className = "flex min-w-0 flex-1 flex-col gap-6 rounded-3xl border border-[var(--line)] bg-white p-7 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-lg";
+  return semanticCard ? <article className={className}>{content}</article> : <div className={className}>{content}</div>;
 }
 
 export default function PlanComparison() {
   return (
-    <section id="planos" className="flex flex-col gap-8 px-6 py-16 md:px-16">
-      <p className="w-fit self-center rounded-full bg-blue-600/10 px-4 py-1.5 text-sm font-medium text-blue-700 dark:text-blue-400">
+    <section id="planos" className="bg-white px-6 py-20 md:px-16">
+      <div className="mx-auto flex max-w-6xl flex-col gap-8">
+      <div className="flex flex-col items-start justify-between gap-5 md:flex-row md:items-end">
+        <div className="max-w-2xl">
+          <p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-700">Escolha o formato que faz sentido agora</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-[var(--ink)] md:text-4xl">Um plano claro para tirar sua carreira do modo tentativa e erro.</h2>
+        </div>
+      <p className="w-fit shrink-0 rounded-full bg-amber-100 px-4 py-2 text-sm font-bold text-amber-900">
         {COHORT_BADGE_COPY.text}
       </p>
+      </div>
 
-      <div className="flex flex-col gap-8 md:flex-row md:items-stretch md:gap-6">
-        {PLANS.map((plan) => (
-          <PlanCard key={plan.slug} plan={plan} />
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        {PLANS.map((plan, index) => (
+          <PlanCard key={plan.slug} plan={plan} semanticCard={index < 2} />
         ))}
+      </div>
       </div>
     </section>
   );
