@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Enrollment } from "../../../../lib/enrollments";
+import type { Enrollment } from "../../../../../lib/enrollments";
 
 // Cobre .tasks/painel-inscricoes.md critérios 18-21: exporta a mesma visão
 // filtrada da lista em CSV, com BOM+`;` (prova de toCsv em
@@ -10,10 +10,10 @@ const { mockListEnrollments } = vi.hoisted(() => ({
   mockListEnrollments: vi.fn(),
 }));
 
-vi.mock("../../../../lib/enrollments", async () => {
+vi.mock("../../../../../lib/enrollments", async () => {
   const actual =
-    await vi.importActual<typeof import("../../../../lib/enrollments")>(
-      "../../../../lib/enrollments",
+    await vi.importActual<typeof import("../../../../../lib/enrollments")>(
+      "../../../../../lib/enrollments",
     );
   return {
     ...actual,

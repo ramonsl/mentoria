@@ -1,7 +1,7 @@
-// Protege /admin/inscricoes (spec.md P2 "Lista de inscrições para o mentor",
-// MENT-25): sem um cookie de sessão válido (setado por
+// Protege as rotas autenticadas do admin (spec.md P2 "Lista de inscrições
+// para o mentor", MENT-25): sem um cookie de sessão válido (setado por
 // app/api/admin/login/route.ts, T37), redireciona para /admin/login. O
-// `matcher` abaixo restringe este middleware só às rotas /admin/inscricoes -
+// `matcher` abaixo restringe este middleware só a essas rotas -
 // /admin/login (e qualquer rota pública do site) nunca passa por aqui, então
 // nunca pode ser bloqueada por este middleware.
 
@@ -13,7 +13,12 @@ import {
 } from "./lib/admin-session";
 
 export const config = {
-  matcher: ["/admin/inscricoes", "/admin/inscricoes/:path*"],
+  matcher: [
+    "/admin/inscricoes",
+    "/admin/inscricoes/:path*",
+    "/admin/configuracoes",
+    "/admin/configuracoes/:path*",
+  ],
 };
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {

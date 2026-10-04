@@ -2,14 +2,14 @@
 // - exporta em CSV a mesma visão filtrada da lista. Protegida pela mesma
 // sessão de admin (middleware.ts cobre `/admin/inscricoes/:path*`, que
 // inclui este path literal - nenhuma rota/matcher nova precisa ser criada).
-import { PLANS } from "../../../../content/plans";
-import { listEnrollments, type Enrollment } from "../../../../lib/enrollments";
+import { PLANS } from "../../../../../content/plans";
+import { listEnrollments, type Enrollment } from "../../../../../lib/enrollments";
 import {
   loadFilteredEnrollments,
   toCsv,
   type EnrollmentFilters,
   type StatusLabel,
-} from "../../../../lib/enrollment-filters";
+} from "../../../../../lib/enrollment-filters";
 
 const STATUS_LABELS: StatusLabel[] = ["Pendente", "Pago", "Expirado", "Cancelado"];
 
