@@ -115,9 +115,9 @@ T7 → T10
 **Requirement**: PRC-01, PRC-03, PRC-04
 **Tools**: MCP: filesystem. Skill: NONE.
 **Done when**:
-- [ ] Each plan has a current editable price in BRL.
-- [ ] Admin can enter all coupon restrictions and see active/inactive coupons with reserved use count.
-- [ ] E2E test proves a successful price or coupon form submission.
+- [x] Each plan has a current editable price in BRL.
+- [x] Admin can enter all coupon restrictions and see active/inactive coupons with reserved use count.
+- [x] E2E test proves a successful price or coupon form submission.
 **Tests**: e2e
 **Gate**: full
 

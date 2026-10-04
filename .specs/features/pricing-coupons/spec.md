@@ -100,10 +100,10 @@ Os valores exibidos na landing estão definidos em código e não podem ser alte
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| PRC-01 | P1: Configure plan prices | T4 (partial) | In progress |
+| PRC-01 | P1: Configure plan prices | T5 (partial) | In progress |
 | PRC-02 | P1: Configure plan prices | T3 (partial) | In progress |
-| PRC-03 | P1: Create and manage coupons | T4 (partial) | In progress |
-| PRC-04 | P1: Create and manage coupons | T4 (partial) | In progress |
+| PRC-03 | P1: Create and manage coupons | T5 (partial) | In progress |
+| PRC-04 | P1: Create and manage coupons | T5 (partial) | In progress |
 | PRC-05 | P1: Redeem a coupon | T3 (partial) | In progress |
 | PRC-06 | P1: Redeem a coupon | T3 (partial) | In progress |
 | PRC-07 | P1: Redeem a coupon | Design | Pending |
