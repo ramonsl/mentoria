@@ -85,9 +85,9 @@ T7 → T10
 **Requirement**: PRC-01, PRC-02, PRC-03, PRC-04, PRC-05, PRC-06
 **Tools**: MCP: filesystem. Skill: NONE.
 **Done when**:
-- [ ] Repository rejects invalid prices, discounts, dates and limits.
-- [ ] Reservation validates eligibility and uses an atomic conditional update for maximum uses.
-- [ ] Unit tests cover valid, invalid, expired, inactive, exhausted and fixed-discount-too-large cases.
+- [x] Repository rejects invalid prices, discounts, dates and limits.
+- [x] Reservation validates eligibility and uses an atomic conditional update for maximum uses.
+- [x] Unit tests cover valid, invalid, expired, inactive, exhausted and fixed-discount-too-large cases.
 **Tests**: unit
 **Gate**: quick
 
