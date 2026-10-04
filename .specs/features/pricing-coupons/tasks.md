@@ -71,8 +71,8 @@ T7 → T10
 **Requirement**: PRC-01, PRC-03
 **Tools**: MCP: filesystem. Skill: NONE.
 **Done when**:
-- [ ] Table definitions match the migration including nullable restrictions and usage counters.
-- [ ] Typecheck and build gate pass.
+- [x] Table definitions match the migration including nullable restrictions and usage counters.
+- [x] Typecheck and build gate pass.
 **Tests**: none
 **Gate**: build
 
