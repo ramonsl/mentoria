@@ -26,7 +26,7 @@ export const PLANS: PlanDisplay[] = [
     slug: "avulso",
     name: "Visibilidade Profissional",
     fullPriceCents: 69900,
-    targetAudience: "Quer organizar sua apresentação profissional e receber direção prática para buscar novas oportunidades.",
+    targetAudience: "Você sente que tem currículo, LinkedIn e GitHub, mas não sabe como se apresentar pra ser visto - aqui a gente ajusta isso e te dá direção prática pra buscar novas oportunidades.",
     deliverables: [
       "Trabalhamos seu currículo/CV, LinkedIn e GitHub",
       "Você recebe um diagnóstico individual com os principais pontos de melhoria",
@@ -39,7 +39,7 @@ export const PLANS: PlanDisplay[] = [
     slug: "acompanhamento-3m",
     name: "Direção de Carreira",
     fullPriceCents: 150000,
-    targetAudience: "Quer acompanhamento próximo por um ciclo curto.",
+    targetAudience: "Você sente que não consegue conectar o que aprendeu com o que o mercado cobra - aqui a gente fecha essa lacuna com acompanhamento próximo e um plano de estudos que gera XP (experiência prática) de verdade.",
     deliverables: [
       "3 encontros síncronos individuais, previamente agendados, ao longo de 3 meses",
       "Acompanhamento individual pelo WhatsApp entre os encontros",
@@ -56,7 +56,7 @@ export const PLANS: PlanDisplay[] = [
     name: "Aceleração de Carreira",
     badge: "Mais completa",
     fullPriceCents: 299900,
-    targetAudience: "Quer acompanhamento contínuo para evoluir, construir experiência prática e buscar novas oportunidades.",
+    targetAudience: "Você sente que falta projeto real e XP (experiência prática) pra mostrar - aqui a gente constrói isso junto, com acompanhamento contínuo, projetos reais pro portfólio e direcionamento pra buscar oportunidades, inclusive internacionais.",
     deliverables: [
       "6 encontros síncronos individuais, previamente agendados, ao longo de 6 meses",
       "Acompanhamento individual pelo WhatsApp entre os encontros",
