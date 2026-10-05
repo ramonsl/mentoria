@@ -1,16 +1,12 @@
-"use client";
-
-import { useRef, useState } from "react";
 import { COHORT_BADGE_COPY } from "@/content/conversion";
 import type { PlanDisplay } from "@/content/plans";
 
 // Componente apresentacional (spec.md P1 "Ver e comparar os planos",
-// MENT-01/02/03) com os CTAs conectados a /api/checkout (spec.md P1 "Pagar o
-// plano escolhido", MENT-06/08/09 - T16), e o selo de vagas reais (spec.md P2
-// "Reforço de conversão" AC6, MENT-37 - T50).
-
-const GENERIC_CHECKOUT_ERROR =
-  "Não foi possível iniciar o pagamento agora. Tente novamente em instantes.";
+// MENT-01/02/03) e o selo de vagas reais (spec.md P2 "Reforço de conversão"
+// AC6, MENT-37 - T50). O CTA de cada plano abre direto o link de checkout
+// hospedado na Kiwify (plan.kiwifyUrl), em vez de chamar /api/checkout
+// (Asaas) - troca temporária enquanto o checkout não migra de verdade pra
+// Kiwify.
 
 interface PricedPlan extends PlanDisplay {
   priceCents: number;
@@ -21,58 +17,10 @@ const currency = new Intl.NumberFormat("pt-BR", {
   currency: "BRL",
 });
 
-function PlanCard({
-  plan,
-  couponCode,
-}: {
-  plan: PricedPlan;
-  couponCode: string;
-}) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  // Guarda síncrona contra duplo clique (MENT-09): dois cliques disparados
-  // no mesmo tick podem ambos ler `isLoading` como false antes do React
-  // re-renderizar o `disabled` do botão - a ref é setada de imediato, antes
-  // de qualquer await, então o segundo clique já a vê true.
-  const isSubmittingRef = useRef(false);
-
-  async function handleClick() {
-    if (isSubmittingRef.current) return;
-    isSubmittingRef.current = true;
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          plan: plan.slug,
-          ...(couponCode ? { couponCode } : {}),
-        }),
-      });
-      const data = (await response.json()) as {
-        checkoutUrl?: string;
-        error?: string;
-      };
-
-      if (!response.ok || !data.checkoutUrl) {
-        isSubmittingRef.current = false;
-        setIsLoading(false);
-        setError(data.error ?? GENERIC_CHECKOUT_ERROR);
-        return;
-      }
-
-      window.location.href = data.checkoutUrl;
-    } catch {
-      isSubmittingRef.current = false;
-      setIsLoading(false);
-      setError(GENERIC_CHECKOUT_ERROR);
-    }
-  }
-
-  const content = (
-    <>
+function PlanCard({ plan }: { plan: PricedPlan }) {
+  const className = "flex min-w-0 flex-1 flex-col gap-6 rounded-3xl border border-[var(--line)] bg-white p-7 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-lg";
+  return (
+    <article className={className}>
       <header className="flex flex-col gap-2">
         {plan.badge ? (
           <span className="w-fit rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800">
@@ -103,26 +51,17 @@ function PlanCard({
         ))}
       </ul>
 
-      <button
-        type="button"
+      <a
         data-plan={plan.slug}
-        disabled={isLoading}
-        onClick={handleClick}
-        className="w-full rounded-full bg-[var(--navy)] px-5 py-3 text-base font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+        href={plan.kiwifyUrl}
+        target="_blank"
+        rel="noopener"
+        className="w-full rounded-full bg-[var(--navy)] px-5 py-3 text-center text-base font-bold text-white transition-colors hover:bg-blue-700"
       >
         {plan.ctaLabel}
-      </button>
-
-      {error ? (
-        <p role="alert" className="text-sm text-red-600">
-          {error}
-        </p>
-      ) : null}
-    </>
+      </a>
+    </article>
   );
-
-  const className = "flex min-w-0 flex-1 flex-col gap-6 rounded-3xl border border-[var(--line)] bg-white p-7 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-lg";
-  return <article className={className}>{content}</article>;
 }
 
 export default function PlanComparison({ plans }: { plans: PricedPlan[] }) {
@@ -141,7 +80,7 @@ export default function PlanComparison({ plans }: { plans: PricedPlan[] }) {
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         {plans.map((plan) => (
-          <PlanCard key={plan.slug} plan={plan} couponCode="" />
+          <PlanCard key={plan.slug} plan={plan} />
         ))}
       </div>
       </div>

@@ -25,7 +25,7 @@ test.describe("landing page - plan comparison", () => {
         PRICE_PATTERN,
       );
       await expect(
-        page.getByRole("button", { name: plan.ctaLabel }),
+        page.getByRole("link", { name: plan.ctaLabel }),
       ).toBeVisible();
       // Fix MENT-01 (validation.md, ciclo 1): spec.md AC1 exige a mesma
       // lista de entregáveis e o público-alvo de cada plano, não só nome,
@@ -60,7 +60,7 @@ test.describe("landing page - plan comparison", () => {
 
     for (const plan of PLANS) {
       await expect(
-        page.getByRole("button", { name: plan.ctaLabel }),
+        page.getByRole("link", { name: plan.ctaLabel }),
       ).toBeVisible();
     }
 

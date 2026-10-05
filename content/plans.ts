@@ -19,6 +19,9 @@ export interface PlanDisplay {
   targetAudience: string;
   deliverables: string[];
   ctaLabel: string;
+  // Link de checkout hospedado na Kiwify - clicar no CTA do plano abre uma
+  // modal simples com esse link, em vez de chamar /api/checkout (Asaas).
+  kiwifyUrl: string;
 }
 
 export const PLANS: PlanDisplay[] = [
@@ -26,7 +29,8 @@ export const PLANS: PlanDisplay[] = [
     slug: "avulso",
     name: "Visibilidade Profissional",
     fullPriceCents: 69900,
-    targetAudience: "Você sente que tem currículo, LinkedIn e GitHub, mas não sabe como se apresentar pra ser visto - aqui a gente ajusta isso e te dá direção prática pra buscar novas oportunidades.",
+    kiwifyUrl: "https://pay.kiwify.com.br/GusAEUc",
+    targetAudience: "Você já mandou vários currículos sem nenhuma resposta: sente que tem currículo, LinkedIn e GitHub, mas não sabe como se apresentar pra ser visto - aqui a gente ajusta isso e te dá direção prática pra buscar novas oportunidades.",
     deliverables: [
       "Trabalhamos seu currículo/CV, LinkedIn e GitHub",
       "Você recebe um diagnóstico individual com os principais pontos de melhoria",
@@ -39,6 +43,7 @@ export const PLANS: PlanDisplay[] = [
     slug: "acompanhamento-3m",
     name: "Direção de Carreira",
     fullPriceCents: 150000,
+    kiwifyUrl: "https://pay.kiwify.com.br/GkQERUU",
     targetAudience: "Você sente que não consegue conectar o que aprendeu com o que o mercado cobra - aqui a gente fecha essa lacuna com acompanhamento próximo e um plano de estudos que gera XP (experiência prática) de verdade.",
     deliverables: [
       "3 encontros síncronos individuais, previamente agendados, ao longo de 3 meses",
@@ -56,6 +61,7 @@ export const PLANS: PlanDisplay[] = [
     name: "Aceleração de Carreira",
     badge: "Mais completa",
     fullPriceCents: 299900,
+    kiwifyUrl: "https://pay.kiwify.com.br/HpgxfqT",
     targetAudience: "Você sente que falta projeto real e XP (experiência prática) pra mostrar - aqui a gente constrói isso junto, com acompanhamento contínuo, projetos reais pro portfólio e direcionamento pra buscar oportunidades, inclusive internacionais.",
     deliverables: [
       "6 encontros síncronos individuais, previamente agendados, ao longo de 6 meses",

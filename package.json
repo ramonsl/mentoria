@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
+    "@next/third-parties": "^16.3.8",
     "drizzle-orm": "^0.44.2",
     "next": "16.3.8",
     "react": "19.2.8",
@@ -22,9 +23,9 @@
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^22",
-    "drizzle-kit": "^0.31.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.1",
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "tailwindcss": "^4",
