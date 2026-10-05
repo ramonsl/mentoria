@@ -152,6 +152,36 @@ describe("createCheckout", () => {
     expect(sentBody.items[0].value).toBe(239.2);
   });
 
+  it("faz fallback para cartão quando a conta Sandbox não tem chave Pix", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        json: async () => ({
+          errors: [
+            {
+              code: "invalid_object",
+              description: "Para gerar cobranças com Pix é necessário criar uma chave Pix no Asaas.",
+            },
+          ],
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ link: "https://sandbox.asaas.com/checkout" }),
+      });
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    const { createCheckout } = await import("./asaas");
+    await createCheckout("avulso", "https://mentoria.example.com", 29900);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const fallbackBody = JSON.parse(fetchMock.mock.calls[1][1].body as string);
+    expect(fallbackBody.billingTypes).toEqual(["CREDIT_CARD"]);
+  });
+
   it.each([
     ["https://api.asaas.com", "https://api.asaas.com/v3/checkouts"],
     ["https://api.asaas.com/v3", "https://api.asaas.com/v3/checkouts"],

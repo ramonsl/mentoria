@@ -52,6 +52,36 @@ function findPlan(plan: PlanSlug) {
   return found;
 }
 
+type ProviderError = { code?: string; description?: string };
+
+async function readProviderError(response: Response): Promise<ProviderError | undefined> {
+  try {
+    const body = (await response.json()) as {
+      errors?: Array<{ code?: unknown; description?: unknown }>;
+    };
+    const firstError = body.errors?.[0];
+    if (!firstError) return undefined;
+    return {
+      code: typeof firstError.code === "string" ? firstError.code : undefined,
+      description:
+        typeof firstError.description === "string"
+          ? firstError.description
+          : undefined,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+function pixKeyMissing(error: ProviderError | undefined): boolean {
+  const description = error?.description?.toLowerCase() ?? "";
+  return (
+    error?.code === "invalid_object" &&
+    description.includes("pix") &&
+    description.includes("chave")
+  );
+}
+
 /**
  * Creates a one-time (DETACHED) Asaas hosted checkout for the given plan,
  * offering Pix and credit card (spec.md P1 "Pagar o plano escolhido" AC1-2).
@@ -94,16 +124,20 @@ export async function createCheckout(
     ],
   };
 
-  let response: Response;
-  try {
-    response = await fetch(checkoutEndpoint(env.ASAAS_API_BASE_URL), {
+  async function sendCheckout(body: typeof requestBody): Promise<Response> {
+    return fetch(checkoutEndpoint(env.ASAAS_API_BASE_URL), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         access_token: env.ASAAS_API_KEY,
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify(body),
     });
+  }
+
+  let response: Response;
+  try {
+    response = await sendCheckout(requestBody);
   } catch (err) {
     throw new AsaasApiError(
       `Failed to reach Asaas API: ${(err as Error).message}`,
@@ -111,29 +145,27 @@ export async function createCheckout(
   }
 
   if (!response.ok) {
-    let providerError: { code?: string; description?: string } | undefined;
-    try {
-      const body = (await response.json()) as {
-        errors?: Array<{ code?: unknown; description?: unknown }>;
-      };
-      const firstError = body.errors?.[0];
-      if (firstError) {
-        providerError = {
-          code: typeof firstError.code === "string" ? firstError.code : undefined,
-          description:
-            typeof firstError.description === "string"
-              ? firstError.description
-              : undefined,
-        };
+    const providerError = await readProviderError(response);
+    if (pixKeyMissing(providerError)) {
+      try {
+        response = await sendCheckout({
+          ...requestBody,
+          billingTypes: ["CREDIT_CARD"],
+        });
+      } catch (err) {
+        throw new AsaasApiError(
+          `Failed to reach Asaas API: ${(err as Error).message}`,
+        );
       }
-    } catch {
-      // Preserve the HTTP failure even if the provider body is not JSON.
     }
-    throw new AsaasApiError(
-      `Asaas API returned ${response.status} when creating checkout`,
-      response.status,
-      providerError,
-    );
+    if (!response.ok) {
+      const finalProviderError = await readProviderError(response);
+      throw new AsaasApiError(
+        `Asaas API returned ${response.status} when creating checkout`,
+        response.status,
+        finalProviderError ?? providerError,
+      );
+    }
   }
 
   const data = (await response.json()) as { link?: string };
