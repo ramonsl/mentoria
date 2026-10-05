@@ -37,6 +37,14 @@ function readString(formData: FormData, name: string): string {
   return typeof value === "string" ? value : "";
 }
 
+function parseMoneyToCents(value: string): number | null {
+  const normalized = value.trim().replace(",", ".");
+  if (!/^\d+(?:\.\d{1,2})?$/.test(normalized)) return null;
+  const [reais, centavos = ""] = normalized.split(".");
+  const amount = Number(reais + centavos.padEnd(2, "0"));
+  return Number.isSafeInteger(amount) && amount > 0 ? amount : null;
+}
+
 function revalidateCommercialPages(): void {
   revalidatePath("/");
   revalidatePath("/admin/comercial");
@@ -47,9 +55,9 @@ export async function updatePlanPriceAction(
 ): Promise<ActionResult> {
   await requireAdminSession();
   const plan = readString(formData, "plan");
-  const priceCents = Number(readString(formData, "priceCents"));
-  if (!isPlanSlug(plan) || !Number.isInteger(priceCents) || priceCents <= 0) {
-    return { error: "Informe um preço inteiro positivo." };
+  const priceCents = parseMoneyToCents(readString(formData, "priceReais"));
+  if (!isPlanSlug(plan) || priceCents === null) {
+    return { error: "Informe um preço em reais maior que zero, com até duas casas decimais." };
   }
 
   try {
@@ -66,7 +74,11 @@ export async function createCouponAction(
 ): Promise<ActionResult> {
   await requireAdminSession();
   const discountType = readString(formData, "discountType");
-  const discountValue = Number(readString(formData, "discountValue"));
+  const discountValueInput = readString(formData, "discountValue");
+  const discountValue =
+    discountType === "fixed"
+      ? parseMoneyToCents(discountValueInput)
+      : Number(discountValueInput);
   const planValue = readString(formData, "plan");
   const expiresAtValue = readString(formData, "expiresAt");
   const maxUsesValue = readString(formData, "maxUses");
@@ -75,6 +87,7 @@ export async function createCouponAction(
 
   if (
     (discountType !== "percentage" && discountType !== "fixed") ||
+    discountValue === null ||
     !Number.isInteger(discountValue) ||
     discountValue <= 0 ||
     (discountType === "percentage" && discountValue > 99) ||

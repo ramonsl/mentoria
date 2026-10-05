@@ -55,7 +55,7 @@ export default async function CommercialAdminPage() {
         <div>
           <h2 className="text-xl font-bold tracking-tight">Preços dos planos</h2>
           <p className="mt-1 text-sm text-[var(--wv-muted)]">
-            Informe o valor integral em centavos. Ex.: R$ 299,00 = 29900.
+            Informe o valor em reais, com até duas casas decimais.
           </p>
         </div>
         <div className="admin-card overflow-x-auto" style={{ padding: 0 }}>
@@ -64,7 +64,7 @@ export default async function CommercialAdminPage() {
               <tr className="border-b border-[var(--wv-border)] bg-[#fcfcfc] text-[11px] tracking-[0.08em] uppercase">
                 <th className="px-5 py-3 font-semibold">Plano</th>
                 <th className="px-5 py-3 font-semibold">Preço atual</th>
-                <th className="px-5 py-3 font-semibold">Novo valor (centavos)</th>
+                <th className="px-5 py-3 font-semibold">Novo valor (R$)</th>
               </tr>
             </thead>
             <tbody>
@@ -88,12 +88,12 @@ export default async function CommercialAdminPage() {
                         </label>
                         <input
                           id={`price-${plan.slug}`}
-                          name="priceCents"
+                          name="priceReais"
                           type="number"
-                          min="1"
-                          step="1"
+                          min="0.01"
+                          step="0.01"
                           required
-                          defaultValue={priceCents}
+                          defaultValue={priceCents === undefined ? "" : (priceCents / 100).toFixed(2)}
                           className="w-36 rounded-md border border-[var(--wv-border)] bg-[var(--wv-surface)] px-3 py-2 text-[var(--wv-text)]"
                         />
                         <button className="admin-primary-button px-4 py-2 text-sm font-medium">
@@ -134,16 +134,16 @@ export default async function CommercialAdminPage() {
                 className="rounded-md border border-[var(--wv-border)] bg-[var(--wv-surface)] px-3 py-2 text-[var(--wv-text)]"
               >
                 <option value="percentage">Percentual</option>
-                <option value="fixed">Valor fixo (centavos)</option>
+                <option value="fixed">Valor fixo (R$)</option>
               </select>
             </label>
             <label className="flex flex-col gap-1 text-sm text-[var(--wv-muted)]">
-              Desconto
+              Desconto (% ou R$)
               <input
                 name="discountValue"
                 type="number"
                 min="1"
-                step="1"
+                step="0.01"
                 required
                 className="rounded-md border border-[var(--wv-border)] bg-[var(--wv-surface)] px-3 py-2 text-[var(--wv-text)]"
               />

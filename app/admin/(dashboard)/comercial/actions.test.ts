@@ -55,23 +55,23 @@ describe("commercial admin actions", () => {
     isValidAdminSessionTokenMock.mockResolvedValue(false);
 
     await expect(
-      updatePlanPriceAction(formData({ plan: "avulso", priceCents: "29900" })),
+      updatePlanPriceAction(formData({ plan: "avulso", priceReais: "299,00" })),
     ).rejects.toThrow("Unauthorized");
     expect(updatePlanPriceMock).not.toHaveBeenCalled();
   });
 
   it("returns a validation error without changing the plan price", async () => {
     const result = await updatePlanPriceAction(
-      formData({ plan: "avulso", priceCents: "0" }),
+      formData({ plan: "avulso", priceReais: "0" }),
     );
 
-    expect(result).toEqual({ error: "Informe um preço inteiro positivo." });
+    expect(result).toEqual({ error: "Informe um preço em reais maior que zero, com até duas casas decimais." });
     expect(updatePlanPriceMock).not.toHaveBeenCalled();
   });
 
   it("updates one price and revalidates the landing and commercial admin page", async () => {
     const result = await updatePlanPriceAction(
-      formData({ plan: "avulso", priceCents: "34900" }),
+      formData({ plan: "avulso", priceReais: "349,00" }),
     );
 
     expect(result).toEqual({ success: true });
@@ -106,6 +106,28 @@ describe("commercial admin actions", () => {
     });
     expect(revalidatePathMock).toHaveBeenCalledWith("/");
     expect(revalidatePathMock).toHaveBeenCalledWith("/admin/comercial");
+  });
+
+  it("converts a fixed coupon entered in reais into whole cents", async () => {
+    await createCouponAction(
+      formData({
+        code: "FIXO",
+        discountType: "fixed",
+        discountValue: "25,50",
+        plan: "",
+        expiresAt: "",
+        maxUses: "",
+      }),
+    );
+
+    expect(createCouponMock).toHaveBeenCalledWith({
+      code: "FIXO",
+      discountType: "fixed",
+      discountValue: 2550,
+      plan: null,
+      expiresAt: null,
+      maxUses: null,
+    });
   });
 
   it("deactivates only the selected coupon after checking the session", async () => {
