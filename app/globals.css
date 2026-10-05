@@ -37,33 +37,35 @@ html {
   color: var(--navy-deep);
 }
 
-/* Tokens WattVision (.tasks/admin-wattvision-theme.md) - escopados a
-   /admin via esta classe, nunca aplicados ao :root público. */
+/* Genesis design system — escopado ao /admin, sem afetar a área pública. */
 .admin-theme {
-  --wv-bg: #121212;
-  --wv-surface: #1e1e1e;
-  --wv-border: #2c2c2e;
-  --wv-row-hover: #252525;
-  --wv-accent: #00e5ff;
-  --wv-success: #32d74b;
-  --wv-alert: #ff453a;
-  --wv-alert-bg: #3a1c1c;
-  --wv-text: #ffffff;
-  --wv-muted: #98989d;
+  --wv-bg: #fafafa;
+  --wv-surface: #ffffff;
+  --wv-border: #e8e8ec;
+  --wv-row-hover: #f7f7f8;
+  --wv-accent: #6366f1;
+  --wv-accent-hover: #4f46e5;
+  --wv-success: #10b981;
+  --wv-alert: #ef4444;
+  --wv-alert-bg: #fef2f2;
+  --wv-text: #0a0a0a;
+  --wv-muted: #6b6b6b;
+  --wv-focus: rgb(99 102 241 / 22%);
+  font-family: "DM Sans", Inter, Arial, sans-serif;
 }
 
 .admin-card {
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   background: var(--wv-surface);
   border: 1px solid var(--wv-border);
-  padding: 1.25rem;
+  padding: 1.5rem;
 }
 
 .admin-alert {
   background: var(--wv-alert-bg);
   color: var(--wv-alert);
-  border-left: 4px solid var(--wv-alert);
-  border-radius: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--wv-alert) 25%, transparent);
+  border-radius: 0.375rem;
   padding: 0.75rem 1rem;
 }
 
@@ -77,4 +79,34 @@ html {
 
 .admin-theme ol li {
   border-bottom: 1px solid var(--wv-border);
+}
+
+.admin-theme input,
+.admin-theme select {
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.admin-theme input:focus,
+.admin-theme select:focus {
+  border-color: var(--wv-accent) !important;
+  box-shadow: 0 0 0 3px var(--wv-focus);
+}
+
+.admin-theme .admin-primary-button {
+  border-radius: 0.375rem;
+  background: var(--wv-accent);
+  color: #fff;
+  transition: background-color 150ms ease, box-shadow 150ms ease;
+}
+
+.admin-theme .admin-primary-button:hover {
+  background: var(--wv-accent-hover);
+  box-shadow: 0 4px 12px rgb(79 70 229 / 18%);
+}
+
+.admin-theme .admin-primary-button:focus-visible,
+.admin-theme a:focus-visible {
+  outline: 3px solid var(--wv-focus);
+  outline-offset: 2px;
 }

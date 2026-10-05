@@ -46,7 +46,11 @@ export default function AdminLoginPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-6">
-      <h1 className="text-2xl font-semibold">Acesso restrito</h1>
+      <div>
+        <p className="text-[11px] font-semibold tracking-[0.14em] text-[var(--wv-muted)] uppercase">Mentoria</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight">Acesso restrito</h1>
+        <p className="mt-2 text-sm text-[var(--wv-muted)]">Entre para gerenciar suas inscrições.</p>
+      </div>
 
       <form onSubmit={handleSubmit} className="admin-card flex flex-col gap-4">
         <label className="flex flex-col gap-2 text-sm text-[var(--wv-muted)]">
@@ -57,14 +61,14 @@ export default function AdminLoginPage() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
-            className="rounded-lg border border-[var(--wv-border)] bg-[var(--wv-bg)] px-4 py-2 text-[var(--wv-text)]"
+            className="rounded-md border border-[var(--wv-border)] bg-[var(--wv-surface)] px-4 py-2 text-[var(--wv-text)]"
           />
         </label>
 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full rounded-full bg-[var(--wv-accent)] px-5 py-3 text-base font-medium text-[var(--wv-bg)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="admin-primary-button w-full px-5 py-3 text-base font-medium disabled:cursor-not-allowed disabled:opacity-60"
         >
           Entrar
         </button>

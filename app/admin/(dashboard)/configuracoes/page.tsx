@@ -27,7 +27,7 @@ const OTHER_CONFIG: ConfigRow[] = [
 function ConfigTable({ title, rows }: { title: string; rows: ConfigRow[] }) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold">{title}</h2>
+      <h2 className="text-xl font-bold tracking-tight">{title}</h2>
       <div className="admin-card overflow-hidden" style={{ padding: 0 }}>
         <table className="w-full text-left text-sm text-[var(--wv-muted)]">
           <tbody>
@@ -66,9 +66,10 @@ function ConfigTable({ title, rows }: { title: string; rows: ConfigRow[] }) {
 
 export default function AdminConfigPage() {
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-16">
+    <main className="mx-auto flex max-w-4xl flex-col gap-10 px-6 py-12 sm:px-10">
       <div>
-        <h1 className="text-2xl font-semibold">Configurações</h1>
+        <p className="text-[11px] font-semibold tracking-[0.14em] text-[var(--wv-muted)] uppercase">Administração</p>
+        <h1 className="mt-1 text-3xl font-bold tracking-tight">Configurações</h1>
         <p className="mt-1 text-sm text-[var(--wv-muted)]">
           Só leitura - os valores de segredo nunca aparecem aqui. Para
           alterar, edite as variáveis de ambiente (.env.local local, ou o

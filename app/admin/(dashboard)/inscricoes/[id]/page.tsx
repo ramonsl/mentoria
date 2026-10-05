@@ -49,8 +49,11 @@ export default async function AdminEnrollmentDetailPage({
   const events = await listEventsByCheckoutId(enrollment.asaasCheckoutId);
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-16">
-      <h1 className="text-2xl font-semibold">{row.name}</h1>
+    <main className="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-12 sm:px-10">
+      <div>
+        <p className="text-[11px] font-semibold tracking-[0.14em] text-[var(--wv-muted)] uppercase">Inscrição</p>
+        <h1 className="mt-1 text-3xl font-bold tracking-tight">{row.name}</h1>
+      </div>
 
       <dl className="admin-card grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-[var(--wv-muted)]">
         <dt className="font-medium">E-mail</dt>
@@ -75,7 +78,7 @@ export default async function AdminEnrollmentDetailPage({
       </dl>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">Linha do tempo</h2>
+        <h2 className="text-xl font-bold tracking-tight">Linha do tempo</h2>
 
         {events.length === 0 ? (
           <p className="admin-card text-sm text-[var(--wv-muted)]">

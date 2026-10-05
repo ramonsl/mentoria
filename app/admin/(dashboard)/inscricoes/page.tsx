@@ -71,12 +71,15 @@ export default async function AdminEnrollmentsPage({
   const exportQuery = toQueryString(filters);
 
   return (
-    <main className="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-16">
+    <main className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-12 sm:px-10">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold">Inscrições</h1>
+        <div>
+          <p className="text-[11px] font-semibold tracking-[0.14em] text-[var(--wv-muted)] uppercase">Administração</p>
+          <h1 className="mt-1 text-3xl font-bold tracking-tight">Inscrições</h1>
+        </div>
         <a
           href={`/admin/inscricoes/export${exportQuery ? `?${exportQuery}` : ""}`}
-          className="rounded-full px-4 py-2 text-sm font-medium text-[var(--wv-accent)]"
+          className="rounded-md border border-[var(--wv-border)] bg-[var(--wv-surface)] px-4 py-2 text-sm font-medium text-[var(--wv-accent)] transition-colors hover:border-[var(--wv-accent)]"
         >
           Exportar CSV
         </a>
@@ -84,14 +87,14 @@ export default async function AdminEnrollmentsPage({
 
       <form
         method="get"
-        className="admin-card flex flex-wrap items-end gap-3 text-sm text-[var(--wv-muted)]"
+        className="admin-card flex flex-wrap items-end gap-4 text-sm text-[var(--wv-muted)]"
       >
         <label className="flex flex-col gap-1">
           Status
           <select
             name="status"
             defaultValue={filters.status ?? ""}
-            className="rounded-lg border border-[var(--wv-border)] bg-[var(--wv-bg)] px-3 py-2 text-[var(--wv-text)]"
+            className="rounded-md border border-[var(--wv-border)] bg-[var(--wv-surface)] px-3 py-2 text-[var(--wv-text)]"
           >
             <option value="">Todos</option>
             {STATUS_LABELS.map((label) => (
@@ -107,7 +110,7 @@ export default async function AdminEnrollmentsPage({
           <select
             name="plano"
             defaultValue={filters.plano ?? ""}
-            className="rounded-lg border border-[var(--wv-border)] bg-[var(--wv-bg)] px-3 py-2 text-[var(--wv-text)]"
+            className="rounded-md border border-[var(--wv-border)] bg-[var(--wv-surface)] px-3 py-2 text-[var(--wv-text)]"
           >
             <option value="">Todos</option>
             {PLANS.map((plan) => (
@@ -124,7 +127,7 @@ export default async function AdminEnrollmentsPage({
             type="date"
             name="de"
             defaultValue={filters.de ?? ""}
-            className="rounded-lg border border-[var(--wv-border)] bg-[var(--wv-bg)] px-3 py-2 text-[var(--wv-text)]"
+            className="rounded-md border border-[var(--wv-border)] bg-[var(--wv-surface)] px-3 py-2 text-[var(--wv-text)]"
           />
         </label>
 
@@ -134,7 +137,7 @@ export default async function AdminEnrollmentsPage({
             type="date"
             name="ate"
             defaultValue={filters.ate ?? ""}
-            className="rounded-lg border border-[var(--wv-border)] bg-[var(--wv-bg)] px-3 py-2 text-[var(--wv-text)]"
+            className="rounded-md border border-[var(--wv-border)] bg-[var(--wv-surface)] px-3 py-2 text-[var(--wv-text)]"
           />
         </label>
 
@@ -145,13 +148,13 @@ export default async function AdminEnrollmentsPage({
             name="q"
             placeholder="Nome ou e-mail"
             defaultValue={filters.q ?? ""}
-            className="rounded-lg border border-[var(--wv-border)] bg-[var(--wv-bg)] px-3 py-2 text-[var(--wv-text)]"
+            className="rounded-md border border-[var(--wv-border)] bg-[var(--wv-surface)] px-3 py-2 text-[var(--wv-text)]"
           />
         </label>
 
         <button
           type="submit"
-          className="rounded-full bg-[var(--wv-accent)] px-5 py-2 text-sm font-medium text-[var(--wv-bg)]"
+          className="admin-primary-button px-5 py-2 text-sm font-medium"
         >
           Filtrar
         </button>
@@ -169,13 +172,13 @@ export default async function AdminEnrollmentsPage({
         <div className="admin-card overflow-x-auto" style={{ padding: 0 }}>
           <table className="w-full text-left text-sm text-[var(--wv-muted)]">
             <thead>
-              <tr className="border-b border-[var(--wv-border)]">
-                <th className="px-5 py-3 font-medium">Nome</th>
-                <th className="px-5 py-3 font-medium">E-mail</th>
-                <th className="px-5 py-3 font-medium">Plano</th>
-                <th className="px-5 py-3 font-medium">Status</th>
-                <th className="px-5 py-3 font-medium">Pago em</th>
-                <th className="px-5 py-3 font-medium">Expira em</th>
+              <tr className="border-b border-[var(--wv-border)] bg-[#fcfcfc] text-[11px] tracking-[0.08em] uppercase">
+                <th className="px-5 py-3 font-semibold">Nome</th>
+                <th className="px-5 py-3 font-semibold">E-mail</th>
+                <th className="px-5 py-3 font-semibold">Plano</th>
+                <th className="px-5 py-3 font-semibold">Status</th>
+                <th className="px-5 py-3 font-semibold">Pago em</th>
+                <th className="px-5 py-3 font-semibold">Expira em</th>
                 <th className="px-5 py-3 font-medium" />
               </tr>
             </thead>
