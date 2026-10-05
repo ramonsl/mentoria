@@ -3,6 +3,12 @@ import { PLANS } from "../content/plans";
 import { EMAIL_TEMPLATES_COPY } from "../content/emails";
 import type { Enrollment } from "../lib/enrollments";
 
+const PLAN_PRICES_CENTS: Record<string, number> = {
+  avulso: 29900,
+  "acompanhamento-3m": 59900,
+  "acompanhamento-6m": 99900,
+};
+
 // Cobre tasks.md T22 "Done when" (spec.md AC5/AC6, content.md §10.1-10.3):
 // sendMenteeConfirmation envia ao mentorando com o assunto/corpo certos;
 // sendMentorNewEnrollmentAlert envia ao MENTOR_EMAIL para os dois planos com
@@ -42,7 +48,7 @@ function makeEnrollment(overrides: Partial<Enrollment> = {}): Enrollment {
     status: "ativa",
     customerName: "Fulano de Tal",
     customerEmail: "fulano@example.com",
-    amountCents: PLANS[0].priceCents,
+    amountCents: PLAN_PRICES_CENTS.avulso,
     paidAt: new Date("2026-01-15T00:00:00.000Z"),
     expiresAt: new Date("2026-07-15T00:00:00.000Z"),
     createdAt: new Date("2026-01-15T00:00:00.000Z"),
@@ -77,7 +83,7 @@ describe("emails/templates", () => {
         EMAIL_TEMPLATES_COPY.menteeConfirmation.subject,
       );
       expect(call.text).toContain("Olá, Fulano!");
-      expect(call.text).toContain(`${PLANS[0].name} (${PLANS[0].priceLabel})`);
+      expect(call.text).toContain(`${PLANS[0].name} (R$ 299,00)`);
     });
   });
 
@@ -86,7 +92,7 @@ describe("emails/templates", () => {
       "envia ao MENTOR_EMAIL com os dados corretos para o plano $slug",
       async (plan) => {
         await sendMentorNewEnrollmentAlert(
-          makeEnrollment({ plan: plan.slug, amountCents: plan.priceCents }),
+          makeEnrollment({ plan: plan.slug, amountCents: PLAN_PRICES_CENTS[plan.slug] }),
         );
 
         expect(mockSend).toHaveBeenCalledTimes(1);
@@ -116,6 +122,12 @@ describe("emails/templates", () => {
       expect(call.text).toContain(
         "Possível duplicidade: já existe uma inscrição ativa",
       );
+    });
+
+    it("usa no e-mail o valor efetivamente pago com desconto", async () => {
+      await sendMenteeConfirmation(makeEnrollment({ amountCents: 23920 }));
+
+      expect(mockSend.mock.calls[0][0].text).toContain("R$ 239,20");
     });
   });
 

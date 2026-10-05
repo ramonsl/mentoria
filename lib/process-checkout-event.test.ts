@@ -2,6 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PLANS } from "../content/plans";
 import type { Db } from "./db";
 
+const PLAN_PRICES_CENTS: Record<string, number> = {
+  avulso: 29900,
+  "acompanhamento-3m": 59900,
+  "acompanhamento-6m": 99900,
+};
+
 type Row = Record<string, unknown>;
 
 function makeThenable(rows: Row[]) {
@@ -102,7 +108,7 @@ function makeEvent(overrides: Partial<AsaasCheckoutEvent> = {}): AsaasCheckoutEv
     checkout: {
       id: "chk-1",
       customerData: { name: "Fulano de Tal", email: "fulano@example.com" },
-      items: [{ name: PLANS[0].name, value: PLANS[0].priceCents / 100 }],
+      items: [{ name: PLANS[0].name, value: PLAN_PRICES_CENTS.avulso / 100 }],
       externalReference: PLANS[0].slug,
     },
     ...overrides,
@@ -141,7 +147,7 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
         checkout: {
           id: `chk-${plan.slug}`,
           customerData: { name: "Fulano de Tal", email: "fulano@example.com" },
-          items: [{ name: plan.name, value: plan.priceCents / 100 }],
+          items: [{ name: plan.name, value: PLAN_PRICES_CENTS[plan.slug] / 100 }],
           externalReference: plan.slug,
         },
       });
@@ -151,6 +157,7 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
       expect(outcome.type).toBe("enrolled");
       if (outcome.type !== "enrolled") throw new Error("unreachable");
       expect(outcome.enrollment.plan).toBe(plan.slug);
+      expect(outcome.enrollment.amountCents).toBe(PLAN_PRICES_CENTS[plan.slug]);
       expect(outcome.enrollment.expiresAt?.toISOString() ?? null).toBe(
         EXPECTED_EXPIRES_AT[plan.slug],
       );
@@ -178,7 +185,7 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
         // Nome do item divergente de qualquer PLANS[].name atual - simula
         // uma mudança de copy em content/plans.ts depois que o checkout foi
         // criado. A identificação não deve depender disso.
-        items: [{ name: "Nome de marketing totalmente diferente", value: PLANS[1].priceCents / 100 }],
+        items: [{ name: "Nome de marketing totalmente diferente", value: PLAN_PRICES_CENTS[PLANS[1].slug] / 100 }],
         externalReference: PLANS[1].slug,
       },
     });
@@ -190,6 +197,44 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
     expect(outcome.enrollment.plan).toBe(PLANS[1].slug);
   });
 
+  it("registra o valor descontado que veio no checkout pago", async () => {
+    const outcome = await processCheckoutEvent(
+      makeEvent({
+        checkout: {
+          id: "chk-discounted",
+          customerData: { name: "Fulano de Tal", email: "fulano@example.com" },
+          items: [{ name: PLANS[0].name, value: 239.2 }],
+          externalReference: PLANS[0].slug,
+        },
+      }),
+    );
+
+    expect(outcome.type).toBe("enrolled");
+    if (outcome.type !== "enrolled") throw new Error("unreachable");
+    expect(outcome.enrollment.amountCents).toBe(23920);
+  });
+
+  it.each([undefined, 0, -1, Number.NaN, Number.POSITIVE_INFINITY])(
+    "rejeita valor pago ausente ou inválido (%s) sem criar inscrição",
+    async (value) => {
+      const db = createFakeDb();
+      setFakeDb(db);
+      const outcome = await processCheckoutEvent(
+        makeEvent({
+          checkout: {
+            id: "chk-invalid-amount",
+            customerData: { name: "Fulano de Tal", email: "fulano@example.com" },
+            items: value === undefined ? [] : [{ value }],
+            externalReference: PLANS[0].slug,
+          },
+        }),
+      );
+
+      expect(outcome.type).toBe("rejected");
+      expect(db._rows).toHaveLength(0);
+    },
+  );
+
   it("e-mail do cliente malformado: nenhuma inscrição é criada e o resultado sinaliza alerta ao mentor", async () => {
     const db = createFakeDb();
     setFakeDb(db);
@@ -199,7 +244,7 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
         checkout: {
           id: "chk-bad-email",
           customerData: { name: "Fulano", email: "nao-e-um-email" },
-          items: [{ name: PLANS[0].name, value: PLANS[0].priceCents / 100 }],
+          items: [{ name: PLANS[0].name, value: PLAN_PRICES_CENTS.avulso / 100 }],
         },
       }),
     );
@@ -221,7 +266,7 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
         status: "ativa",
         customerName: "Fulano de Tal",
         customerEmail: "fulano@example.com",
-        amountCents: PLANS[0].priceCents,
+        amountCents: PLAN_PRICES_CENTS.avulso,
         paidAt: new Date("2026-01-01T00:00:00.000Z"),
         expiresAt: new Date("2026-07-01T00:00:00.000Z"),
         createdAt: new Date("2026-01-01T00:00:00.000Z"),
@@ -235,7 +280,7 @@ describe("processCheckoutEvent - CHECKOUT_PAID", () => {
         checkout: {
           id: "chk-novo",
           customerData: { name: "Fulano de Tal", email: "fulano@example.com" },
-          items: [{ name: PLANS[0].name, value: PLANS[0].priceCents / 100 }],
+          items: [{ name: PLANS[0].name, value: PLAN_PRICES_CENTS.avulso / 100 }],
           externalReference: PLANS[0].slug,
         },
       }),
@@ -291,7 +336,7 @@ describe("processCheckoutEvent - CHECKOUT_CANCELED / CHECKOUT_EXPIRED", () => {
           status: "ativa",
           customerName: "Fulano de Tal",
           customerEmail: "fulano@example.com",
-          amountCents: PLANS[0].priceCents,
+          amountCents: PLAN_PRICES_CENTS.avulso,
           paidAt: new Date("2026-01-01T00:00:00.000Z"),
           expiresAt: new Date("2026-07-01T00:00:00.000Z"),
           createdAt: new Date("2026-01-01T00:00:00.000Z"),

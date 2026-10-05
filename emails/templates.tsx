@@ -23,6 +23,13 @@ function formatDate(date: Date | null): string {
   return date.toLocaleDateString("pt-BR", { timeZone: "UTC" });
 }
 
+function formatAmount(amountCents: number): string {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(amountCents / 100);
+}
+
 function firstName(fullName: string): string {
   return fullName.trim().split(/\s+/)[0] ?? fullName;
 }
@@ -68,7 +75,7 @@ export async function sendMenteeConfirmation(
   const vars = {
     customerFirstName: firstName(enrollment.customerName),
     planName: plan.name,
-    priceLabel: plan.priceLabel,
+    priceLabel: formatAmount(enrollment.amountCents),
   };
 
   await sendEmail({
@@ -98,7 +105,7 @@ export async function sendMentorNewEnrollmentAlert(
     customerEmail: enrollment.customerEmail,
     customerPhone: "não coletado",
     planName: plan.name,
-    priceLabel: plan.priceLabel,
+    priceLabel: formatAmount(enrollment.amountCents),
     paidAt: formatDate(enrollment.paidAt),
     expiresAt: formatDate(enrollment.expiresAt),
   };

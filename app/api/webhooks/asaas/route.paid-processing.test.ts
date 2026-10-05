@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PLANS } from "../../../../content/plans";
+
+const PLAN_PRICES_CENTS = [29900, 59900, 99900];
 import type { Db } from "../../../../lib/db";
 import { enrollments as enrollmentsTable, webhookEvents as webhookEventsTable } from "../../../../lib/schema";
 
@@ -141,7 +143,7 @@ function checkoutPaidBody(overrides: Record<string, unknown> = {}) {
     checkout: {
       id: "chk-paid-1",
       customerData: { name: "Fulano de Tal", email: "fulano@example.com" },
-      items: [{ name: PLANS[0].name, value: PLANS[0].priceCents / 100 }],
+      items: [{ name: PLANS[0].name, value: PLAN_PRICES_CENTS[0] / 100 }],
       externalReference: PLANS[0].slug,
     },
     ...overrides,

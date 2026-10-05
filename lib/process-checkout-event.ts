@@ -108,9 +108,14 @@ async function processCheckoutPaid(
   const planDisplay = findPlanByExternalReference(
     event.checkout.externalReference,
   );
+  const itemValue = event.checkout.items?.[0]?.value;
+  const amountCents =
+    typeof itemValue === "number" && Number.isFinite(itemValue)
+      ? Math.round(itemValue * 100)
+      : null;
   const emailValid = !!email && EMAIL_REGEX.test(email);
 
-  if (!emailValid || !name || !planDisplay) {
+  if (!emailValid || !name || !planDisplay || amountCents === null || amountCents <= 0) {
     const reason = rejectionReason(email, name, planDisplay, event.checkout.id);
     await sendMentorRejectedCheckoutAlert(event.checkout.id, reason);
     return { type: "rejected", reason };
@@ -126,7 +131,7 @@ async function processCheckoutPaid(
     plan,
     customerName: name,
     customerEmail: email,
-    amountCents: planDisplay.priceCents,
+    amountCents,
     paidAt: now,
   });
 

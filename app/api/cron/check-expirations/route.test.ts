@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PLANS } from "../../../../content/plans";
+
+const PLAN_PRICES_CENTS = [29900, 59900, 99900];
 import type { Enrollment } from "../../../../lib/enrollments";
 
 // Cobre tasks.md T25 "Done when" (spec.md AC11, MENT-20): secret
@@ -54,7 +56,7 @@ function makeExpiredEnrollment(overrides: Partial<Enrollment> = {}): Enrollment 
     status: "expirada",
     customerName: "Fulano de Tal",
     customerEmail: "fulano@example.com",
-    amountCents: PLANS[0].priceCents,
+    amountCents: PLAN_PRICES_CENTS[0],
     paidAt: new Date("2026-01-01T00:00:00.000Z"),
     expiresAt: new Date("2026-07-01T00:00:00.000Z"),
     createdAt: new Date("2026-01-01T00:00:00.000Z"),
