@@ -78,6 +78,7 @@ describe("createCheckout", () => {
       expect(sentBody.callback.successUrl).toBe(
         "https://mentoria.example.com/obrigado",
       );
+      expect(sentBody.callback.expiredUrl).toBe("https://mentoria.example.com");
       expect(sentBody.callback.cancelUrl).toBe("https://mentoria.example.com");
       expect(sentBody.items[0].value).toBe(amountCents / 100);
     },
@@ -123,4 +124,25 @@ describe("createCheckout", () => {
 
     expect(sentBody.items[0].value).toBe(239.2);
   });
+
+  it.each([
+    ["https://api.asaas.com", "https://api.asaas.com/v3/checkouts"],
+    ["https://api.asaas.com/v3", "https://api.asaas.com/v3/checkouts"],
+  ])(
+    "usa exatamente uma versão /v3 quando a base é %s",
+    async (baseUrl, expectedUrl) => {
+      process.env.ASAAS_API_BASE_URL = baseUrl;
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({ link: "https://sandbox.asaas.com/checkout" }),
+      });
+      globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+      const { createCheckout } = await import("./asaas");
+      await createCheckout("avulso", "https://mentoria.example.com", 29900);
+
+      expect(fetchMock.mock.calls[0][0]).toBe(expectedUrl);
+    },
+  );
 });

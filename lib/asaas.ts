@@ -31,6 +31,11 @@ export class AsaasApiError extends Error {
 const PLACEHOLDER_ITEM_IMAGE_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 
+function checkoutEndpoint(baseUrl: string): string {
+  const normalizedBase = baseUrl.replace(/\/+$/, "").replace(/\/v3$/i, "");
+  return `${normalizedBase}/v3/checkouts`;
+}
+
 function findPlan(plan: PlanSlug) {
   const found = PLANS.find((p) => p.slug === plan);
   if (!found) {
@@ -66,6 +71,7 @@ export async function createCheckout(
     externalReference: plan,
     callback: {
       successUrl: `${origin}/obrigado`,
+      expiredUrl: origin,
       cancelUrl: origin,
     },
     items: [
@@ -82,7 +88,7 @@ export async function createCheckout(
 
   let response: Response;
   try {
-    response = await fetch(`${env.ASAAS_API_BASE_URL}/v3/checkouts`, {
+    response = await fetch(checkoutEndpoint(env.ASAAS_API_BASE_URL), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

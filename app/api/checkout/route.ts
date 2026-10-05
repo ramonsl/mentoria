@@ -13,6 +13,21 @@ import {
 
 const VALID_PLANS: readonly PlanSlug[] = PLANS.map((plan) => plan.slug);
 
+type CheckoutFailureCategory =
+  | "auth"
+  | "payload"
+  | "endpoint"
+  | "network"
+  | "upstream";
+
+function checkoutFailureCategory(status?: number): CheckoutFailureCategory {
+  if (status === undefined) return "network";
+  if (status === 401 || status === 403) return "auth";
+  if (status === 400 || status === 422) return "payload";
+  if (status === 404 || status === 405) return "endpoint";
+  return "upstream";
+}
+
 function isValidPlan(value: unknown): value is PlanSlug {
   return (
     typeof value === "string" &&
@@ -84,6 +99,13 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
     if (err instanceof AsaasApiError) {
+      console.error(
+        "[checkout] Asaas checkout failed",
+        JSON.stringify({
+          category: checkoutFailureCategory(err.status),
+          status: err.status ?? null,
+        }),
+      );
       return Response.json(
         {
           error:

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   mockCreateCheckout,
@@ -49,6 +49,10 @@ function makeRequest(body: unknown): Request {
 }
 
 describe("POST /api/checkout", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   beforeEach(() => {
     mockCreateCheckout.mockReset();
     mockListPlanPrices.mockReset();
@@ -130,18 +134,40 @@ describe("POST /api/checkout", () => {
     expect(mockCreateCheckout).not.toHaveBeenCalled();
   });
 
-  it("retorna 502 com mensagem amigável quando o Asaas falha (5xx/timeout)", async () => {
-    mockCreateCheckout.mockRejectedValue(
-      new AsaasApiError("Asaas API returned 502", 502),
-    );
+  it.each([
+    { status: 502, category: "upstream" },
+    { status: 401, category: "auth" },
+    { status: 400, category: "payload" },
+    { status: 404, category: "endpoint" },
+    { status: undefined, category: "network" },
+  ])(
+    "registra categoria segura para falha Asaas $status",
+    async ({ status, category }) => {
+      const consoleError = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+      const upstreamDetail = "private Asaas response detail";
+      mockCreateCheckout.mockRejectedValue(
+        new AsaasApiError(upstreamDetail, status),
+      );
 
-    const response = await POST(makeRequest({ plan: "avulso" }));
-    const json = (await response.json()) as { error?: string };
+      const response = await POST(makeRequest({ plan: "avulso" }));
+      const json = (await response.json()) as { error?: string };
 
-    expect(response.status).toBe(502);
-    expect(typeof json.error).toBe("string");
-    expect((json.error ?? "").length).toBeGreaterThan(0);
-  });
+      expect(response.status).toBe(502);
+      expect(json.error).toBe(
+        "Não foi possível iniciar o pagamento agora. Tente novamente em instantes.",
+      );
+      expect(json.error).not.toContain(upstreamDetail);
+      expect(consoleError).toHaveBeenCalledWith(
+        "[checkout] Asaas checkout failed",
+        JSON.stringify({ category, status: status ?? null }),
+      );
+      expect(JSON.stringify(consoleError.mock.calls)).not.toContain(
+        upstreamDetail,
+      );
+    },
+  );
 
   it("libera a reserva quando o Asaas falha", async () => {
     mockReserveCoupon.mockResolvedValue({
