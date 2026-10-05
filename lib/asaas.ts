@@ -48,9 +48,13 @@ function findPlan(plan: PlanSlug) {
 export async function createCheckout(
   plan: PlanSlug,
   origin: string,
+  amountCents: number,
 ): Promise<{ checkoutUrl: string }> {
   const env = getEnv();
   const planDisplay = findPlan(plan);
+  if (!Number.isInteger(amountCents) || amountCents <= 0) {
+    throw new Error("Invalid checkout amount");
+  }
 
   const requestBody = {
     billingTypes: ["PIX", "CREDIT_CARD"],
@@ -69,7 +73,7 @@ export async function createCheckout(
         name: planDisplay.name,
         description: planDisplay.targetAudience,
         // Valor em reais (não centavos) - convenção da API Asaas.
-        value: planDisplay.priceCents / 100,
+        value: amountCents / 100,
         quantity: 1,
         imageBase64: PLACEHOLDER_ITEM_IMAGE_BASE64,
       },

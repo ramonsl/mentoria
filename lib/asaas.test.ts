@@ -44,9 +44,15 @@ describe("createCheckout", () => {
       globalThis.fetch = fetchMock as unknown as typeof fetch;
 
       const { createCheckout } = await import("./asaas");
+      const amountCents = {
+        avulso: 29900,
+        "acompanhamento-3m": 59900,
+        "acompanhamento-6m": 99900,
+      }[plan];
       const result = await createCheckout(
         plan,
         "https://mentoria.example.com",
+        amountCents,
       );
 
       expect(result.checkoutUrl).toBe(
@@ -73,6 +79,7 @@ describe("createCheckout", () => {
         "https://mentoria.example.com/obrigado",
       );
       expect(sentBody.callback.cancelUrl).toBe("https://mentoria.example.com");
+      expect(sentBody.items[0].value).toBe(amountCents / 100);
     },
   );
 
@@ -86,7 +93,7 @@ describe("createCheckout", () => {
     const { createCheckout, AsaasApiError } = await import("./asaas");
 
     await expect(
-      createCheckout("avulso", "https://mentoria.example.com"),
+      createCheckout("avulso", "https://mentoria.example.com", 29900),
     ).rejects.toBeInstanceOf(AsaasApiError);
   });
 
@@ -98,7 +105,22 @@ describe("createCheckout", () => {
     const { createCheckout, AsaasApiError } = await import("./asaas");
 
     await expect(
-      createCheckout("avulso", "https://mentoria.example.com"),
+      createCheckout("avulso", "https://mentoria.example.com", 29900),
     ).rejects.toBeInstanceOf(AsaasApiError);
+  });
+
+  it("envia o valor final descontado recebido do servidor", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ link: "https://sandbox.asaas.com/checkout" }),
+    });
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    const { createCheckout } = await import("./asaas");
+    await createCheckout("avulso", "https://mentoria.example.com", 23920);
+    const sentBody = JSON.parse(fetchMock.mock.calls[0][1].body as string);
+
+    expect(sentBody.items[0].value).toBe(239.2);
   });
 });

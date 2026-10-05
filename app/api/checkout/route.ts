@@ -4,6 +4,12 @@
 
 import { createCheckout, AsaasApiError } from "../../../lib/asaas";
 import { PLANS, type PlanSlug } from "../../../content/plans";
+import {
+  CommercialError,
+  listPlanPrices,
+  releaseCouponReservation,
+  reserveCoupon,
+} from "../../../lib/commercial";
 
 const VALID_PLANS: readonly PlanSlug[] = PLANS.map((plan) => plan.slug);
 
@@ -30,12 +36,53 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
+  const rawCouponCode = (body as { couponCode?: unknown } | null)?.couponCode;
+  if (rawCouponCode !== undefined && typeof rawCouponCode !== "string") {
+    return Response.json({ error: "Invalid coupon code" }, { status: 400 });
+  }
+  const couponCode = rawCouponCode?.trim().toUpperCase();
+  if (rawCouponCode !== undefined && !couponCode) {
+    return Response.json({ error: "Invalid coupon code" }, { status: 400 });
+  }
+
   const origin = new URL(request.url).origin;
+  const prices = await listPlanPrices();
+  const priceCents = prices[plan];
+  if (!priceCents || priceCents <= 0) {
+    return Response.json({ error: "Plan price unavailable" }, { status: 400 });
+  }
+
+  let couponId: string | undefined;
+  let finalPriceCents = priceCents;
 
   try {
-    const { checkoutUrl } = await createCheckout(plan, origin);
+    if (couponCode) {
+      const reservation = await reserveCoupon(
+        couponCode,
+        plan,
+        priceCents,
+        new Date(),
+      );
+      couponId = reservation.couponId;
+      finalPriceCents = reservation.priceCents;
+    }
+
+    const { checkoutUrl } = await createCheckout(plan, origin, finalPriceCents);
     return Response.json({ checkoutUrl });
   } catch (err) {
+    if (couponId) {
+      try {
+        await releaseCouponReservation(couponId);
+      } catch {
+        // Preserve the original checkout error; reservation cleanup is best effort.
+      }
+    }
+    if (err instanceof CommercialError) {
+      return Response.json(
+        { error: couponErrorMessage(err.code) },
+        { status: 400 },
+      );
+    }
     if (err instanceof AsaasApiError) {
       return Response.json(
         {
@@ -46,5 +93,24 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
     throw err;
+  }
+}
+
+function couponErrorMessage(code: CommercialError["code"]): string {
+  switch (code) {
+    case "expired":
+      return "Este cupom expirou.";
+    case "exhausted":
+      return "Este cupom atingiu o limite de usos.";
+    case "ineligible":
+      return "Este cupom não é válido para o plano escolhido.";
+    case "inactive":
+      return "Este cupom não está mais ativo.";
+    case "invalid_discount":
+      return "Este cupom não pode ser aplicado a este preço.";
+    case "unknown":
+      return "Cupom não encontrado. Confira o código e tente novamente.";
+    default:
+      return "Não foi possível validar o cupom. Confira o código e tente novamente.";
   }
 }

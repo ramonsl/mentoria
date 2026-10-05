@@ -1,10 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Cobre tasks.md T15 "Done when": caminho feliz para os dois planos, falha
-// 5xx/timeout do Asaas vira 502 amigável, e plan ausente/inválido vira 400.
-
-const { mockCreateCheckout } = vi.hoisted(() => ({
+const {
+  mockCreateCheckout,
+  mockListPlanPrices,
+  mockReleaseCouponReservation,
+  mockReserveCoupon,
+} = vi.hoisted(() => ({
   mockCreateCheckout: vi.fn(),
+  mockListPlanPrices: vi.fn(),
+  mockReleaseCouponReservation: vi.fn(),
+  mockReserveCoupon: vi.fn(),
 }));
 
 vi.mock("../../../lib/asaas", async () => {
@@ -18,7 +23,21 @@ vi.mock("../../../lib/asaas", async () => {
   };
 });
 
+vi.mock("../../../lib/commercial", async () => {
+  const actual =
+    await vi.importActual<typeof import("../../../lib/commercial")>(
+      "../../../lib/commercial",
+    );
+  return {
+    ...actual,
+    listPlanPrices: mockListPlanPrices,
+    releaseCouponReservation: mockReleaseCouponReservation,
+    reserveCoupon: mockReserveCoupon,
+  };
+});
+
 import { AsaasApiError } from "../../../lib/asaas";
+import { CommercialError } from "../../../lib/commercial";
 import { POST } from "./route";
 
 function makeRequest(body: unknown): Request {
@@ -32,6 +51,14 @@ function makeRequest(body: unknown): Request {
 describe("POST /api/checkout", () => {
   beforeEach(() => {
     mockCreateCheckout.mockReset();
+    mockListPlanPrices.mockReset();
+    mockReleaseCouponReservation.mockReset();
+    mockReserveCoupon.mockReset();
+    mockListPlanPrices.mockResolvedValue({
+      avulso: 29900,
+      "acompanhamento-3m": 59900,
+      "acompanhamento-6m": 99900,
+    });
   });
 
   it.each(["avulso", "acompanhamento-3m", "acompanhamento-6m"] as const)(
@@ -51,6 +78,58 @@ describe("POST /api/checkout", () => {
     },
   );
 
+  it("normaliza e reserva um cupom válido antes de criar o checkout", async () => {
+    mockReserveCoupon.mockResolvedValue({
+      couponId: "coupon-1",
+      priceCents: 23920,
+    });
+    mockCreateCheckout.mockResolvedValue({
+      checkoutUrl: "https://sandbox.asaas.com/checkoutSession/show/chk-1",
+    });
+
+    const response = await POST(
+      makeRequest({ plan: "avulso", couponCode: "  oferta20  " }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(mockReserveCoupon).toHaveBeenCalledWith(
+      "OFERTA20",
+      "avulso",
+      29900,
+      expect.any(Date),
+    );
+    expect(mockCreateCheckout).toHaveBeenCalledWith(
+      "avulso",
+      "http://localhost:3000",
+      23920,
+    );
+  });
+
+  it("usa o preço persistido quando nenhum cupom é enviado", async () => {
+    mockCreateCheckout.mockResolvedValue({
+      checkoutUrl: "https://sandbox.asaas.com/checkoutSession/show/chk-1",
+    });
+
+    const response = await POST(makeRequest({ plan: "avulso" }));
+
+    expect(response.status).toBe(200);
+    expect(mockCreateCheckout).toHaveBeenCalledWith(
+      "avulso",
+      "http://localhost:3000",
+      29900,
+    );
+    expect(mockReserveCoupon).not.toHaveBeenCalled();
+  });
+
+  it("não cria checkout quando o preço persistido não está disponível", async () => {
+    mockListPlanPrices.mockResolvedValue({});
+
+    const response = await POST(makeRequest({ plan: "avulso" }));
+
+    expect(response.status).toBe(400);
+    expect(mockCreateCheckout).not.toHaveBeenCalled();
+  });
+
   it("retorna 502 com mensagem amigável quando o Asaas falha (5xx/timeout)", async () => {
     mockCreateCheckout.mockRejectedValue(
       new AsaasApiError("Asaas API returned 502", 502),
@@ -62,6 +141,44 @@ describe("POST /api/checkout", () => {
     expect(response.status).toBe(502);
     expect(typeof json.error).toBe("string");
     expect((json.error ?? "").length).toBeGreaterThan(0);
+  });
+
+  it("libera a reserva quando o Asaas falha", async () => {
+    mockReserveCoupon.mockResolvedValue({
+      couponId: "coupon-1",
+      priceCents: 23920,
+    });
+    mockCreateCheckout.mockRejectedValue(
+      new AsaasApiError("Asaas API returned 502", 502),
+    );
+
+    const response = await POST(
+      makeRequest({ plan: "avulso", couponCode: "oferta20" }),
+    );
+
+    expect(response.status).toBe(502);
+    expect(mockReleaseCouponReservation).toHaveBeenCalledWith("coupon-1");
+  });
+
+  it("retorna 400 sem criar checkout quando o cupom é inválido", async () => {
+    mockReserveCoupon.mockRejectedValue(new CommercialError("expired"));
+
+    const response = await POST(
+      makeRequest({ plan: "avulso", couponCode: "expirado" }),
+    );
+    const json = (await response.json()) as { error?: string };
+
+    expect(response.status).toBe(400);
+    expect(json.error).toBe("Este cupom expirou.");
+    expect(mockCreateCheckout).not.toHaveBeenCalled();
+  });
+
+  it("retorna 400 sem criar checkout quando o código do cupom é malformado", async () => {
+    const response = await POST(makeRequest({ plan: "avulso", couponCode: 123 }));
+
+    expect(response.status).toBe(400);
+    expect(mockReserveCoupon).not.toHaveBeenCalled();
+    expect(mockCreateCheckout).not.toHaveBeenCalled();
   });
 
   it("retorna 400 quando plan está ausente", async () => {
