@@ -53,6 +53,6 @@ export const FAQ_ITEMS: FaqItem[] = [
   // dada, não um TODO em aberto).
   {
     question: "Emite nota fiscal?",
-    answer: "Emito recibo de pagamento em meu nome (pessoa física).",
+    answer: "Sim, emito nota fiscal de serviço pela CB Soluções em Educação (CNPJ 40.409.150/0001-78).",
   },
 ];
