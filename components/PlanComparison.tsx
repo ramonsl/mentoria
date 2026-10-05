@@ -86,7 +86,6 @@ function PlanCard({
       <div className="flex flex-col gap-1">
         <p className="text-4xl font-bold tracking-tight text-[var(--ink)]">{currency.format(plan.priceCents / 100)}</p>
         <p className="text-sm font-medium text-[var(--muted)]">ou até 12x de {currency.format(Math.round(plan.priceCents / 12) / 100)} no cartão</p>
-        <p className="text-sm font-bold text-emerald-700">{currency.format(Math.round(plan.priceCents * 0.85) / 100)} no Pix (15% OFF)</p>
       </div>
 
       <ul className="flex flex-1 flex-col gap-3 border-y border-[var(--line)] py-5 text-sm leading-5 text-[var(--muted)]">
@@ -121,8 +120,6 @@ function PlanCard({
 }
 
 export default function PlanComparison({ plans }: { plans: PricedPlan[] }) {
-  const [couponCode, setCouponCode] = useState("");
-
   return (
     <section id="planos" className="bg-white px-6 py-20 md:px-16">
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
@@ -136,21 +133,9 @@ export default function PlanComparison({ plans }: { plans: PricedPlan[] }) {
       </p>
       </div>
 
-      <label className="flex max-w-md flex-col gap-2 text-sm font-semibold text-[var(--ink)]">
-        Tem um cupom de desconto?
-        <input
-          type="text"
-          value={couponCode}
-          onChange={(event) => setCouponCode(event.target.value.toUpperCase())}
-          placeholder="Digite seu cupom"
-          autoComplete="off"
-          className="rounded-lg border border-[var(--line)] px-4 py-3 font-normal uppercase outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
-        />
-      </label>
-
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         {plans.map((plan) => (
-          <PlanCard key={plan.slug} plan={plan} couponCode={couponCode.trim()} />
+          <PlanCard key={plan.slug} plan={plan} couponCode="" />
         ))}
       </div>
       </div>

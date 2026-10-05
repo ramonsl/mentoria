@@ -157,7 +157,7 @@ describe("toDisplayRow", () => {
     const row = toDisplayRow(
       makeEnrollment({ plan: "acompanhamento-6m", status: "ativa" }),
     );
-    expect(row.plan).toBe("Próximo Nível");
+    expect(row.plan).toBe("Aceleração de Carreira");
     expect(row.status).toBe("Pago");
   });
 
@@ -207,7 +207,7 @@ describe("toCsv", () => {
 
     expect(lines[0]).toBe("Nome;E-mail;Plano;Status;Pago em;Expira em");
     expect(lines[1]).toBe(
-      "Ana Lima;ana@example.com;Direção de Carreira;Pago;10/03/2026;-",
+      "Ana Lima;ana@example.com;Visibilidade Profissional;Pago;10/03/2026;-",
     );
     expect(lines[1]).not.toMatch(/avulso|ativa/);
   });

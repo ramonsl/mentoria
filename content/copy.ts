@@ -13,16 +13,16 @@ export const HERO_COPY = {
   // content.md §14 item 8 resolve o parcelamento máximo por plano e que os
   // juros ficam com o comprador - texto final, não é mais um ⚠️ em aberto.
   trustBadge:
-    "Pagamento seguro via Asaas · cartão em até 12x · Pix com 15% de desconto · 7 dias de garantia",
+    "Pagamento seguro via Asaas · cartão em até 12x · Pix ou cartão · 7 dias de garantia",
 };
 
 // content.md §14 item 7 resolve a ausência de link de agendamento: o e-mail
 // avisa que o contato para agendar a call acontece em até 2 dias úteis.
 export const HOW_IT_WORKS_STEPS: string[] = [
-  "Escolha entre Direção de Carreira, Aceleração de Carreira ou Próximo Nível e faça o pagamento pelo Asaas.",
+  "Escolha entre Visibilidade Profissional, Direção de Carreira ou Aceleração de Carreira e faça o pagamento pelo Asaas.",
   "Envie seu currículo/CV, LinkedIn e GitHub para receber um diagnóstico individual e um plano de ação priorizado.",
   "Nos planos de acompanhamento, avance com encontros síncronos, suporte pelo WhatsApp, preparação para entrevistas e projetos reais.",
-  "Ao longo da jornada, acompanho sua evolução e compartilho oportunidades alinhadas ao seu perfil por 3 ou 12 meses. No Próximo Nível, também exploramos juntos caminhos para buscar vagas internacionais.",
+  "Ao longo da jornada, acompanho sua evolução e compartilho oportunidades alinhadas ao seu perfil por 3 ou 12 meses. Na Aceleração de Carreira, também exploramos juntos caminhos para buscar vagas internacionais.",
 ];
 
 export const FINAL_CTA_COPY = {

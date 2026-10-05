@@ -70,5 +70,5 @@ export const QUALIFICATION_COPY = {
 // content.md §15.4: selo de vagas - número real confirmado pelo mentor em
 // 2026-10-03, sem contagem regressiva nem linguagem de urgência falsa.
 export const COHORT_BADGE_COPY = {
-  text: "Turma com 30 vagas - novo ciclo mensal",
+  text: "Turma com 10 vagas - novo ciclo mensal",
 };

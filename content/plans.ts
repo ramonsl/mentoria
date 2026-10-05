@@ -20,7 +20,7 @@ export interface PlanDisplay {
 export const PLANS: PlanDisplay[] = [
   {
     slug: "avulso",
-    name: "Direção de Carreira",
+    name: "Visibilidade Profissional",
     targetAudience: "Quer organizar sua apresentação profissional e receber direção prática para buscar novas oportunidades.",
     deliverables: [
       "Trabalhamos seu currículo/CV, LinkedIn e GitHub",
@@ -28,11 +28,11 @@ export const PLANS: PlanDisplay[] = [
       "Plano de ação priorizado, com orientações claras sobre o que fazer depois do diagnóstico",
       "Durante 3 meses, envio ativamente vagas alinhadas ao seu perfil para você se candidatar",
     ],
-    ctaLabel: "Quero minha Direção",
+    ctaLabel: "Quero minha Visibilidade Profissional",
   },
   {
     slug: "acompanhamento-3m",
-    name: "Aceleração de Carreira",
+    name: "Direção de Carreira",
     targetAudience: "Quer acompanhamento próximo por um ciclo curto.",
     deliverables: [
       "3 encontros síncronos individuais, previamente agendados, ao longo de 3 meses",
@@ -43,12 +43,12 @@ export const PLANS: PlanDisplay[] = [
       "Plano de estudos personalizado com projetos reais para construir experiência prática",
       "Durante 3 meses, envio ativamente vagas alinhadas ao seu perfil para você se candidatar",
     ],
-    ctaLabel: "Quero acelerar minha carreira",
+    ctaLabel: "Quero minha Direção",
   },
   {
     slug: "acompanhamento-6m",
-    name: "Próximo Nível",
-    badge: "Mais completo",
+    name: "Aceleração de Carreira",
+    badge: "Mais completa",
     targetAudience: "Quer acompanhamento contínuo para evoluir, construir experiência prática e buscar novas oportunidades.",
     deliverables: [
       "6 encontros síncronos individuais, previamente agendados, ao longo de 6 meses",
@@ -61,6 +61,6 @@ export const PLANS: PlanDisplay[] = [
       "Durante 12 meses, envio ativamente vagas alinhadas ao seu perfil para você se candidatar",
       "Orientação para buscar vagas internacionais, incluindo plataformas, posicionamento e processos seletivos",
     ],
-    ctaLabel: "Quero chegar ao próximo nível",
+    ctaLabel: "Quero acelerar minha carreira",
   },
 ];

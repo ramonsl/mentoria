@@ -91,15 +91,4 @@ test.describe("landing page - plan comparison", () => {
     await page.goto("/");
     await expect(page.getByText(LEGAL_NOTICE_COPY.text)).toBeVisible();
   });
-
-  test("sends a visitor's coupon and shows validation feedback beside the plan", async ({ page }) => {
-    await page.goto("/");
-    await page.getByLabel("Tem um cupom de desconto?").fill("naoexiste");
-    await page.getByRole("button", { name: PLANS[0].ctaLabel }).click();
-
-    await expect(
-      page.getByRole("article").nth(0).getByRole("alert"),
-    ).toContainText("Cupom não encontrado");
-    await expect(page).toHaveURL(/\/$/);
-  });
 });
