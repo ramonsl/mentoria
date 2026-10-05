@@ -12,11 +12,19 @@ import { PLANS, type PlanSlug } from "../content/plans";
 
 export class AsaasApiError extends Error {
   readonly status?: number;
+  readonly providerCode?: string;
+  readonly providerDescription?: string;
 
-  constructor(message: string, status?: number) {
+  constructor(
+    message: string,
+    status?: number,
+    providerError?: { code?: string; description?: string },
+  ) {
     super(message);
     this.name = "AsaasApiError";
     this.status = status;
+    this.providerCode = providerError?.code;
+    this.providerDescription = providerError?.description;
   }
 }
 
@@ -103,9 +111,28 @@ export async function createCheckout(
   }
 
   if (!response.ok) {
+    let providerError: { code?: string; description?: string } | undefined;
+    try {
+      const body = (await response.json()) as {
+        errors?: Array<{ code?: unknown; description?: unknown }>;
+      };
+      const firstError = body.errors?.[0];
+      if (firstError) {
+        providerError = {
+          code: typeof firstError.code === "string" ? firstError.code : undefined,
+          description:
+            typeof firstError.description === "string"
+              ? firstError.description
+              : undefined,
+        };
+      }
+    } catch {
+      // Preserve the HTTP failure even if the provider body is not JSON.
+    }
     throw new AsaasApiError(
       `Asaas API returned ${response.status} when creating checkout`,
       response.status,
+      providerError,
     );
   }
 

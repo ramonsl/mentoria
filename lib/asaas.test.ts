@@ -98,6 +98,33 @@ describe("createCheckout", () => {
     ).rejects.toBeInstanceOf(AsaasApiError);
   });
 
+  it("preserva apenas o código e a descrição do primeiro erro do provedor", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 400,
+      json: async () => ({
+        errors: [
+          { code: "invalid_object", description: "callback inválido" },
+        ],
+      }),
+    }) as unknown as typeof fetch;
+
+    const { createCheckout, AsaasApiError } = await import("./asaas");
+
+    try {
+      await createCheckout("avulso", "https://mentoria.example.com", 29900);
+      throw new Error("expected checkout to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(AsaasApiError);
+      const asaasError = error as InstanceType<typeof AsaasApiError>;
+      expect(asaasError.status).toBe(400);
+      expect(asaasError.providerCode).toBe("invalid_object");
+      expect(asaasError.providerDescription).toBe(
+        "callback inválido",
+      );
+    }
+  });
+
   it("lança um erro tipado (AsaasApiError) quando a chamada à API falha por timeout/rede", async () => {
     globalThis.fetch = vi
       .fn()

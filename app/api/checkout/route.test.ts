@@ -161,7 +161,12 @@ describe("POST /api/checkout", () => {
       expect(json.error).not.toContain(upstreamDetail);
       expect(consoleError).toHaveBeenCalledWith(
         "[checkout] Asaas checkout failed",
-        JSON.stringify({ category, status: status ?? null }),
+        JSON.stringify({
+          category,
+          status: status ?? null,
+          providerCode: null,
+          providerDescription: null,
+        }),
       );
       expect(JSON.stringify(consoleError.mock.calls)).not.toContain(
         upstreamDetail,
@@ -184,6 +189,22 @@ describe("POST /api/checkout", () => {
 
     expect(response.status).toBe(502);
     expect(mockReleaseCouponReservation).toHaveBeenCalledWith("coupon-1");
+  });
+
+  it("usa a origem pública configurada nos callbacks", async () => {
+    process.env.PUBLIC_APP_URL = "https://mentoria.example.com/";
+    mockCreateCheckout.mockResolvedValue({
+      checkoutUrl: "https://sandbox.asaas.com/checkoutSession/show/chk-1",
+    });
+
+    const response = await POST(makeRequest({ plan: "avulso" }));
+
+    expect(response.status).toBe(200);
+    expect(mockCreateCheckout).toHaveBeenCalledWith(
+      "avulso",
+      "https://mentoria.example.com",
+      29900,
+    );
   });
 
   it("retorna 400 sem criar checkout quando o cupom é inválido", async () => {

@@ -28,6 +28,12 @@ function checkoutFailureCategory(status?: number): CheckoutFailureCategory {
   return "upstream";
 }
 
+function safeProviderDetail(value: string | undefined): string | null {
+  return value
+    ? value.replace(/[\u0000-\u001f\u007f]/g, " ").slice(0, 300)
+    : null;
+}
+
 function isValidPlan(value: unknown): value is PlanSlug {
   return (
     typeof value === "string" &&
@@ -60,7 +66,9 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "Invalid coupon code" }, { status: 400 });
   }
 
-  const origin = new URL(request.url).origin;
+  const requestOrigin = new URL(request.url).origin;
+  const configuredOrigin = process.env.PUBLIC_APP_URL?.trim().replace(/\/+$/, "");
+  const origin = configuredOrigin || requestOrigin;
   const prices = await listPlanPrices();
   const priceCents = prices[plan];
   if (!priceCents || priceCents <= 0) {
@@ -104,6 +112,8 @@ export async function POST(request: Request): Promise<Response> {
         JSON.stringify({
           category: checkoutFailureCategory(err.status),
           status: err.status ?? null,
+          providerCode: safeProviderDetail(err.providerCode),
+          providerDescription: safeProviderDetail(err.providerDescription),
         }),
       );
       return Response.json(
