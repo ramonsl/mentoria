@@ -207,6 +207,21 @@ describe("POST /api/checkout", () => {
     );
   });
 
+  it("retorna erro acionável quando o callback ainda usa localhost", async () => {
+    process.env.PUBLIC_APP_URL = "";
+    mockCreateCheckout.mockRejectedValue(
+      new (await import("../../../lib/asaas")).AsaasConfigurationError(
+        "Checkout callbacks require a public URL",
+      ),
+    );
+
+    const response = await POST(makeRequest({ plan: "avulso" }));
+    const json = (await response.json()) as { error?: string };
+
+    expect(response.status).toBe(503);
+    expect(json.error).toContain("PUBLIC_APP_URL");
+  });
+
   it("retorna 400 sem criar checkout quando o cupom é inválido", async () => {
     mockReserveCoupon.mockRejectedValue(new CommercialError("expired"));
 

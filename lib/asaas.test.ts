@@ -98,6 +98,17 @@ describe("createCheckout", () => {
     ).rejects.toBeInstanceOf(AsaasApiError);
   });
 
+  it("rejeita callbacks locais antes de chamar o Asaas", async () => {
+    const fetchMock = vi.fn();
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    const { createCheckout, AsaasConfigurationError } = await import("./asaas");
+
+    await expect(
+      createCheckout("avulso", "http://localhost:3000", 29900),
+    ).rejects.toBeInstanceOf(AsaasConfigurationError);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("preserva apenas o código e a descrição do primeiro erro do provedor", async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,

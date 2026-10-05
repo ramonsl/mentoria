@@ -28,6 +28,13 @@ export class AsaasApiError extends Error {
   }
 }
 
+export class AsaasConfigurationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AsaasConfigurationError";
+  }
+}
+
 // INCERTEZA (flagged em vez de assumida silenciosamente): o schema OpenAPI
 // de items[] marca "imageBase64" como obrigatório, o que é incomum para um
 // item de serviço (mentoria, não produto físico) e a página de referência
@@ -82,6 +89,23 @@ function pixKeyMissing(error: ProviderError | undefined): boolean {
   );
 }
 
+function validateCallbackOrigin(origin: string): void {
+  let url: URL;
+  try {
+    url = new URL(origin);
+  } catch {
+    throw new AsaasConfigurationError("Invalid checkout callback origin");
+  }
+  if (
+    !["http:", "https:"].includes(url.protocol) ||
+    ["localhost", "127.0.0.1", "::1"].includes(url.hostname)
+  ) {
+    throw new AsaasConfigurationError(
+      "Checkout callbacks require a public URL; configure PUBLIC_APP_URL",
+    );
+  }
+}
+
 /**
  * Creates a one-time (DETACHED) Asaas hosted checkout for the given plan,
  * offering Pix and credit card (spec.md P1 "Pagar o plano escolhido" AC1-2).
@@ -95,6 +119,7 @@ export async function createCheckout(
 ): Promise<{ checkoutUrl: string }> {
   const env = getEnv();
   const planDisplay = findPlan(plan);
+  validateCallbackOrigin(origin);
   if (!Number.isInteger(amountCents) || amountCents <= 0) {
     throw new Error("Invalid checkout amount");
   }

@@ -2,7 +2,11 @@
 // escolhido. Ver design.md "Checkout Route Handler" e spec.md P1 "Pagar o
 // plano escolhido" (MENT-04, MENT-05, MENT-08).
 
-import { createCheckout, AsaasApiError } from "../../../lib/asaas";
+import {
+  createCheckout,
+  AsaasApiError,
+  AsaasConfigurationError,
+} from "../../../lib/asaas";
 import { PLANS, type PlanSlug } from "../../../content/plans";
 import {
   CommercialError,
@@ -104,6 +108,15 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json(
         { error: couponErrorMessage(err.code) },
         { status: 400 },
+      );
+    }
+    if (err instanceof AsaasConfigurationError) {
+      return Response.json(
+        {
+          error:
+            "O pagamento precisa de uma URL pública configurada. Defina PUBLIC_APP_URL e tente novamente.",
+        },
+        { status: 503 },
       );
     }
     if (err instanceof AsaasApiError) {
