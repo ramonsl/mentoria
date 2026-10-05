@@ -1,8 +1,13 @@
 // Página de obrigado pós-pagamento (spec.md P1 "Página de obrigado", MENT-22).
 // lib/asaas.ts (T14) já aponta callback.successUrl do Asaas Checkout pra cá.
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import { THANK_YOU_COPY } from "@/content/copy";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default function ObrigadoPage() {
   return (

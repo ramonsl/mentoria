@@ -30,6 +30,7 @@ export const PAIN_POINTS_COPY = {
     {
       title: "Primeiro emprego / estágio",
       points: [
+        "Já mandou vários currículos e não é chamado pra entrevista",
         "Currículo que não passa da triagem automática",
         "LinkedIn parado, sem clareza do que destacar",
         "GitHub com projetos de curso, nada que mostre capacidade real",
@@ -39,7 +40,7 @@ export const PAIN_POINTS_COPY = {
     {
       title: "Progressão de carreira",
       points: [
-        "Trabalha há anos, mas não sabe como se posicionar pra subir de nível",
+        "Trabalha há anos, mas não sabe como se posicionar para subir de nível",
         "Currículo e LinkedIn desatualizados desde a última vaga",
         "Entrevista técnica trava em tópicos que raramente usa no dia a dia",
         "Sem rede nem indicação pra saber de vagas melhores",
