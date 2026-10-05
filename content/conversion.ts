@@ -54,6 +54,7 @@ export const QUALIFICATION_COPY = {
   fitTitle: "É pra você se:",
   fitPoints: [
     "Está buscando o primeiro emprego/estágio ou uma posição melhor em tech",
+    "Sente que a faculdade não conectou os pontos entre as disciplinas e quer sair daqui com XP (experiência prática) real pra mostrar",
     "Topa investir 1 call + tempo de estudo próprio na trilha",
     "Quer feedback direto e honesto, não só elogio",
     "Tem pelo menos alguns meses de disponibilidade pra seguir a trilha",

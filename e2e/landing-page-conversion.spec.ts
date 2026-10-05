@@ -106,7 +106,7 @@ test.describe("landing page - conversion boost sections (T51)", () => {
     ).toBeVisible();
   });
 
-  test("testimonials section renders recommendation cards 5 per page, sliding to the next 5, each linking to the source", async ({
+  test("testimonials section renders recommendation cards 6 per page, sliding to the next page, each linking to the source", async ({
     page,
   }) => {
     await page.goto("/");
@@ -119,9 +119,9 @@ test.describe("landing page - conversion boost sections (T51)", () => {
       .getByRole("heading", { name: TESTIMONIALS_COPY.title })
       .locator("xpath=ancestor::section");
 
-    // Mirrors the component's PAGE_SIZE: with more than 5 testimonials,
-    // only the first 5 render initially and pagination controls appear.
-    const PAGE_SIZE = 5;
+    // Mirrors the component's PAGE_SIZE: with more than 6 testimonials,
+    // only the first 6 render initially and pagination controls appear.
+    const PAGE_SIZE = 6;
     const firstPage = TESTIMONIALS.slice(0, PAGE_SIZE);
     const secondPage = TESTIMONIALS.slice(PAGE_SIZE, PAGE_SIZE * 2);
 

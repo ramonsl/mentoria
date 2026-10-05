@@ -17,7 +17,7 @@ import { TESTIMONIALS, TESTIMONIALS_COPY } from "@/content/testimonials";
 // autorizam a publicação do texto, não o uso da imagem de cada pessoa em
 // material de divulgação da mentoria.
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 6;
 
 export default function Testimonials() {
   const totalPages = Math.ceil(TESTIMONIALS.length / PAGE_SIZE);

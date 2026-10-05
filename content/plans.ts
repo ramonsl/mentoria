@@ -12,6 +12,10 @@ export interface PlanDisplay {
   slug: PlanSlug;
   name: string;
   badge?: string;
+  // Preço cheio de referência, mostrado riscado ao lado do preço
+  // promocional de lançamento da primeira turma (vem de `plan_prices` via
+  // listPlanPrices) - puramente de exibição, não afeta o valor cobrado.
+  fullPriceCents: number;
   targetAudience: string;
   deliverables: string[];
   ctaLabel: string;
@@ -21,6 +25,7 @@ export const PLANS: PlanDisplay[] = [
   {
     slug: "avulso",
     name: "Visibilidade Profissional",
+    fullPriceCents: 69900,
     targetAudience: "Quer organizar sua apresentação profissional e receber direção prática para buscar novas oportunidades.",
     deliverables: [
       "Trabalhamos seu currículo/CV, LinkedIn e GitHub",
@@ -33,6 +38,7 @@ export const PLANS: PlanDisplay[] = [
   {
     slug: "acompanhamento-3m",
     name: "Direção de Carreira",
+    fullPriceCents: 150000,
     targetAudience: "Quer acompanhamento próximo por um ciclo curto.",
     deliverables: [
       "3 encontros síncronos individuais, previamente agendados, ao longo de 3 meses",
@@ -49,6 +55,7 @@ export const PLANS: PlanDisplay[] = [
     slug: "acompanhamento-6m",
     name: "Aceleração de Carreira",
     badge: "Mais completa",
+    fullPriceCents: 299900,
     targetAudience: "Quer acompanhamento contínuo para evoluir, construir experiência prática e buscar novas oportunidades.",
     deliverables: [
       "6 encontros síncronos individuais, previamente agendados, ao longo de 6 meses",

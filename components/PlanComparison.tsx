@@ -84,6 +84,12 @@ function PlanCard({
       </header>
 
       <div className="flex flex-col gap-1">
+        {plan.fullPriceCents > plan.priceCents ? (
+          <p className="text-sm text-[var(--muted)]">
+            <span className="line-through">{currency.format(plan.fullPriceCents / 100)}</span>{" "}
+            <span className="font-bold text-emerald-700">preço de lançamento</span>
+          </p>
+        ) : null}
         <p className="text-4xl font-bold tracking-tight text-[var(--ink)]">{currency.format(plan.priceCents / 100)}</p>
         <p className="text-sm font-medium text-[var(--muted)]">ou até 12x de {currency.format(Math.round(plan.priceCents / 12) / 100)} no cartão</p>
       </div>
