@@ -2,26 +2,28 @@ import { expect, test } from "@playwright/test";
 import { LEGAL_NOTICE_COPY } from "../content/copy";
 import { PLANS } from "../content/plans";
 
+const PRICE_PATTERN = /R\$\s*\d{1,3}(?:\.\d{3})*,\d{2}/;
+
 // Cobre spec.md P1 "Ver e comparar os planos" (AC1-AC3) e o aviso de 7 dias
 // (AC4 de "Pagar o plano escolhido", MENT-07) na própria página de planos.
 
 test.describe("landing page - plan comparison", () => {
-  test("desktop: shows both plans side by side with prices and CTAs", async ({
+  test("desktop: shows all plans side by side with persisted prices and CTAs", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/");
 
     const cards = page.getByRole("article");
-    await expect(cards).toHaveCount(2);
+    await expect(cards).toHaveCount(3);
 
     for (const [index, plan] of PLANS.entries()) {
       await expect(
         page.getByRole("heading", { name: plan.name }),
       ).toBeVisible();
-      await expect(
-        page.getByText(plan.priceLabel, { exact: true }),
-      ).toBeVisible();
+      await expect(cards.nth(index).locator("p.text-4xl")).toHaveText(
+        PRICE_PATTERN,
+      );
       await expect(
         page.getByRole("button", { name: plan.ctaLabel }),
       ).toBeVisible();
@@ -44,11 +46,13 @@ test.describe("landing page - plan comparison", () => {
 
     // "lado a lado" (AC1): mesma linha, não empilhados - o 2º card começa
     // mais à direita e ainda se sobrepõe verticalmente ao 1º.
+    const thirdBox = await cards.nth(2).boundingBox();
+    expect(thirdBox).not.toBeNull();
     expect(secondBox!.x).toBeGreaterThan(firstBox!.x);
     expect(secondBox!.y).toBeLessThan(firstBox!.y + firstBox!.height);
   });
 
-  test("mobile (<768px): plans stack vertically, both CTAs visible, no horizontal scroll", async ({
+  test("mobile (<768px): plans stack vertically, all CTAs visible, no horizontal scroll", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 375, height: 900 });
@@ -61,7 +65,7 @@ test.describe("landing page - plan comparison", () => {
     }
 
     const cards = page.getByRole("article");
-    await expect(cards).toHaveCount(2);
+    await expect(cards).toHaveCount(3);
     const firstBox = await cards.nth(0).boundingBox();
     const secondBox = await cards.nth(1).boundingBox();
     expect(firstBox).not.toBeNull();
@@ -69,7 +73,9 @@ test.describe("landing page - plan comparison", () => {
 
     // Empilhado (AC3): o 2º card começa no mesmo nível ou abaixo de onde o
     // 1º termina.
+    const thirdBox = await cards.nth(2).boundingBox();
     expect(secondBox!.y).toBeGreaterThanOrEqual(firstBox!.y + firstBox!.height);
+    expect(thirdBox!.y).toBeGreaterThanOrEqual(secondBox!.y + secondBox!.height);
 
     const hasHorizontalScroll = await page.evaluate(
       () =>
@@ -84,5 +90,16 @@ test.describe("landing page - plan comparison", () => {
   }) => {
     await page.goto("/");
     await expect(page.getByText(LEGAL_NOTICE_COPY.text)).toBeVisible();
+  });
+
+  test("sends a visitor's coupon and shows validation feedback beside the plan", async ({ page }) => {
+    await page.goto("/");
+    await page.getByLabel("Tem um cupom de desconto?").fill("naoexiste");
+    await page.getByRole("button", { name: PLANS[0].ctaLabel }).click();
+
+    await expect(
+      page.getByRole("article").nth(0).getByRole("alert"),
+    ).toContainText("Cupom não encontrado");
+    await expect(page).toHaveURL(/\/$/);
   });
 });

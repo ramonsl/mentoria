@@ -12,13 +12,16 @@ test("admin atualiza um preço comercial", async ({ page }) => {
   await expect(page).toHaveURL(/\/admin\/comercial$/);
 
   const priceInput = page.getByLabel("Novo preço para Direção de Carreira");
-  await expect(priceInput).toHaveValue("29900");
+  await expect(priceInput).not.toHaveValue("");
 
-  await priceInput.fill("34900");
+  await priceInput.fill("389.00");
   await page.getByRole("button", { name: "Salvar" }).first().click();
 
-  await expect(priceInput).toHaveValue("34900");
-  await expect(page.getByText("R$ 349,00")).toBeVisible();
+  await expect(priceInput).toHaveValue("389.00");
+  await expect(page.getByText("R$ 389,00")).toBeVisible();
+
+  await page.goto("/");
+  await expect(page.getByText("R$ 389,00", { exact: true })).toBeVisible();
 });
 
 test("admin comercial exige uma sessão autenticada", async ({ page }) => {

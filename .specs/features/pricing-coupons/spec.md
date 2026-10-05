@@ -100,15 +100,15 @@ Os valores exibidos na landing estão definidos em código e não podem ser alte
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| PRC-01 | P1: Configure plan prices | T6 (partial) | In progress |
-| PRC-02 | P1: Configure plan prices | T3 (partial) | In progress |
-| PRC-03 | P1: Create and manage coupons | T6 (partial) | In progress |
-| PRC-04 | P1: Create and manage coupons | T6 (partial) | In progress |
-| PRC-05 | P1: Redeem a coupon | T3 (partial) | In progress |
-| PRC-06 | P1: Redeem a coupon | T3 (partial) | In progress |
-| PRC-07 | P1: Redeem a coupon | Design | Pending |
+| PRC-01 | P1: Configure plan prices | T1, T3-T6, T10 | Verified |
+| PRC-02 | P1: Configure plan prices | T3, T7-T8 | Verified |
+| PRC-03 | P1: Create and manage coupons | T1-T6 | Verified |
+| PRC-04 | P1: Create and manage coupons | T3-T6 | Verified |
+| PRC-05 | P1: Redeem a coupon | T3, T7-T8, T10 | Verified |
+| PRC-06 | P1: Redeem a coupon | T3, T7 | Verified |
+| PRC-07 | P1: Redeem a coupon | T9 | Verified |
 
-**Coverage:** 7 total, 0 mapped to tasks, 7 unmapped.
+**Coverage:** 7 total, 7 mapped to tasks, 0 unmapped.
 
 ## Success Criteria
 

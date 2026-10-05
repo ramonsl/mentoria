@@ -145,10 +145,10 @@ T7 → T10
 **Requirement**: PRC-02, PRC-05, PRC-06
 **Tools**: MCP: filesystem. Skill: NONE.
 **Done when**:
-- [ ] Route accepts only a valid plan and optional normalized coupon code.
-- [ ] Invalid coupon returns HTTP 400 without calling Asaas.
-- [ ] Asaas failure releases a prior reservation and returns HTTP 502.
-- [ ] Unit tests cover every specified route outcome.
+- [x] Route accepts only a valid plan and optional normalized coupon code.
+- [x] Invalid coupon returns HTTP 400 without calling Asaas.
+- [x] Asaas failure releases a prior reservation and returns HTTP 502.
+- [x] Unit tests cover every specified route outcome.
 **Tests**: unit
 **Gate**: quick
 
@@ -161,8 +161,8 @@ T7 → T10
 **Requirement**: PRC-02, PRC-05
 **Tools**: MCP: filesystem. Skill: NONE.
 **Done when**:
-- [ ] Payload uses the supplied positive cent amount rather than catalog pricing.
-- [ ] Test asserts the exact monetary value sent to Asaas for discounted and regular checkouts.
+- [x] Payload uses the supplied positive cent amount rather than catalog pricing.
+- [x] Test asserts the exact monetary value sent to Asaas for discounted and regular checkouts.
 **Tests**: unit
 **Gate**: quick
 
@@ -175,9 +175,9 @@ T7 → T10
 **Requirement**: PRC-07
 **Tools**: MCP: filesystem. Skill: NONE.
 **Done when**:
-- [ ] A paid event with a discounted item stores that exact amount in cents.
-- [ ] Missing or malformed item value is rejected without creating an enrollment.
-- [ ] Unit tests cover both outcomes.
+- [x] A paid event with a discounted item stores that exact amount in cents.
+- [x] Missing or malformed item value is rejected without creating an enrollment.
+- [x] Unit tests cover both outcomes.
 **Tests**: unit
 **Gate**: quick
 
@@ -190,10 +190,10 @@ T7 → T10
 **Requirement**: PRC-01, PRC-05
 **Tools**: MCP: filesystem. Skill: NONE.
 **Done when**:
-- [ ] Cards receive and display database-backed formatted price labels.
-- [ ] A visitor can supply one coupon code and the request includes it.
-- [ ] Invalid-coupon response appears near the card without redirecting.
-- [ ] E2E test covers entering a coupon and the failure feedback.
+- [x] Cards receive and display database-backed formatted price labels.
+- [x] A visitor can supply one coupon code and the request includes it.
+- [x] Invalid-coupon response appears near the card without redirecting.
+- [x] E2E test covers entering a coupon and the failure feedback.
 **Tests**: e2e
 **Gate**: full
 

@@ -18,6 +18,14 @@
 - **Date**: 2026-10-01
 - **Status**: active
 
+### AD-003
+- **Decision**: Preços comerciais e cupons ficam persistidos no PostgreSQL. A landing e o checkout usam o mesmo repositório no servidor; o navegador nunca define o valor cobrado.
+- **Reason**: O admin precisa atualizar preços sem deploy e descontos precisam ser validados contra regras persistidas.
+- **Trade-off**: A landing passa a ser dinâmica e depende do banco para exibir preço atual.
+- **Scope**: Toda funcionalidade futura que mostre ou cobre um plano de mentoria.
+- **Date**: 2026-10-04
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: landing-mentoria

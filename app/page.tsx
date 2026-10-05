@@ -9,7 +9,11 @@ import NavBar from "@/components/NavBar";
 import PainPoints from "@/components/PainPoints";
 import PlanComparison from "@/components/PlanComparison";
 import Qualification from "@/components/Qualification";
+import { PLANS } from "@/content/plans";
+import { listPlanPrices } from "@/lib/commercial";
 import Testimonials from "@/components/Testimonials";
+
+export const dynamic = "force-dynamic";
 
 // Ordem definida em content.md §15 (reforço de conversão, pesquisa de
 // concorrentes): NavBar -> Hero -> Dores -> Planos (com selo) -> Pra quem é/
@@ -24,14 +28,20 @@ import Testimonials from "@/components/Testimonials";
 // escopo desta fase) não tem esse id - resolvido aqui, no arquivo de
 // montagem, em vez de tocar FaqSection.tsx fora do "Where" desta task.
 
-export default function Home() {
+export default async function Home() {
+  const prices = await listPlanPrices();
+  const plans = PLANS.flatMap((plan) => {
+    const priceCents = prices[plan.slug];
+    return priceCents && priceCents > 0 ? [{ ...plan, priceCents }] : [];
+  });
+
   return (
     <>
       <NavBar />
       <main className="flex flex-1 flex-col">
         <Hero />
         <PainPoints />
-        <PlanComparison />
+        <PlanComparison plans={plans} />
         <Qualification />
         <LegalNotice />
         <HowItWorks />

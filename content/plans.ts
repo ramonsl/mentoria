@@ -11,10 +11,6 @@ export type PlanSlug =
 export interface PlanDisplay {
   slug: PlanSlug;
   name: string;
-  priceCents: number;
-  priceLabel: string;
-  installmentLabel: string;
-  pixPriceLabel: string;
   badge?: string;
   targetAudience: string;
   deliverables: string[];
@@ -25,10 +21,6 @@ export const PLANS: PlanDisplay[] = [
   {
     slug: "avulso",
     name: "Direção de Carreira",
-    priceCents: 29900,
-    priceLabel: "R$ 299,00",
-    installmentLabel: "ou até 12x de R$ 24,92 no cartão",
-    pixPriceLabel: "R$ 254,15 no Pix (15% OFF)",
     targetAudience: "Quer organizar sua apresentação profissional e receber direção prática para buscar novas oportunidades.",
     deliverables: [
       "Trabalhamos seu currículo/CV, LinkedIn e GitHub",
@@ -41,10 +33,6 @@ export const PLANS: PlanDisplay[] = [
   {
     slug: "acompanhamento-3m",
     name: "Aceleração de Carreira",
-    priceCents: 59900,
-    priceLabel: "R$ 599,00",
-    installmentLabel: "ou até 12x de R$ 49,92 no cartão",
-    pixPriceLabel: "R$ 509,15 no Pix (15% OFF)",
     targetAudience: "Quer acompanhamento próximo por um ciclo curto.",
     deliverables: [
       "3 encontros síncronos individuais, previamente agendados, ao longo de 3 meses",
@@ -60,10 +48,6 @@ export const PLANS: PlanDisplay[] = [
   {
     slug: "acompanhamento-6m",
     name: "Próximo Nível",
-    priceCents: 99900,
-    priceLabel: "R$ 999,00",
-    installmentLabel: "ou até 12x de R$ 83,25 no cartão",
-    pixPriceLabel: "R$ 849,15 no Pix (15% OFF)",
     badge: "Mais completo",
     targetAudience: "Quer acompanhamento contínuo para evoluir, construir experiência prática e buscar novas oportunidades.",
     deliverables: [

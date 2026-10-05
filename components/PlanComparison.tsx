@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { COHORT_BADGE_COPY } from "@/content/conversion";
-import { PLANS, type PlanDisplay } from "@/content/plans";
+import type { PlanDisplay } from "@/content/plans";
 
 // Componente apresentacional (spec.md P1 "Ver e comparar os planos",
 // MENT-01/02/03) com os CTAs conectados a /api/checkout (spec.md P1 "Pagar o
@@ -12,7 +12,22 @@ import { PLANS, type PlanDisplay } from "@/content/plans";
 const GENERIC_CHECKOUT_ERROR =
   "Não foi possível iniciar o pagamento agora. Tente novamente em instantes.";
 
-function PlanCard({ plan, semanticCard }: { plan: PlanDisplay; semanticCard: boolean }) {
+interface PricedPlan extends PlanDisplay {
+  priceCents: number;
+}
+
+const currency = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+});
+
+function PlanCard({
+  plan,
+  couponCode,
+}: {
+  plan: PricedPlan;
+  couponCode: string;
+}) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Guarda síncrona contra duplo clique (MENT-09): dois cliques disparados
@@ -31,7 +46,10 @@ function PlanCard({ plan, semanticCard }: { plan: PlanDisplay; semanticCard: boo
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: plan.slug }),
+        body: JSON.stringify({
+          plan: plan.slug,
+          ...(couponCode ? { couponCode } : {}),
+        }),
       });
       const data = (await response.json()) as {
         checkoutUrl?: string;
@@ -66,9 +84,9 @@ function PlanCard({ plan, semanticCard }: { plan: PlanDisplay; semanticCard: boo
       </header>
 
       <div className="flex flex-col gap-1">
-        <p className="text-4xl font-bold tracking-tight text-[var(--ink)]">{plan.priceLabel}</p>
-        <p className="text-sm font-medium text-[var(--muted)]">{plan.installmentLabel}</p>
-        <p className="text-sm font-bold text-emerald-700">{plan.pixPriceLabel}</p>
+        <p className="text-4xl font-bold tracking-tight text-[var(--ink)]">{currency.format(plan.priceCents / 100)}</p>
+        <p className="text-sm font-medium text-[var(--muted)]">ou até 12x de {currency.format(Math.round(plan.priceCents / 12) / 100)} no cartão</p>
+        <p className="text-sm font-bold text-emerald-700">{currency.format(Math.round(plan.priceCents * 0.85) / 100)} no Pix (15% OFF)</p>
       </div>
 
       <ul className="flex flex-1 flex-col gap-3 border-y border-[var(--line)] py-5 text-sm leading-5 text-[var(--muted)]">
@@ -99,10 +117,12 @@ function PlanCard({ plan, semanticCard }: { plan: PlanDisplay; semanticCard: boo
   );
 
   const className = "flex min-w-0 flex-1 flex-col gap-6 rounded-3xl border border-[var(--line)] bg-white p-7 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-lg";
-  return semanticCard ? <article className={className}>{content}</article> : <div className={className}>{content}</div>;
+  return <article className={className}>{content}</article>;
 }
 
-export default function PlanComparison() {
+export default function PlanComparison({ plans }: { plans: PricedPlan[] }) {
+  const [couponCode, setCouponCode] = useState("");
+
   return (
     <section id="planos" className="bg-white px-6 py-20 md:px-16">
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
@@ -116,9 +136,21 @@ export default function PlanComparison() {
       </p>
       </div>
 
+      <label className="flex max-w-md flex-col gap-2 text-sm font-semibold text-[var(--ink)]">
+        Tem um cupom de desconto?
+        <input
+          type="text"
+          value={couponCode}
+          onChange={(event) => setCouponCode(event.target.value.toUpperCase())}
+          placeholder="Digite seu cupom"
+          autoComplete="off"
+          className="rounded-lg border border-[var(--line)] px-4 py-3 font-normal uppercase outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+        />
+      </label>
+
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        {PLANS.map((plan, index) => (
-          <PlanCard key={plan.slug} plan={plan} semanticCard={index < 2} />
+        {plans.map((plan) => (
+          <PlanCard key={plan.slug} plan={plan} couponCode={couponCode.trim()} />
         ))}
       </div>
       </div>
