@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
 import LegalNotice from "@/components/LegalNotice";
+import MentoringFocus from "@/components/MentoringFocus";
 import NavBar from "@/components/NavBar";
 import PainPoints from "@/components/PainPoints";
 import PlanComparison from "@/components/PlanComparison";
@@ -17,10 +18,12 @@ import Testimonials from "@/components/Testimonials";
 
 export const dynamic = "force-dynamic";
 
-// Ordem definida em content.md §15 (reforço de conversão, pesquisa de
-// concorrentes): NavBar -> Hero -> Dores -> Planos (com selo) -> Pra quem é/
-// não é -> LegalNotice -> Como funciona -> Sobre o mentor -> Recomendações ->
-// FAQ -> CTA final -> Rodapé.
+// Ordem redefinida no ticket "Tarefas de desenvolvimento — landing da
+// mentoria" (2026-10-06, T13), seguindo dor -> solução -> quem -> prova ->
+// oferta -> segurança -> dúvidas: NavBar -> Hero -> Dores -> Foco da
+// mentoria -> Como funciona -> Sobre o mentor -> Depoimentos -> CTA
+// (transição) -> Planos -> LegalNotice (colada nos planos) -> Um acordo
+// honesto -> FAQ -> Rodapé.
 //
 // NavBar é `position: fixed` (fora do fluxo normal) - montado fora de
 // `<main>`, mesmo padrão já usado para `<Footer />`.
@@ -97,16 +100,17 @@ export default async function Home() {
       <main className="flex flex-1 flex-col">
         <Hero />
         <PainPoints />
-        <PlanComparison plans={plans} />
-        <Qualification />
-        <LegalNotice />
+        <MentoringFocus />
         <HowItWorks />
         <AboutMentor />
         <Testimonials />
+        <FinalCta />
+        <PlanComparison plans={plans} />
+        <LegalNotice />
+        <Qualification />
         <div id="faq">
           <FaqSection />
         </div>
-        <FinalCta />
       </main>
       <Footer />
     </>

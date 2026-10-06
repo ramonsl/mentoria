@@ -7,7 +7,7 @@ export const HERO_COPY = {
   title:
     "Vamos construir o próximo passo da sua carreira em tecnologia.",
   subtitle:
-    "Uma mentoria prática para transformar seu currículo, LinkedIn e GitHub em oportunidades reais — com diagnóstico individual, plano de ação e direcionamento para se posicionar melhor, evoluir tecnicamente e buscar as vagas certas.",
+    "Mentoria individual com quem está do lado de quem contrata. Eu analiso seu currículo, LinkedIn e GitHub, te digo exatamente o que ajustar e te ajudo a chegar nas vagas certas.",
   primaryCta: { label: "Ver planos", href: "#planos" },
   secondaryCta: { label: "Conhecer o mentor", href: "#sobre" },
   // content.md §14 item 8 resolve o parcelamento máximo por plano e que os
@@ -26,9 +26,9 @@ export const HOW_IT_WORKS_STEPS: string[] = [
 ];
 
 export const FINAL_CTA_COPY = {
-  title: "Pronto para destravar sua próxima vaga?",
-  text: "Escolha o plano que combina com o seu momento e comece a construir seu próximo passo.",
-  buttonLabel: "Ver planos",
+  title: "Agora é a sua vez de dar esse passo.",
+  text: "Esses depoimentos são de quem teve esse acompanhamento na faculdade. Na mentoria, você recebe o mesmo cuidado — individual, direto e focado na sua próxima vaga. Escolha o formato que combina com o seu momento.",
+  buttonLabel: "Ver planos e escolher o meu",
   buttonHref: "#planos",
 };
 

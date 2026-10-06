@@ -9,6 +9,7 @@ export default function PainPoints() {
       <div className="max-w-2xl">
         <p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-700">Antes de enviar mais uma candidatura</p>
         <h2 className="mt-3 text-3xl font-bold tracking-tight text-[var(--ink)] md:text-4xl">{PAIN_POINTS_COPY.title}</h2>
+        <p className="mt-3 text-base leading-7 text-[var(--muted)]">{PAIN_POINTS_COPY.subtitle}</p>
       </div>
 
       <div className="grid gap-8 md:grid-cols-2">
@@ -34,6 +35,10 @@ export default function PainPoints() {
           </div>
         ))}
       </div>
+
+      <p className="mx-auto max-w-2xl text-center text-base font-semibold leading-7 text-[var(--ink)]">
+        {PAIN_POINTS_COPY.closing}
+      </p>
     </section>
   );
 }

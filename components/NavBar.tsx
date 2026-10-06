@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { NAV_CTA, NAV_LINKS } from "@/content/conversion";
 
 // Componente apresentacional: menu fixo no topo da página (spec.md P2
@@ -21,8 +22,11 @@ export default function NavBar() {
 
   return (
     <nav className="fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-4 border-b border-white/10 bg-[var(--navy-deep)]/90 px-6 py-3 text-zinc-50 backdrop-blur md:px-16">
-      <a href="#" className="hidden text-sm font-bold tracking-wide text-white sm:block">RAMON LUMMERTZ</a>
-      <ul className="flex items-center gap-4 text-sm font-medium sm:gap-6">
+      <a href="#" className="flex items-center gap-2 text-sm font-bold tracking-wide text-white">
+        <Image src="/logo-rl.svg" alt="" width={32} height={32} className="h-8 w-8" />
+        <span className="hidden sm:inline">RAMON LUMMERTZ</span>
+      </a>
+      <ul className="hidden items-center gap-4 text-sm font-medium sm:flex sm:gap-6">
         {NAV_LINKS.map((link) => (
           <li key={link.label}>
             <a

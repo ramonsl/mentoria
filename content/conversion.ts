@@ -25,42 +25,46 @@ export interface PainPointColumn {
 // content.md §15.2: seção de dores, uma coluna por público-alvo (mesmo
 // recorte dos dois planos).
 export const PAIN_POINTS_COPY = {
-  title: "Isso soa familiar?",
+  title: "Em qual dessas situações você está?",
+  subtitle:
+    "Se você se reconheceu em pelo menos uma frase, a mentoria foi feita para esse momento.",
+  closing:
+    "A boa notícia: quase sempre o problema não é falta de capacidade — é como você está se apresentando. E isso dá para ajustar.",
   columns: [
     {
-      title: "Primeiro emprego / estágio",
+      title: "Estou buscando o primeiro emprego ou estágio",
       points: [
-        "Já mandou vários currículos e não é chamado pra entrevista",
-        "Currículo que não passa da triagem automática",
-        "LinkedIn parado, sem clareza do que destacar",
-        "GitHub com projetos de curso, nada que mostre capacidade real",
-        "Não sabe por onde começar a estudar pra entrevista",
+        "Mando currículo e não sou chamado para entrevista",
+        "Meu currículo não passa da triagem automática",
+        "Meu LinkedIn está parado e não sei o que destacar",
+        "Meu GitHub só tem projeto de curso",
+        "Não sei por onde começar a estudar para entrevista",
       ],
     },
     {
-      title: "Progressão de carreira",
+      title: "Já trabalho na área e quero subir de nível",
       points: [
-        "Trabalha há anos, mas não sabe como se posicionar para subir de nível",
-        "Currículo e LinkedIn desatualizados desde a última vaga",
-        "Entrevista técnica trava em tópicos que raramente usa no dia a dia",
-        "Sem rede nem indicação pra saber de vagas melhores",
+        "Tenho anos de experiência, mas não sei me posicionar para crescer",
+        "Currículo e LinkedIn estão desatualizados desde a última vaga",
+        "Travo na entrevista técnica em assuntos que quase não uso no dia a dia",
+        "Não tenho rede nem indicação para chegar em vagas melhores",
       ],
     },
   ] as PainPointColumn[],
 };
 
-// content.md §15.3: qualificação "pra quem é" / "pra quem não é".
+// content.md §15.3: qualificação "para quem é" / "para quem não é".
 export const QUALIFICATION_COPY = {
-  title: "Essa mentoria é pra você se...",
-  fitTitle: "É pra você se:",
+  title: "Essa mentoria é para você se...",
+  fitTitle: "É para você se:",
   fitPoints: [
     "Está buscando o primeiro emprego/estágio ou uma posição melhor em tech",
-    "Sente que a faculdade não conectou os pontos entre as disciplinas e quer sair daqui com XP (experiência prática) real pra mostrar",
+    "Sente que a faculdade não conectou os pontos entre as disciplinas e quer sair daqui com XP (experiência prática) real para mostrar",
     "Topa investir 1 call + tempo de estudo próprio na trilha",
     "Quer feedback direto e honesto, não só elogio",
-    "Tem pelo menos alguns meses de disponibilidade pra seguir a trilha",
+    "Tem pelo menos alguns meses de disponibilidade para seguir a trilha",
   ],
-  notFitTitle: "Não é pra você se:",
+  notFitTitle: "Não é para você se:",
   notFitPoints: [
     "Busca garantia de vaga (ninguém honesto promete isso - ver FAQ)",
     "Quer só o certificado, sem aplicar o que for combinado na call",
@@ -73,4 +77,41 @@ export const QUALIFICATION_COPY = {
 // 2026-10-03, sem contagem regressiva nem linguagem de urgência falsa.
 export const COHORT_BADGE_COPY = {
   text: "Turma com 10 vagas - novo ciclo mensal",
+};
+
+export interface FocusCard {
+  title: string;
+  description: string;
+}
+
+// T8 (ajustes 2026-10-06): bloco "01-05" que vivia dentro do card flutuante
+// do Hero, extraído para uma seção própria em formato de cards (T13 ainda
+// decide a posição final na nova ordem das seções).
+export const FOCUS_COPY = {
+  eyebrow: "O foco da mentoria",
+  title: "Feedback direto. Próximos passos claros.",
+  subtitle:
+    "Nada de conteúdo genérico: eu olho para o seu material e te digo o que mudar, em que ordem e por quê.",
+  cards: [
+    {
+      title: "Currículo que passa pela triagem",
+      description: "Ajustamos o que trava nos filtros automáticos e no olhar do recrutador.",
+    },
+    {
+      title: "LinkedIn com posicionamento claro",
+      description: "Um perfil que mostra em poucos segundos quem você é e que vaga você busca.",
+    },
+    {
+      title: "GitHub que mostra seu raciocínio",
+      description: "Menos projeto de curso, mais projeto que prova o que você sabe fazer.",
+    },
+    {
+      title: "Preparação para entrevistas",
+      description: "Treino das perguntas técnicas e comportamentais mais comuns para o seu nível.",
+    },
+    {
+      title: "Busca ativa de vagas",
+      description: "Eu envio vagas alinhadas ao seu perfil — você não procura sozinho.",
+    },
+  ] satisfies FocusCard[],
 };

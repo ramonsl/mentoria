@@ -18,7 +18,17 @@ const currency = new Intl.NumberFormat("pt-BR", {
 });
 
 function PlanCard({ plan }: { plan: PricedPlan }) {
-  const className = "flex min-w-0 flex-1 flex-col gap-6 rounded-3xl border border-[var(--line)] bg-white p-7 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-lg";
+  const isHighlighted = plan.slug === "acompanhamento-6m";
+  const className = `flex min-w-0 flex-1 flex-col gap-6 rounded-3xl border bg-white p-7 transition-transform hover:-translate-y-1 ${
+    isHighlighted
+      ? "border-2 border-[var(--warm)] shadow-xl hover:shadow-2xl"
+      : "border-[var(--line)] shadow-sm hover:shadow-lg"
+  }`;
+  const ctaClassName = `mt-auto w-full whitespace-nowrap rounded-full px-5 py-3 text-center text-sm font-bold transition-colors ${
+    isHighlighted
+      ? "bg-[var(--warm)] text-[var(--navy-deep)] hover:bg-amber-300"
+      : "border-2 border-[var(--navy)] text-[var(--navy)] hover:bg-[var(--navy)] hover:text-white"
+  }`;
   return (
     <article className={className}>
       <header className="flex flex-col gap-2">
@@ -43,6 +53,9 @@ function PlanCard({ plan }: { plan: PricedPlan }) {
       </div>
 
       <ul className="flex flex-1 flex-col gap-3 border-y border-[var(--line)] py-5 text-sm leading-5 text-[var(--muted)]">
+        {plan.incrementalIntro ? (
+          <li className="font-bold text-[var(--ink)]">{plan.incrementalIntro}</li>
+        ) : null}
         {plan.deliverables.map((deliverable) => (
           <li key={deliverable} className="flex gap-2">
             <span aria-hidden="true" className="font-bold text-blue-700">✓</span>
@@ -56,7 +69,7 @@ function PlanCard({ plan }: { plan: PricedPlan }) {
         href={plan.kiwifyUrl}
         target="_blank"
         rel="noopener"
-        className="w-full rounded-full bg-[var(--navy)] px-5 py-3 text-center text-base font-bold text-white transition-colors hover:bg-blue-700"
+        className={ctaClassName}
       >
         {plan.ctaLabel}
       </a>

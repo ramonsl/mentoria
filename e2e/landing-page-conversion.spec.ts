@@ -106,7 +106,7 @@ test.describe("landing page - conversion boost sections (T51)", () => {
     ).toBeVisible();
   });
 
-  test("testimonials section renders recommendation cards 6 per page, sliding to the next page, each linking to the source", async ({
+  test("testimonials carousel renders every recommendation, each linking to the source", async ({
     page,
   }) => {
     await page.goto("/");
@@ -119,51 +119,86 @@ test.describe("landing page - conversion boost sections (T51)", () => {
       .getByRole("heading", { name: TESTIMONIALS_COPY.title })
       .locator("xpath=ancestor::section");
 
-    // Mirrors the component's PAGE_SIZE: with more than 6 testimonials,
-    // only the first 6 render initially and pagination controls appear.
-    const PAGE_SIZE = 6;
-    const firstPage = TESTIMONIALS.slice(0, PAGE_SIZE);
-    const secondPage = TESTIMONIALS.slice(PAGE_SIZE, PAGE_SIZE * 2);
-
-    for (const testimonial of firstPage) {
+    // Embla mantém todos os slides no DOM (só translada visualmente), então
+    // os 11 depoimentos e seus links existem de uma vez - diferente da
+    // paginação antiga, que só montava a página atual.
+    for (const testimonial of TESTIMONIALS) {
       await expect(
         testimonialSection.getByText(testimonial.name, { exact: true }),
-      ).toBeVisible();
-    }
-    for (const testimonial of secondPage) {
-      await expect(
-        testimonialSection.getByText(testimonial.name, { exact: true }),
-      ).toHaveCount(0);
+      ).toBeAttached();
     }
 
     const linkedinLinks = testimonialSection.getByRole("link", {
       name: "Ver no LinkedIn",
     });
-    await expect(linkedinLinks).toHaveCount(firstPage.length);
-    for (const [index, testimonial] of firstPage.entries()) {
+    await expect(linkedinLinks).toHaveCount(TESTIMONIALS.length);
+    for (const [index, testimonial] of TESTIMONIALS.entries()) {
       await expect(linkedinLinks.nth(index)).toHaveAttribute(
         "href",
         testimonial.linkedinUrl,
       );
     }
+  });
 
-    await expect(
-      testimonialSection.getByRole("button", { name: "Depoimentos anteriores" }),
-    ).toBeVisible();
+  test("testimonials carousel navigates with dots and arrows", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    const testimonialSection = page
+      .getByRole("heading", { name: TESTIMONIALS_COPY.title })
+      .locator("xpath=ancestor::section");
+    const dots = testimonialSection.getByLabel("Selecionar depoimento").getByRole("button");
+    const firstDot = dots.nth(0);
+    const secondDot = dots.nth(1);
+
+    await expect(firstDot).toHaveAttribute("aria-current", "true");
+    await expect(secondDot).not.toHaveAttribute("aria-current", "true");
+
     await testimonialSection
-      .getByRole("button", { name: "Mais depoimentos" })
+      .getByRole("button", { name: "Próximo depoimento" })
       .click();
+    await expect(secondDot).toHaveAttribute("aria-current", "true");
 
-    for (const testimonial of secondPage) {
-      await expect(
-        testimonialSection.getByText(testimonial.name, { exact: true }),
-      ).toBeVisible();
-    }
-    for (const testimonial of firstPage) {
-      await expect(
-        testimonialSection.getByText(testimonial.name, { exact: true }),
-      ).toHaveCount(0);
-    }
+    await secondDot.click();
+    await expect(secondDot).toHaveAttribute("aria-current", "true");
+  });
+
+  test("testimonials carousel autoplays unless the user prefers reduced motion", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    const activeDot = () =>
+      page
+        .getByRole("heading", { name: TESTIMONIALS_COPY.title })
+        .locator("xpath=ancestor::section")
+        .getByLabel("Selecionar depoimento")
+        .getByRole("button")
+        .nth(0);
+
+    await expect(activeDot()).toHaveAttribute("aria-current", "true");
+    await page.waitForTimeout(6500);
+    await expect(activeDot()).not.toHaveAttribute("aria-current", "true");
+  });
+
+  test("testimonials carousel does not autoplay with prefers-reduced-motion", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+
+    const activeDot = () =>
+      page
+        .getByRole("heading", { name: TESTIMONIALS_COPY.title })
+        .locator("xpath=ancestor::section")
+        .getByLabel("Selecionar depoimento")
+        .getByRole("button")
+        .nth(0);
+
+    await expect(activeDot()).toHaveAttribute("aria-current", "true");
+    await page.waitForTimeout(6500);
+    await expect(activeDot()).toHaveAttribute("aria-current", "true");
   });
 
   test("final cta section renders and its button links to the plans section", async ({
