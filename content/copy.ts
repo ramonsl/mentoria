@@ -9,8 +9,8 @@ export const HERO_COPY = {
   subtitle:
     "Tenha um diagnóstico completo da sua situação profissional e um roadmap personalizado com ações, metas e prazos para conquistar seu primeiro emprego em tecnologia, mudar de empresa ou avançar na carreira.",
   primaryCta: { label: "Quero meu plano de carreira", href: "#planos" },
-  // Parcelamento em 12x sem juros confirmado pelo mentor em 2026-10-17 - o
-  // card de cada plano destaca a parcela (preço / 12).
+  // Parcelamento em até 12x com juros pagos pelo comprador - o valor exato da
+  // parcela de cada plano fica em content/plans.ts (`installment`).
   trustBadge:
     "Pagamento seguro via Kiwify · cartão em até 12x · Pix ou cartão · 7 dias de garantia",
   mentorCredentials:

@@ -41,11 +41,20 @@ function PlanCard({ plan }: { plan: PricedPlan }) {
       </header>
 
       <div className="flex flex-col gap-1">
-        <p className="text-4xl font-bold tracking-tight text-[var(--ink)]">
-          <span className="text-xl font-semibold">12x de </span>
-          {currency.format(Math.round(plan.priceCents / 12) / 100)}
-        </p>
-        <p className="text-sm font-medium text-[var(--muted)]">ou {currency.format(plan.priceCents / 100)} à vista</p>
+        {plan.installment.forPriceCents === plan.priceCents ? (
+          <>
+            <p className="text-4xl font-bold tracking-tight text-[var(--ink)]">
+              <span className="text-xl font-semibold">12x de </span>
+              {currency.format(plan.installment.installmentCents / 100)}
+            </p>
+            <p className="text-sm font-medium text-[var(--muted)]">ou {currency.format(plan.priceCents / 100)} à vista</p>
+          </>
+        ) : (
+          <>
+            <p className="text-4xl font-bold tracking-tight text-[var(--ink)]">{currency.format(plan.priceCents / 100)}</p>
+            <p className="text-sm font-medium text-[var(--muted)]">à vista ou em até 12x no cartão</p>
+          </>
+        )}
         {plan.fullPriceCents > plan.priceCents ? (
           <p className="text-xs text-[var(--muted)]">
             <span className="font-bold text-emerald-700">Preço de lançamento</span> · de{" "}

@@ -25,6 +25,10 @@ export interface PlanDisplay {
   // constroem sobre o anterior ("Tudo da Visibilidade Profissional, mais:").
   incrementalIntro?: string;
   highlights?: string;
+  // Parcela de 12x com juros, como a Kiwify cobra. Vale só para o preço à
+  // vista em que foi calculada: se o preço mudar no admin, o card deixa de
+  // exibir a parcela até este valor ser atualizado.
+  installment: { forPriceCents: number; installmentCents: number };
   deliverables: string[];
   ctaLabel: string;
   // Link de checkout hospedado na Kiwify - clicar no CTA do plano abre esse
@@ -38,6 +42,7 @@ export const PLANS: PlanDisplay[] = [
     name: "Visibilidade Profissional",
     fullPriceCents: 69900,
     kiwifyUrl: "https://pay.kiwify.com.br/GusAEUc",
+    installment: { forPriceCents: 24900, installmentCents: 2575 },
     targetAudience: "Para quem precisa melhorar seu posicionamento e definir os próximos passos.",
     deliverables: [
       "Revisão de currículo, LinkedIn e GitHub.",
@@ -53,6 +58,7 @@ export const PLANS: PlanDisplay[] = [
     name: "Direção de Carreira",
     fullPriceCents: 150000,
     kiwifyUrl: "https://pay.kiwify.com.br/GkQERUU",
+    installment: { forPriceCents: 59900, installmentCents: 6195 },
     targetAudience: "Para quem quer direcionamento individual e acompanhamento para evoluir.",
     incrementalIntro: "Inclui tudo do plano Visibilidade Profissional, mais:",
     deliverables: [
@@ -70,6 +76,7 @@ export const PLANS: PlanDisplay[] = [
     badge: "Plano mais completo",
     fullPriceCents: 299900,
     kiwifyUrl: "https://pay.kiwify.com.br/HpgxfqT",
+    installment: { forPriceCents: 99900, installmentCents: 10332 },
     targetAudience: "Para quem quer um acompanhamento mais profundo para desenvolver competências, fortalecer o portfólio e buscar oportunidades melhores.",
     highlights: "Encontros individuais · Acompanhamento por 6 meses · Vagas por 12 meses",
     incrementalIntro: "Inclui os serviços dos planos anteriores, com acompanhamento ampliado:",
