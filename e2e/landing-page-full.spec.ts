@@ -38,19 +38,6 @@ test.describe("landing page - full composition (hero, about, faq, footer)", () =
     await expect(page.locator("#planos")).toBeInViewport();
   });
 
-  test("hero secondary CTA navigates to the about-mentor section", async ({
-    page,
-  }) => {
-    await page.goto("/");
-
-    await page
-      .getByRole("link", { name: HERO_COPY.secondaryCta.label })
-      .click();
-
-    await expect(page).toHaveURL(/#sobre$/);
-    await expect(page.locator("#sobre")).toBeInViewport();
-  });
-
   test("about-mentor, faq and footer sections render with a link to the privacy policy", async ({
     page,
   }) => {

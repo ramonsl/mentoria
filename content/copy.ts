@@ -3,38 +3,68 @@
 // §13 (rodapé).
 
 export const HERO_COPY = {
-  eyebrow: "Mentoria de carreira em tecnologia",
+  eyebrow: "Mentoria individual de carreira em tecnologia",
   title:
-    "Vamos construir o próximo passo da sua carreira em tecnologia.",
+    "Um plano de carreira construído por quem está do lado de quem contrata.",
   subtitle:
-    "Mentoria individual com quem está do lado de quem contrata. Eu analiso seu currículo, LinkedIn e GitHub, te digo exatamente o que ajustar e te ajudo a chegar nas vagas certas.",
-  primaryCta: { label: "Ver planos", href: "#planos" },
-  secondaryCta: { label: "Conhecer o mentor", href: "#sobre" },
-  // content.md §14 item 8 resolve o parcelamento máximo por plano e que os
-  // juros ficam com o comprador - texto final, não é mais um ⚠️ em aberto.
+    "Tenha um diagnóstico completo da sua situação profissional e um roadmap personalizado com ações, metas e prazos para conquistar seu primeiro emprego em tecnologia, mudar de empresa ou avançar na carreira.",
+  primaryCta: { label: "Quero meu plano de carreira", href: "#planos" },
+  // Parcelamento em 12x sem juros confirmado pelo mentor em 2026-10-17 - o
+  // card de cada plano destaca a parcela (preço / 12).
   trustBadge:
-    "Pagamento seguro via Asaas · cartão em até 12x · Pix ou cartão · 7 dias de garantia",
+    "Pagamento seguro via Kiwify · cartão em até 12x · Pix ou cartão · 7 dias de garantia",
+  mentorCredentials:
+    "Mais de 20 anos em tecnologia · Professor na PUCRS · Gerente de Tecnologia na Betha Sistemas",
 };
 
-// content.md §14 item 7 resolve a ausência de link de agendamento: o e-mail
-// avisa que o contato para agendar a call acontece em até 2 dias úteis.
-export const HOW_IT_WORKS_STEPS: string[] = [
-  "Escolha entre Visibilidade Profissional, Direção de Carreira ou Aceleração de Carreira e faça o pagamento pelo Asaas.",
-  "Envie seu currículo/CV, LinkedIn e GitHub para receber um diagnóstico individual e um plano de ação priorizado.",
-  "Nos planos de acompanhamento, avance com encontros síncronos, suporte pelo WhatsApp, preparação para entrevistas e projetos reais.",
-  "Ao longo da jornada, acompanho sua evolução e compartilho oportunidades alinhadas ao seu perfil por 3 ou 12 meses. Na Aceleração de Carreira, também exploramos juntos caminhos para buscar vagas internacionais.",
+export interface RoadmapCard {
+  title: string;
+  description: string;
+}
+
+export const ROADMAP_COPY = {
+  eyebrow: "Roadmap personalizado",
+  title: "Um plano que mostra o que fazer, em qual ordem e em qual prazo.",
+  intro: [
+    "Seu objetivo pode ser conquistar a primeira vaga, mudar de área, crescer profissionalmente ou alcançar uma posição mais competitiva.",
+    "O caminho para cada um desses objetivos é diferente. Por isso eu crio um roadmap considerando sua realidade e as exigências das oportunidades que deseja conquistar.",
+  ],
+  closing:
+    "Nada de estudar aleatoriamente e esperar que alguma oportunidade apareça! Você passa a ter um direcionamento individualizado para conduzir sua evolução.",
+  disclaimer: "*Os prazos representam estimativas de planejamento, não garantias de contratação.",
+};
+
+export const ROADMAP_CARDS: RoadmapCard[] = [
+  {
+    title: "Diagnóstico do seu momento",
+    description: "Identificação de competências, experiências, pontos de melhoria e oportunidades compatíveis com seu perfil.",
+  },
+  {
+    title: "Plano de ação priorizado",
+    description: "Definição das atividades que realmente fazem sentido para seu objetivo, evitando esforços desnecessários.",
+  },
+  {
+    title: "Metas e prazos realistas",
+    description: "Planejamento com etapas e horizontes de desenvolvimento que podem envolver três, seis, doze meses ou outros períodos conforme o diagnóstico.",
+  },
+  {
+    title: "Estratégia de evolução",
+    description: "Identificação de oportunidades intermediárias que podem ajudar você a construir experiência enquanto trabalha para alcançar seu objetivo principal.",
+  },
 ];
 
 export const FINAL_CTA_COPY = {
-  title: "Agora é a sua vez de dar esse passo.",
-  text: "Esses depoimentos são de quem teve esse acompanhamento na faculdade. Na mentoria, você recebe o mesmo cuidado — individual, direto e focado na sua próxima vaga. Escolha o formato que combina com o seu momento.",
-  buttonLabel: "Ver planos e escolher o meu",
+  title: "Sua carreira não precisa continuar no campo das tentativas.",
+  text: "Descubra quais competências precisa desenvolver, quais oportunidades fazem sentido para seu momento e quais passos podem aproximar você do seu objetivo profissional. Tenha um plano personalizado e a orientação de quem conhece o mercado de tecnologia por dentro.",
+  buttonLabel: "Quero começar minha mentoria",
   buttonHref: "#planos",
+  subtext: "Mentoria individual e online · Planos a partir de R$ 249 · Garantia de 7 dias",
 };
 
 // content.md §14 item 3 resolve o e-mail de contato público como
 // ramonsl@gmail.com - texto final, não é mais um ⚠️ em aberto.
 export const LEGAL_NOTICE_COPY = {
+  title: "7 dias de garantia para contratar com tranquilidade.",
   contactEmail: "ramonsl@gmail.com",
   text: "Você tem 7 dias corridos a partir do pagamento para desistir da compra e receber 100% do valor de volta, conforme o art. 49 do Código de Defesa do Consumidor. Basta enviar um e-mail para ramonsl@gmail.com pedindo o reembolso. O estorno é feito pelo mesmo meio de pagamento.",
 };

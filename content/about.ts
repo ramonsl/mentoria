@@ -6,6 +6,11 @@ export interface AboutStat {
   label: string;
 }
 
+export interface Differential {
+  title: string;
+  description: string;
+}
+
 export const ABOUT_MENTOR = {
   name: "Ramon Lummertz",
   jobTitle: "Gerente de Tecnologia na Betha Sistemas · Professor na PUCRS",
@@ -13,31 +18,48 @@ export const ABOUT_MENTOR = {
   // Fallback textual mantido para usos que precisem de uma identificação curta
   // além da foto local em public/mentor.jpg.
   photoInitials: "RL",
+  eyebrow: "Quem vai orientar sua carreira?",
   bioLong: [
-    "Comecei como estagiário de TI em 2002. Passei por infraestrutura, segurança da informação, projetos, produto e liderança de times — hoje sou Gerente de Tecnologia na Betha Sistemas, onde lidero squads que constroem software para prefeituras de todo o Brasil. Ou seja: estou todos os dias do lado de quem contrata.",
-    "Em paralelo, são mais de 14 anos em sala de aula. Na ULBRA Torres, coordenei o curso de Análise e Desenvolvimento de Sistemas, onde 80% dos formandos de 2022 a 2025 saíram empregados. Hoje sou professor na PUCRS. Ao longo desse tempo, a parte do trabalho que mais gerou resultado sempre foi a mesma: revisar currículo, preparar para entrevista e fazer a ponte com o mercado.",
-    "A mentoria nasceu para fazer exatamente isso, com tempo dedicado e acompanhamento individual. E ela não é um curso: conteúdo bom já existe de sobra por aí. O que eu entrego é o que nenhum conteúdo genérico entrega — olhar para o seu currículo, o seu código e a sua situação, e te dizer exatamente o que ajustar.",
+    "Minha trajetória em tecnologia começou em 2002 como estagiário. Ao longo de mais de duas décadas, construí experiência em diferentes áreas da tecnologia e avancei até posições de gestão.",
+    "Paralelamente, dediquei mais de 14 anos à formação de profissionais, incluindo atuação como professor universitário e coordenador de curso superior.",
+    "Hoje combino essas experiências para oferecer uma mentoria individual baseada nas necessidades reais do mercado e no momento profissional de cada pessoa. Mais do que indicar o que melhorar, meu objetivo é ajudar você a construir um caminho concreto para evoluir.",
   ],
   bioShort:
     "Ramon Lummertz é Gerente de Tecnologia na Betha Sistemas e professor na PUCRS. Com mais de 20 anos em TI e 14 em sala de aula, coordenou o melhor curso de ADS do RS no ENADE 2021 e levou 80% dos formandos ao mercado.",
   stats: [
-    { value: "80%", label: "de empregabilidade dos formandos que coordenei (2022-2025)" },
-    { value: "20+ anos", label: "em tecnologia, de estagiário a Gerente de Tecnologia" },
-    { value: "67", label: "projetos de alunos orientados" },
-    { value: "12", label: "trilhas coordenadas no TDC" },
+    { value: "+20 anos", label: "de experiência em tecnologia" },
+    { value: "Gerente de Tecnologia", label: "na Betha Sistemas" },
+    { value: "Professor", label: "na PUCRS" },
+    { value: "+14 anos", label: "de experiência acadêmica" },
   ] satisfies AboutStat[],
-  credentials: [
-    "Mestre em Ensino de Ciências e Matemática",
-    "Bacharel em Sistemas de Informação",
-    "Pós-graduação em Ciência de Dados e IA (PUCRS), Governança de TI e Tecnologia Educacional",
-    "Certificações: Product Owner, Scrum Master e Advanced Scrum Master (A-CSM)",
-    // content.md §3.5 marca a nomenclatura exata como pendente de
-    // confirmação ("BASis/INEP") - mantido o texto de content.md como
-    // default, sem inventar uma nomenclatura alternativa.
-    "Avaliador do INEP/MEC (cursos superiores)",
-    "Coordenador de 12 trilhas no TDC – The Developer's Conference (2016–2020)",
-    "Liderou a implantação do Google Workspace na rede estadual de ensino do RS (2 milhões de alunos)",
-  ],
+  employability:
+    "80% de empregabilidade entre os formandos de 2022 a 2025 do curso que coordenei, conforme indicador apresentado em minha trajetória acadêmica.",
   linkedinUrl: "https://www.linkedin.com/in/ramonsl/",
-  linkedinLabel: "Ver perfil no LinkedIn",
+  linkedinLabel: "Veja meu LinkedIn",
+};
+
+export const DIFFERENTIALS_COPY = {
+  eyebrow: "Diferencial competitivo",
+  title: "Orientação de quem conhece os dois lados do processo seletivo.",
+  subtitle:
+    "Entenda o que as empresas procuram e como demonstrar que suas competências atendem a essas necessidades. Minha mentoria reúne três diferenciais:",
+  cards: [
+    {
+      title: "Experiência de Gestão",
+      description:
+        "Mais de 20 anos no mercado de tecnologia, com atuação em liderança de equipes e conhecimento das exigências das empresas.",
+    },
+    {
+      title: "Experiência na Formação de Profissionais",
+      description:
+        "Mais de 14 anos na educação, ajudando a desenvolver competências e preparar profissionais para o mercado de trabalho.",
+    },
+    {
+      title: "Conexão com o Mercado",
+      description:
+        "Relacionamento com empresas e profissionais de tecnologia, incluindo contatos que procuram Ramon em busca de indicações para oportunidades.",
+    },
+  ] satisfies Differential[],
+  closing:
+    "Na mentoria essa experiência ajuda a orientar sua preparação e identificar caminhos profissionais mais compatíveis com seus objetivos.",
 };

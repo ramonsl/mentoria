@@ -17,66 +17,52 @@ export const NAV_LINKS: NavLink[] = [
 
 export const NAV_CTA: NavLink = { label: "Ver planos", href: "#planos" };
 
-export interface PainPointColumn {
-  title: string;
-  points: string[];
+export interface QuestionCard {
+  question: string;
+  description: string;
 }
 
-// content.md §15.2: seção de dores, uma coluna por público-alvo (mesmo
-// recorte dos dois planos).
 export const PAIN_POINTS_COPY = {
-  title: "Em qual dessas situações você está?",
+  title: "Você sabe onde quer chegar, mas sabe o que precisa fazer para conseguir?",
   subtitle:
-    "Se você se reconheceu em pelo menos uma frase, a mentoria foi feita para esse momento.",
+    "Você quer entrar no mercado de tecnologia, conquistar um cargo melhor ou trabalhar em uma empresa que realmente valorize suas competências…",
+  bridge:
+    "Mas entre seu momento atual e o objetivo que deseja alcançar existem dúvidas que atrasam sua evolução.",
+  cards: [
+    {
+      question: "O que está faltando?",
+      description: "Você não sabe se precisa de mais experiência, certificações, projetos ou simplesmente melhorar a maneira como apresenta suas competências.",
+    },
+    {
+      question: "Por onde começar?",
+      description: "São tantas recomendações, cursos e caminhos possíveis que fica difícil identificar o que realmente merece sua atenção.",
+    },
+    {
+      question: "Quanto tempo vai levar?",
+      description: "Você não sabe se está perto de conquistar seu objetivo ou se ainda precisa de meses de preparação.",
+    },
+    {
+      question: "Quais oportunidades buscar?",
+      description: "Você encontra vagas interessantes, mas não sabe se seu perfil é competitivo ou se deveria buscar uma posição intermediária primeiro.",
+    },
+  ] satisfies QuestionCard[],
   closing:
-    "A boa notícia: quase sempre o problema não é falta de capacidade — é como você está se apresentando. E isso dá para ajustar.",
-  columns: [
-    {
-      title: "Estou buscando o primeiro emprego ou estágio",
-      points: [
-        "Mando currículo e não sou chamado para entrevista",
-        "Meu currículo não passa da triagem automática",
-        "Meu LinkedIn está parado e não sei o que destacar",
-        "Meu GitHub só tem projeto de curso",
-        "Não sei por onde começar a estudar para entrevista",
-      ],
-    },
-    {
-      title: "Já trabalho na área e quero subir de nível",
-      points: [
-        "Tenho anos de experiência, mas não sei me posicionar para crescer",
-        "Currículo e LinkedIn estão desatualizados desde a última vaga",
-        "Travo na entrevista técnica em assuntos que quase não uso no dia a dia",
-        "Não tenho rede nem indicação para chegar em vagas melhores",
-      ],
-    },
-  ] as PainPointColumn[],
+    "O problema não é necessariamente falta de capacidade… Pode ser falta de uma estratégia alinhada ao seu momento profissional e ao que o mercado realmente exige.",
 };
 
-// content.md §15.3: qualificação "para quem é" / "para quem não é".
 export const QUALIFICATION_COPY = {
-  title: "Essa mentoria é para você se...",
-  fitTitle: "É para você se:",
+  title: "A mentoria certa para o momento certo da sua carreira.",
+  fitTitle: "A mentoria é indicada para você que:",
   fitPoints: [
-    "Está buscando o primeiro emprego/estágio ou uma posição melhor em tech",
-    "Sente que a faculdade não conectou os pontos entre as disciplinas e quer sair daqui com XP (experiência prática) real para mostrar",
-    "Topa investir 1 call + tempo de estudo próprio na trilha",
-    "Quer feedback direto e honesto, não só elogio",
-    "Tem pelo menos alguns meses de disponibilidade para seguir a trilha",
+    "Quer conquistar sua primeira oportunidade em tecnologia.",
+    "Já trabalha na área, mas deseja um cargo, uma empresa ou uma oportunidade melhor.",
+    "Está em transição de carreira e precisa identificar caminhos realistas.",
+    "Não sabe quais competências precisa desenvolver para alcançar seu objetivo.",
+    "Quer melhorar seu posicionamento profissional e sua preparação para processos seletivos.",
+    "Procura direcionamento individualizado, com ações e prioridades claras.",
   ],
-  notFitTitle: "Não é para você se:",
-  notFitPoints: [
-    "Busca garantia de vaga (ninguém honesto promete isso - ver FAQ)",
-    "Quer só o certificado, sem aplicar o que for combinado na call",
-    "Não tem nenhuma disponibilidade de tempo nos próximos 6 meses",
-    "Já tem currículo/LinkedIn/GitHub otimizados por um processo parecido recente",
-  ],
-};
-
-// content.md §15.4: selo de vagas - número real confirmado pelo mentor em
-// 2026-10-03, sem contagem regressiva nem linguagem de urgência falsa.
-export const COHORT_BADGE_COPY = {
-  text: "Turma com 10 vagas - novo ciclo mensal",
+  notFitText:
+    "Não é indicada para quem espera uma contratação garantida ou deseja resultados sem colocar as orientações em prática.",
 };
 
 export interface FocusCard {
@@ -84,34 +70,56 @@ export interface FocusCard {
   description: string;
 }
 
-// T8 (ajustes 2026-10-06): bloco "01-05" que vivia dentro do card flutuante
-// do Hero, extraído para uma seção própria em formato de cards (T13 ainda
-// decide a posição final na nova ordem das seções).
-export const FOCUS_COPY = {
-  eyebrow: "O foco da mentoria",
-  title: "Feedback direto. Próximos passos claros.",
-  subtitle:
-    "Nada de conteúdo genérico: eu olho para o seu material e te digo o que mudar, em que ordem e por quê.",
+export const SOLUTION_COPY = {
+  eyebrow: "A solução",
+  title: "Pare de adivinhar qual deve ser seu próximo passo.",
+  subtitle: "Tenha uma estratégia de carreira construída individualmente para você.",
+  paragraphs: [
+    "Na mentoria eu avalio sua experiência, suas competências e seus objetivos para identificar onde você está, quais oportunidades fazem sentido e o que precisa desenvolver para avançar.",
+    "Você recebe mais do que uma lista de recomendações. Recebe direcionamento prático, ações priorizadas e um planejamento com metas e prazos realistas.",
+  ],
+  tagline: "Diagnóstico + Roadmap prático + Direcionamento de mercado",
+  closing: "Uma estratégia para transformar seus objetivos profissionais em próximos passos concretos.",
+  cta: { label: "Quero ter direção para minha carreira", href: "#planos" },
+};
+
+export const DELIVERABLES_COPY = {
+  eyebrow: "Entregáveis",
+  title: "Aqui você não recebe apenas conselhos, e sim orientações que pode colocar em prática.",
+  subtitle: "Conheça as principais frentes de atuação da mentoria, disponíveis conforme o plano contratado.",
+  cta: { label: "Conhecer os planos da mentoria", href: "#planos" },
   cards: [
     {
-      title: "Currículo que passa pela triagem",
-      description: "Ajustamos o que trava nos filtros automáticos e no olhar do recrutador.",
+      title: "Currículo e LinkedIn",
+      description: "Análise e melhoria da sua apresentação profissional para comunicar suas competências de forma mais clara e alinhada às vagas desejadas.",
     },
     {
-      title: "LinkedIn com posicionamento claro",
-      description: "Um perfil que mostra em poucos segundos quem você é e que vaga você busca.",
+      title: "GitHub e Portfólio",
+      description: "Avaliação de projetos e orientação para demonstrar suas habilidades técnicas de maneira mais consistente.",
     },
     {
-      title: "GitHub que mostra seu raciocínio",
-      description: "Menos projeto de curso, mais projeto que prova o que você sabe fazer.",
+      title: "Roadmap de Carreira",
+      description: "Plano personalizado com prioridades, ações, metas e prazos para orientar sua evolução profissional.",
     },
     {
-      title: "Preparação para entrevistas",
-      description: "Treino das perguntas técnicas e comportamentais mais comuns para o seu nível.",
+      title: "Plano de Estudos",
+      description: "Materiais e direcionamento sobre o que estudar e quais conhecimentos desenvolver para as oportunidades que deseja conquistar.",
     },
     {
-      title: "Busca ativa de vagas",
-      description: "Eu envio vagas alinhadas ao seu perfil — você não procura sozinho.",
+      title: "Preparação para Entrevistas",
+      description: "Orientações para entrevistas técnicas e comportamentais, incluindo perguntas difíceis e estratégias para apresentar melhor suas experiências.",
+    },
+    {
+      title: "Pesquisa de Vagas",
+      description: "Busca e compartilhamento de oportunidades compatíveis com seu perfil e objetivos durante o período contratado.",
+    },
+    {
+      title: "Acompanhamento Individual",
+      description: "Encontros e suporte pelo WhatsApp para tirar dúvidas, receber feedback e trabalhar os próximos passos da sua carreira.",
+    },
+    {
+      title: "Projetos Práticos",
+      description: "Orientação para desenvolver projetos relevantes, construir experiência demonstrável e fortalecer seu portfólio.",
     },
   ] satisfies FocusCard[],
 };

@@ -1,8 +1,6 @@
-// Baseado em .specs/features/landing-mentoria/content.md §6, atualizado em
-// 2026-10-03 para o modelo de 3 planos por nível de acompanhamento
-// (Visibilidade Profissional / Direção de Carreira / Aceleração de Carreira
-// - ver content/plans.ts) que substituiu o modelo anterior de 2 planos por
-// público-alvo com a mesma entrega. Os nomes e entregas de cada plano aqui
+// Perguntas 1-8 seguem a "Sugestão de copy LP V1" (seção 12 | FAQ); as
+// demais foram mantidas do FAQ anterior por cobrirem dúvidas que a V1 não
+// trata (pagamento, duração, call, nota fiscal). Nomes e entregas dos planos
 // precisam continuar em sincronia com `content/plans.ts`.
 
 export interface FaqItem {
@@ -12,14 +10,49 @@ export interface FaqItem {
 
 export const FAQ_ITEMS: FaqItem[] = [
   {
-    question: "Quais as formas de pagamento?",
+    question: "A mentoria garante que vou conseguir um emprego?",
     answer:
-      "Pix (aprovação na hora) ou cartão de crédito, à vista ou parcelado. O pagamento é processado pelo Asaas, e nenhum dado de cartão passa pelo nosso site.",
+      "Não. O objetivo é ajudar você a melhorar seu posicionamento, desenvolver competências e construir uma estratégia para buscar oportunidades compatíveis com seu perfil. A contratação depende dos processos seletivos e das decisões das empresas.",
   },
   {
-    question: "Qual a diferença entre os planos?",
+    question: "Preciso já trabalhar com tecnologia?",
     answer:
-      "Os três entregam coisas diferentes, por intensidade. A Visibilidade Profissional é uma revisão pontual e 100% assíncrona (sem call) do currículo, LinkedIn e GitHub, com diagnóstico, plano de ação e envio de vagas por 3 meses. A Direção de Carreira adiciona 3 encontros ao vivo ao longo de 3 meses, acompanhamento pelo WhatsApp, preparação para entrevistas e um plano de estudos com projetos reais. A Aceleração de Carreira é a mais completa: 6 encontros ao longo de 6 meses, guia de estudos e execução de projetos reais, envio de vagas por 12 meses e orientação para buscar vagas internacionais.",
+      "Não. A mentoria também atende quem busca a primeira oportunidade e pessoas em transição para a área.",
+  },
+  {
+    question: "Como funciona o roadmap de carreira?",
+    answer:
+      "A partir do diagnóstico individual, eu identifico prioridades e organizo ações e etapas para orientar seu desenvolvimento profissional.",
+  },
+  {
+    question: "Os prazos são garantias de contratação?",
+    answer:
+      "Não. Os prazos são estimativas de planejamento definidas conforme a situação profissional, as competências e os objetivos de cada pessoa.",
+  },
+  {
+    question: "Vou receber vagas de emprego?",
+    answer:
+      "Sim. Os planos incluem pesquisa e envio de oportunidades alinhadas ao perfil, respeitando o período contratado. O compartilhamento de vagas não garante entrevistas ou contratação.",
+  },
+  {
+    question: "A mentoria é online?",
+    answer:
+      "Sim. O atendimento é 100% online. Os encontros ao vivo estão disponíveis nos planos Direção de Carreira e Aceleração de Carreira.",
+  },
+  {
+    question: "Qual plano devo escolher?",
+    answer:
+      "Visibilidade Profissional é indicado para quem busca um diagnóstico e melhorias no posicionamento. Direção de Carreira é indicado para quem também deseja encontros e acompanhamento durante três meses. Aceleração de Carreira é a opção mais completa, com seis meses de acompanhamento individual, desenvolvimento de projetos e envio de vagas durante doze meses.",
+  },
+  {
+    question: "Como funciona a garantia?",
+    answer:
+      "Você tem sete dias corridos após a confirmação do pagamento para solicitar reembolso, conforme as condições de contratação.",
+  },
+  {
+    question: "Quais as formas de pagamento?",
+    answer:
+      "Pix (aprovação na hora) ou cartão de crédito, à vista ou parcelado. O pagamento é processado pela Kiwify, e nenhum dado de cartão passa pelo nosso site.",
   },
   {
     question: "Por quanto tempo tenho acesso?",
@@ -27,30 +60,10 @@ export const FAQ_ITEMS: FaqItem[] = [
       "Na Visibilidade Profissional não há acesso contínuo: você recebe o diagnóstico e o plano de ação, e segue recebendo vagas alinhadas ao seu perfil por 3 meses. Na Direção de Carreira, os encontros, o acompanhamento pelo WhatsApp e o envio de vagas duram 3 meses. Na Aceleração de Carreira, os encontros e o WhatsApp duram 6 meses, mas o envio de vagas continua por 12 meses.",
   },
   {
-    question: "Como funciona o reembolso?",
-    answer:
-      "Você tem 7 dias corridos após o pagamento para desistir e receber 100% do valor, sem precisar justificar - vale para os 3 planos, inclusive a Visibilidade Profissional. Basta mandar um e-mail. Se o relatório ou uma call já tiver acontecido dentro desse prazo, o direito continua valendo; peço só que o reembolso seja pedido de boa fé quando o serviço já foi entregue.",
-  },
-  {
-    question: "A mentoria garante que eu vou conseguir uma vaga?",
-    answer:
-      "Não. Ninguém honesto pode garantir isso. O que eu garanto é que você vai sair sabendo exatamente o que ajustar e o que estudar para aumentar suas chances.",
-  },
-  {
-    question: "Preciso já saber programar?",
-    answer:
-      "Depende do plano: a Visibilidade Profissional é só a revisão dos materiais que você já tem, sem plano de estudos. Na Direção de Carreira e na Aceleração de Carreira, o plano de estudos parte do seu momento atual, seja começando do zero ou avançando no que você já sabe.",
-  },
-  {
-    // content.md §14 item 9 resolve esta pergunta: as calls não são gravadas.
     question: "Como é a call? Fica gravada?",
     answer:
       "Nos planos de Acompanhamento (Direção de Carreira ou Aceleração de Carreira), é uma chamada de vídeo online (Google Meet) e não é gravada. A Visibilidade Profissional não tem call - é 100% assíncrona, pelo formulário de envio de materiais.",
   },
-  // content.md §14 item 9 propõe omitir esta pergunta, mas o "Done when" de
-  // T7 exige as 8 perguntas listadas em content.md §6 - mantida, usando a
-  // resposta que o próprio content.md §6 já propõe (decisão de conteúdo já
-  // dada, não um TODO em aberto).
   {
     question: "Emite nota fiscal?",
     answer: "Sim, emito nota fiscal de serviço pela CB Soluções em Educação (CNPJ 40.409.150/0001-78).",

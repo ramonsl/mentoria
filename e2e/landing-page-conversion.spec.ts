@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { FINAL_CTA_COPY } from "../content/copy";
+import { FINAL_CTA_COPY, ROADMAP_COPY } from "../content/copy";
 import {
-  COHORT_BADGE_COPY,
   NAV_LINKS,
   PAIN_POINTS_COPY,
   QUALIFICATION_COPY,
@@ -67,18 +66,6 @@ test.describe("landing page - conversion boost sections (T51)", () => {
     expect(painBox!.y).toBeLessThan(plansBox!.y);
   });
 
-  test("cohort size badge is visible near the plans section", async ({
-    page,
-  }) => {
-    await page.goto("/");
-
-    await expect(
-      page.locator("#planos").getByText(COHORT_BADGE_COPY.text, {
-        exact: true,
-      }),
-    ).toBeVisible();
-  });
-
   test("qualification section appears after the plans section", async ({
     page,
   }) => {
@@ -98,11 +85,11 @@ test.describe("landing page - conversion boost sections (T51)", () => {
     expect(qualificationBox!.y).toBeGreaterThan(plansBox!.y);
   });
 
-  test("how-it-works section renders its 4 steps", async ({ page }) => {
+  test("roadmap section renders", async ({ page }) => {
     await page.goto("/");
 
     await expect(
-      page.getByRole("heading", { name: "Como funciona" }),
+      page.getByRole("heading", { name: ROADMAP_COPY.title }),
     ).toBeVisible();
   });
 

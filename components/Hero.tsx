@@ -26,11 +26,9 @@ export default function Hero() {
           <a href={HERO_COPY.primaryCta.href} className="w-full max-w-xs rounded-full bg-[var(--warm)] px-6 py-3 text-center text-base font-bold text-[var(--navy-deep)] transition-transform hover:-translate-y-0.5 hover:bg-amber-300">
             {HERO_COPY.primaryCta.label}
           </a>
-          <a href={HERO_COPY.secondaryCta.href} className="w-full max-w-xs rounded-full border border-white/25 px-6 py-3 text-center text-base font-medium text-white transition-colors hover:bg-white/10">
-            {HERO_COPY.secondaryCta.label}
-          </a>
         </div>
         <p className="max-w-2xl text-center text-xs leading-5 text-slate-400">{HERO_COPY.trustBadge}</p>
+        <p className="max-w-2xl text-center text-xs leading-5 text-blue-300/70">{HERO_COPY.mentorCredentials}</p>
       </div>
     </section>
   );

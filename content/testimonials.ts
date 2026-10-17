@@ -16,9 +16,10 @@ export interface Testimonial {
 }
 
 export const TESTIMONIALS_COPY = {
-  title: "O que dizem ex-alunos orientados pelo Ramon",
+  eyebrow: "Prova social",
+  title: "Quem já foi orientado por mim reconhece a diferença.",
   subtitle:
-    "Recomendações públicas no LinkedIn sobre o trabalho dele como professor e coordenador - a mesma dedicação que agora está na mentoria.",
+    "Ao longo da minha trajetória acadêmica recebi diversas recomendações públicas de ex-alunos que destacam minha dedicação, disponibilidade, conhecimento e contribuição para o desenvolvimento profissional.",
 };
 
 // Cada recomendação linka para o LinkedIn do mentor (a fonte das

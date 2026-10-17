@@ -40,6 +40,7 @@ export default function FinalCta() {
       >
         {FINAL_CTA_COPY.buttonLabel}
       </button>
+      <p className="text-xs leading-5 text-slate-400">{FINAL_CTA_COPY.subtext}</p>
     </section>
   );
 }

@@ -80,7 +80,7 @@ export default function Testimonials() {
     <section className="bg-slate-100 px-6 py-20 md:px-16">
       <div className="mx-auto flex max-w-6xl flex-col gap-10">
       <div className="flex flex-col items-center gap-2 text-center">
-        <p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-700">Quem já caminhou com o Ramon</p>
+        <p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-700">{TESTIMONIALS_COPY.eyebrow}</p>
         <h2 className="text-3xl font-bold tracking-tight text-[var(--ink)] md:text-4xl">
           {TESTIMONIALS_COPY.title}
         </h2>
@@ -165,6 +165,7 @@ export default function Testimonials() {
           </button>
         </div>
       </div>
+
       </div>
     </section>
   );

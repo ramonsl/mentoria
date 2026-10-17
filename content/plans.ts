@@ -3,10 +3,9 @@
 // entrega) para 3 planos por nível de acompanhamento - cada um com entregas
 // próprias, não mais um pacote compartilhado.
 //
-// Descrição incremental (T4, ajustes 2026-10-06): a partir do 2º plano,
-// `deliverables` lista só os itens NOVOS daquele tier - os itens dos tiers
-// anteriores não se repetem, e `incrementalIntro` (quando presente) é o
-// texto em negrito, sem ✓, que antecede a lista ("Tudo da X, mais:").
+// Textos de público, introdução e entregas seguem a "Sugestão de copy LP V1"
+// (seção 09 | Oferta). `incrementalIntro` (quando presente) é o texto em
+// negrito, sem ✓, que antecede a lista de entregas.
 
 export type PlanSlug =
   | "avulso"
@@ -25,6 +24,7 @@ export interface PlanDisplay {
   // Texto em negrito, sem ✓, antes da lista de entregas - só nos planos que
   // constroem sobre o anterior ("Tudo da Visibilidade Profissional, mais:").
   incrementalIntro?: string;
+  highlights?: string;
   deliverables: string[];
   ctaLabel: string;
   // Link de checkout hospedado na Kiwify - clicar no CTA do plano abre esse
@@ -38,45 +38,59 @@ export const PLANS: PlanDisplay[] = [
     name: "Visibilidade Profissional",
     fullPriceCents: 69900,
     kiwifyUrl: "https://pay.kiwify.com.br/GusAEUc",
-    targetAudience: "Você já mandou vários currículos sem nenhuma resposta: tem currículo, LinkedIn e GitHub, mas não sabe como se apresentar para ser visto. Aqui a gente ajusta isso e te dá direção prática para buscar novas oportunidades.",
+    targetAudience: "Para quem precisa melhorar seu posicionamento e definir os próximos passos.",
     deliverables: [
-      "Revisão do seu currículo/CV, LinkedIn e GitHub",
-      "Diagnóstico individual com os principais pontos de melhoria",
-      "Plano de ação priorizado: o que fazer, em que ordem",
-      "Durante 3 meses, envio ativamente vagas alinhadas ao seu perfil",
+      "Revisão de currículo, LinkedIn e GitHub.",
+      "Diagnóstico individual do posicionamento profissional.",
+      "Plano de ação priorizado.",
+      "Pesquisa e envio de vagas por 3 meses.",
+      "Atendimento assíncrono, sem encontros individuais ao vivo.",
     ],
-    ctaLabel: "Quero a Visibilidade",
+    ctaLabel: "Quero melhorar meu posicionamento",
   },
   {
     slug: "acompanhamento-3m",
     name: "Direção de Carreira",
     fullPriceCents: 150000,
     kiwifyUrl: "https://pay.kiwify.com.br/GkQERUU",
-    targetAudience: "Você sente que não consegue conectar o que aprendeu com o que o mercado cobra. Aqui a gente fecha essa lacuna com acompanhamento próximo e um plano de estudos que gera XP (experiência prática) de verdade.",
-    incrementalIntro: "Tudo da Visibilidade Profissional, mais:",
+    targetAudience: "Para quem quer direcionamento individual e acompanhamento para evoluir.",
+    incrementalIntro: "Inclui tudo do plano Visibilidade Profissional, mais:",
     deliverables: [
-      "3 encontros individuais ao vivo, agendados ao longo de 3 meses",
-      "Acompanhamento pelo WhatsApp entre os encontros",
-      "Preparação para entrevistas técnicas e comportamentais",
-      "Plano de estudos personalizado com projetos reais",
+      "3 encontros individuais ao vivo ao longo de 3 meses.",
+      "Suporte pelo WhatsApp durante o acompanhamento.",
+      "Preparação para entrevistas técnicas e comportamentais.",
+      "Plano de estudos personalizado.",
+      "Orientação sobre projetos práticos.",
     ],
-    ctaLabel: "Quero a Direção",
+    ctaLabel: "Quero direcionamento individual",
   },
   {
     slug: "acompanhamento-6m",
     name: "Aceleração de Carreira",
-    badge: "Mais completa",
+    badge: "Plano mais completo",
     fullPriceCents: 299900,
     kiwifyUrl: "https://pay.kiwify.com.br/HpgxfqT",
-    targetAudience: "Você quer projeto real e XP (experiência prática) para mostrar. Aqui a gente constrói isso junto, com acompanhamento contínuo, projetos reais para o portfólio e direcionamento para buscar oportunidades, inclusive internacionais.",
-    incrementalIntro: "Tudo da Direção de Carreira, mais:",
+    targetAudience: "Para quem quer um acompanhamento mais profundo para desenvolver competências, fortalecer o portfólio e buscar oportunidades melhores.",
+    highlights: "Encontros individuais · Acompanhamento por 6 meses · Vagas por 12 meses",
+    incrementalIntro: "Inclui os serviços dos planos anteriores, com acompanhamento ampliado:",
     deliverables: [
-      "6 encontros ao vivo ao longo de 6 meses (o dobro)",
-      "Execução de projetos reais com acompanhamento, para construir portfólio",
-      "Guia de estudos ajustado aos seus interesses e objetivos",
-      "Envio de vagas por 12 meses (em vez de 3)",
-      "Orientação para vagas internacionais: plataformas, posicionamento e processos seletivos",
+      "6 encontros individuais ao vivo ao longo de 6 meses.",
+      "Suporte pelo WhatsApp durante 6 meses.",
+      "Diagnóstico e roadmap personalizado.",
+      "Revisão de currículo, LinkedIn e GitHub.",
+      "Plano de estudos personalizado.",
+      "Preparação para entrevistas técnicas e comportamentais.",
+      "Desenvolvimento e acompanhamento de projetos reais para o portfólio.",
+      "Pesquisa e envio de vagas durante 12 meses.",
+      "Orientação para oportunidades internacionais.",
     ],
     ctaLabel: "Quero acelerar minha carreira",
   },
 ];
+
+export const PLANS_SECTION_COPY = {
+  eyebrow: "Oferta",
+  title: "Escolha o nível de acompanhamento ideal para sua carreira.",
+  subtitle:
+    "Três modalidades de mentoria para diferentes objetivos, momentos profissionais e necessidades de orientação.",
+};

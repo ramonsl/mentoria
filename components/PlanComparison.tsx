@@ -1,5 +1,4 @@
-import { COHORT_BADGE_COPY } from "@/content/conversion";
-import type { PlanDisplay } from "@/content/plans";
+import { PLANS_SECTION_COPY, type PlanDisplay } from "@/content/plans";
 
 // Componente apresentacional (spec.md P1 "Ver e comparar os planos",
 // MENT-01/02/03) e o selo de vagas reais (spec.md P2 "Reforço de conversão"
@@ -42,15 +41,22 @@ function PlanCard({ plan }: { plan: PricedPlan }) {
       </header>
 
       <div className="flex flex-col gap-1">
+        <p className="text-4xl font-bold tracking-tight text-[var(--ink)]">
+          <span className="text-xl font-semibold">12x de </span>
+          {currency.format(Math.round(plan.priceCents / 12) / 100)}
+        </p>
+        <p className="text-sm font-medium text-[var(--muted)]">ou {currency.format(plan.priceCents / 100)} à vista</p>
         {plan.fullPriceCents > plan.priceCents ? (
-          <p className="text-sm text-[var(--muted)]">
-            <span className="line-through">{currency.format(plan.fullPriceCents / 100)}</span>{" "}
-            <span className="font-bold text-emerald-700">preço de lançamento</span>
+          <p className="text-xs text-[var(--muted)]">
+            <span className="font-bold text-emerald-700">Preço de lançamento</span> · de{" "}
+            <span className="line-through">{currency.format(plan.fullPriceCents / 100)}</span>
           </p>
         ) : null}
-        <p className="text-4xl font-bold tracking-tight text-[var(--ink)]">{currency.format(plan.priceCents / 100)}</p>
-        <p className="text-sm font-medium text-[var(--muted)]">ou até 12x de {currency.format(Math.round(plan.priceCents / 12) / 100)} no cartão</p>
       </div>
+
+      {plan.highlights ? (
+        <p className="rounded-xl bg-amber-50 px-4 py-2 text-xs font-bold leading-5 text-amber-900">{plan.highlights}</p>
+      ) : null}
 
       <ul className="flex flex-1 flex-col gap-3 border-y border-[var(--line)] py-5 text-sm leading-5 text-[var(--muted)]">
         {plan.incrementalIntro ? (
@@ -83,12 +89,10 @@ export default function PlanComparison({ plans }: { plans: PricedPlan[] }) {
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
       <div className="flex flex-col items-start justify-between gap-5 md:flex-row md:items-end">
         <div className="max-w-2xl">
-          <p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-700">Escolha o formato que faz sentido agora</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-[var(--ink)] md:text-4xl">Um plano claro para tirar sua carreira do modo tentativa e erro.</h2>
+          <p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-700">{PLANS_SECTION_COPY.eyebrow}</p>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-[var(--ink)] md:text-4xl">{PLANS_SECTION_COPY.title}</h2>
+          <p className="mt-3 text-base leading-7 text-[var(--muted)]">{PLANS_SECTION_COPY.subtitle}</p>
         </div>
-      <p className="w-fit shrink-0 rounded-full bg-amber-100 px-4 py-2 text-sm font-bold text-amber-900">
-        {COHORT_BADGE_COPY.text}
-      </p>
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">

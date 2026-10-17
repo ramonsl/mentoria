@@ -1,14 +1,16 @@
 import AboutMentor from "@/components/AboutMentor";
+import Deliverables from "@/components/Deliverables";
+import Differentials from "@/components/Differentials";
 import FaqSection from "@/components/FaqSection";
 import FinalCta from "@/components/FinalCta";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
 import LegalNotice from "@/components/LegalNotice";
-import MentoringFocus from "@/components/MentoringFocus";
 import NavBar from "@/components/NavBar";
 import PainPoints from "@/components/PainPoints";
 import PlanComparison from "@/components/PlanComparison";
+import Solution from "@/components/Solution";
 import Qualification from "@/components/Qualification";
 import { ABOUT_MENTOR } from "@/content/about";
 import { FAQ_ITEMS } from "@/content/faq";
@@ -18,12 +20,10 @@ import Testimonials from "@/components/Testimonials";
 
 export const dynamic = "force-dynamic";
 
-// Ordem redefinida no ticket "Tarefas de desenvolvimento — landing da
-// mentoria" (2026-10-06, T13), seguindo dor -> solução -> quem -> prova ->
-// oferta -> segurança -> dúvidas: NavBar -> Hero -> Dores -> Foco da
-// mentoria -> Como funciona -> Sobre o mentor -> Depoimentos -> CTA
-// (transição) -> Planos -> LegalNotice (colada nos planos) -> Um acordo
-// honesto -> FAQ -> Rodapé.
+// Ordem da "Sugestão de copy LP V1": Hero -> Identificação -> Solução ->
+// Roadmap -> Entregáveis -> Diferencial competitivo -> Sobre -> Prova social
+// -> Oferta -> LegalNotice (colada nos planos) -> Para quem é -> FAQ -> CTA
+// final -> Rodapé.
 //
 // NavBar é `position: fixed` (fora do fluxo normal) - montado fora de
 // `<main>`, mesmo padrão já usado para `<Footer />`.
@@ -100,17 +100,19 @@ export default async function Home() {
       <main className="flex flex-1 flex-col">
         <Hero />
         <PainPoints />
-        <MentoringFocus />
+        <Solution />
         <HowItWorks />
+        <Deliverables />
+        <Differentials />
         <AboutMentor />
         <Testimonials />
-        <FinalCta />
         <PlanComparison plans={plans} />
         <LegalNotice />
         <Qualification />
         <div id="faq">
           <FaqSection />
         </div>
+        <FinalCta />
       </main>
       <Footer />
     </>

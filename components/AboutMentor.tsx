@@ -24,7 +24,7 @@ export default function AboutMentor() {
 
         <div className="flex max-w-5xl flex-1 flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-700">Quem é Ramon Lummertz?</p>
+            <p className="text-sm font-bold uppercase tracking-[0.14em] text-blue-700">{ABOUT_MENTOR.eyebrow}</p>
             <h2 className="text-3xl font-bold tracking-tight text-[var(--ink)]">
               {ABOUT_MENTOR.name}
             </h2>
@@ -50,7 +50,7 @@ export default function AboutMentor() {
             key={stat.label}
             className="flex flex-col gap-1 rounded-2xl bg-slate-100 p-5 text-center"
           >
-            <dt className="text-2xl font-bold text-blue-700">
+            <dt className="text-xl font-bold leading-tight text-blue-700">
               {stat.value}
             </dt>
             <dd className="text-xs leading-5 text-[var(--muted)]">
@@ -60,23 +60,20 @@ export default function AboutMentor() {
         ))}
       </dl>
 
-      <ul className="grid max-w-5xl gap-3 text-sm leading-6 text-[var(--muted)] md:grid-cols-2">
-        {ABOUT_MENTOR.credentials.map((credential) => (
-          <li key={credential} className="flex gap-2">
-            <span aria-hidden="true" className="font-bold text-blue-700">✓</span>
-            <span>{credential}</span>
-          </li>
-        ))}
-      </ul>
+      <p className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm leading-6 text-blue-950">
+        {ABOUT_MENTOR.employability}
+      </p>
 
-      <a
-        href={ABOUT_MENTOR.linkedinUrl}
-        target="_blank"
-        rel="noopener"
-        className="w-fit rounded-full border border-[var(--navy)] px-5 py-2 text-sm font-bold text-[var(--navy)] transition-colors hover:bg-[var(--navy)] hover:text-white"
-      >
-        {ABOUT_MENTOR.linkedinLabel}
-      </a>
+      <div className="flex">
+        <a
+          href={ABOUT_MENTOR.linkedinUrl}
+          target="_blank"
+          rel="noopener"
+          className="w-fit rounded-full border border-[var(--navy)] px-5 py-2 text-sm font-bold text-[var(--navy)] transition-colors hover:bg-[var(--navy)] hover:text-white"
+        >
+          {ABOUT_MENTOR.linkedinLabel}
+        </a>
+      </div>
       </div>
     </section>
   );
