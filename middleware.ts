@@ -20,6 +20,8 @@ export const config = {
     "/admin/configuracoes/:path*",
     "/admin/comercial",
     "/admin/comercial/:path*",
+    "/admin/eventos",
+    "/admin/eventos/:path*",
   ],
 };
 
